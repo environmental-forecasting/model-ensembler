@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://www.bas.ac.uk/schemas/json/hpc-batcher.json",
+
+  "definitions": {
+    "batch": {
+      "type": "object",
+      "properties":  {
+        "name": { "type": "string" },
+        "templatedir": { "type":  "string" },
+        "template": { "type": "array", "items": {
+          "type":  "string",
+          "pattern": "\\.j2$"
+        } },
+        "job_file": { "type":  "string" },
+        "cluster":  { "type": "string", "enum": ["quick", "compute"] },
+        "basedir": { "type": "string" },
+        "runs": {
+          "type": "array",
+          "items": { "type": "object" },
+          "default": []
+        },
+        "preflight": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/task"
+          }
+        },
+        "postflight": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/task"
+          }
+        }
+      },
+      "required": ["name", "template", "cluster", "basedir", "runs"]
+    },
+    "task": {
+      "$id": "#task",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "args": { "type": "object" },
+        "value": { "type": "number" }
+      },
+      "required": ["name"]
+    }
+  },
+
+  "type": "object",
+
+  "properties":  {
+    "hpc_batcher": { "type": "object",
+      "properties": {
+        "batches": { "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/batch"
+          }}
+      },
+      "required": [ "batches" ],
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
