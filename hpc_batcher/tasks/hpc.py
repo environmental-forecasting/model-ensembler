@@ -10,11 +10,11 @@ from hpc_batcher.tasks.utils import execute_command, batch_task
 from pyslurm import job
 
 
-@batch_task
+@batch_task(check=False)
 def submit(run, script=None):
     r_sbatch_id = re.compile(r'Submitted batch job (\d+)$')
     orig = os.getcwd()
-    os.chdir(run["rundir"])
+    os.chdir(run.dir)
     output = execute_command("sbatch {}".format(script)).stdout
     os.chdir(orig)
 

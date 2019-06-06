@@ -56,18 +56,37 @@ class BatcherConfig(YAMLConfig):
 # TODO: Derive the fields from the schema
 BatchSpec = collections.namedtuple('Batch',
                                    ['name', 'template', 'template_dir', 'job_file', 'cluster', 'basedir',
-                                    'runs', 'preflight', 'postflight'])
-BatchSpec.__new__.__defaults__ = (None, None)
+                                    "runs", "maxruns",
+                                    "email", "nodes", "ntasks", "days",
+                                    'preflight', "preprocess", "postprocess", "postflight"])
+BatchSpec.__new__.__defaults__ = tuple([None for i in range(0, 8)])
 
 
 class Batch(BatchSpec):
+
+    def task_array(self, type):
+        field = getattr(self, type)
+        if field:
+            for raw_task in field:
+                yield Task(**raw_task)
+        return None
+
+    @property
+    def preprocess_tasks(self):
+        return self.task_array("preprocess")
+
+    @property
+    def postprocess_tasks(self):
+        return self.task_array("postprocess")
+
     @property
     def preflight_tasks(self):
-        return [Task(**t) for t in self.preflight]
+        return self.task_array("preflight")
 
     @property
     def postflight_tasks(self):
-        return [Task(**t) for t in self.postflight]
+        return self.task_array("postflight")
+
 
 
 TaskSpec = collections.namedtuple('Task',

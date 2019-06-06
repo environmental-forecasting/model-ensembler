@@ -6,9 +6,9 @@ import subprocess
 from hpc_batcher.utils import Arguments
 
 
-def batch_task(func=None, notcheck=False):
+def batch_task(func=None, check=True):
     if not func:
-        new = functools.partial(batch_task, notcheck=notcheck)
+        new = functools.partial(batch_task, check=check)
         return new
 
     @functools.wraps(func)
@@ -22,13 +22,14 @@ def batch_task(func=None, notcheck=False):
                 # TODO: Problem if we call the job run.sh
                 if type(v) == str and v.startswith("run."):
                     nom = v.split(".")[1]
-                    kwargs[k] = run[nom]
+                    kwargs[k] = getattr(run, nom)
             finally:
                 logging.debug("Calling with {} = {}".format(
                     k, kwargs[k])
                 )
 
-        if config.nochecks and not notcheck:
+        # TODO: Not sure we need this now we have pre/post processing
+        if config.nochecks and check:
             logging.info("Skipping checks for {}".format(func.__name__))
             return True
         return func(run, **kwargs)
@@ -36,7 +37,7 @@ def batch_task(func=None, notcheck=False):
 
 
 def execute_command(cmd):
-    logging.info("Checking command {0}".format(cmd))
+    logging.info("Executing command {0}".format(cmd))
 
     ret = subprocess.run(shlex.split(cmd),
                          stdout=subprocess.PIPE,
@@ -44,8 +45,8 @@ def execute_command(cmd):
                          text=True)
 
     if ret.returncode != 0:
-        logging.warning("Command returned: {}".format(ret.returncode))
+        logging.warning("Command returned err {}: {}".format(ret.returncode, ret.stdout))
         return ret
     else:
-        logging.info("Check return output: {0}".format(ret))
+        logging.info("Check return output: {}".format(ret.stdout))
     return ret

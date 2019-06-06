@@ -1,9 +1,11 @@
 import logging
 import os
+import shutil
 
 from hpc_batcher.tasks.utils import batch_task, execute_command
 
 
+# TODO: Better rsync handling wrt logging, rsync specs and validation
 def do_rsync(spec, source, dest, ssh):
     if not dest.endswith(os.sep):
         dest += os.sep
@@ -20,19 +22,35 @@ def do_rsync(spec, source, dest, ssh):
     return False
 
 
-@batch_task(notcheck=True)
-def getdata(run, source, dest, ssh):
-    return do_rsync("rsync -rtzD {2}:{0} {1}", source, dest, ssh)
+@batch_task(check=False)
+def getdata(run, source, dest, ssh="", spec=""):
+    basecmd = "rsync -rptgoDXEL {}".format(spec)
+    cmd = basecmd + "{0} {1}"
+    if len(ssh):
+        cmd = basecmd + "{2}:{0} {1}"
+
+    return do_rsync(cmd, source, dest, ssh)
 
 
-@batch_task
-def putdata(run, source, dest, ssh):
-    return do_rsync("rsync -rtzD {0} {2}:{1}", source, dest, ssh)
+@batch_task(check=False)
+def putdata(run, source, dest, ssh="", spec=""):
+    basecmd = "rsync -rptgoDXEL {}".format(spec)
+    cmd = basecmd + "{0} {1}"
+    if len(ssh):
+        cmd = basecmd + "{0} {2}:{1}"
+
+    return do_rsync(cmd, source, dest, ssh)
 
 
-@batch_task
+@batch_task(check=False)
 def removedata(run, dir, nomoreruns=False):
-    # TODO: Batch availability
-    logging.warning("Need to implement batch scoping for removedata")
+    if nomoreruns:
+        raise RuntimeError("nomoreruns is not implemented yet, need Executor scoping")
+
+    try:
+        shutil.rmtree(dir)
+    except OSError as e:
+        logging.exception("Could not remove {}: {}".format(dir, e.strerror))
+        return False
     return True
 

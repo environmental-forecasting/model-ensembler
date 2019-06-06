@@ -15,12 +15,31 @@
         "job_file": { "type":  "string" },
         "cluster":  { "type": "string", "enum": ["quick", "compute"] },
         "basedir": { "type": "string" },
+        "email": { "type": "string" },
+        "nodes": { "type": ["number","string"] },
+        "ntasks": { "type": "number" },
+        "days": { "type": "number" },
+        "maxruns": { "type": "number" },
         "runs": {
           "type": "array",
           "items": { "type": "object" },
           "default": []
         },
         "preflight": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/task"
+          }
+        },
+        "preprocess": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/task"
+          }
+        },
+        "postprocess": {
           "type": "array",
           "items": {
             "type": "object",
@@ -35,7 +54,7 @@
           }
         }
       },
-      "required": ["name", "template", "cluster", "basedir", "runs"]
+      "required": ["name", "template", "cluster", "basedir", "runs", "maxruns"]
     },
     "task": {
       "$id": "#task",
