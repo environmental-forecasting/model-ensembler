@@ -24,21 +24,23 @@ def do_rsync(spec, source, dest, ssh):
 
 @batch_task(check=False)
 def getdata(run, source, dest, ssh="", spec=""):
-    basecmd = "rsync -rptgoDXEL {}".format(spec)
+    basecmd = "rsync -rptgoDXEL {} ".format(spec)
     cmd = basecmd + "{0} {1}"
     if len(ssh):
         cmd = basecmd + "{2}:{0} {1}"
 
+    logging.info("Running getdata using {}".format(cmd))
     return do_rsync(cmd, source, dest, ssh)
 
 
 @batch_task(check=False)
 def putdata(run, source, dest, ssh="", spec=""):
-    basecmd = "rsync -rptgoDXEL {}".format(spec)
+    basecmd = "rsync -rptgoDXEL {} ".format(spec)
     cmd = basecmd + "{0} {1}"
     if len(ssh):
         cmd = basecmd + "{0} {2}:{1}"
 
+    logging.info("Running putdata using {}".format(cmd))
     return do_rsync(cmd, source, dest, ssh)
 
 
@@ -46,6 +48,8 @@ def putdata(run, source, dest, ssh="", spec=""):
 def removedata(run, dir, nomoreruns=False):
     if nomoreruns:
         raise RuntimeError("nomoreruns is not implemented yet, need Executor scoping")
+
+    logging.info("Attempting to remove data on {}".format(dir))
 
     try:
         shutil.rmtree(dir)

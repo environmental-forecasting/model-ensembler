@@ -50,10 +50,11 @@ def quota(run, atleast, mnt):
 
 @batch_task
 def jobs(run, limit, match):
-    # TODO: match needs to be a regex but suffering problems with that currently
+    # TODO: match with regex
+    # TODO: Race condition present with last job submission
     job_names = [j['name'] for j in job().get().values()
                  if j['name'].startswith(match)
-                 and j['job_state'] == 'RUNNING']
+                 and j['job_state'] in ["COMPLETING", "PENDING", "RESV_DEL_HOLD", "RUNNING", "SUSPENDED"]]
     res = len(job_names) < int(limit)
 
     if not res:

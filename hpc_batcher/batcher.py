@@ -12,6 +12,9 @@ import jinja2
 
 from pyslurm import config, job
 
+# TODO: Should be better scoped eg. by the batch
+_run_lock = threading.Lock()
+
 
 # TODO: Need to implement locking, currently the run thread should be safe
 class Run(object):
@@ -44,7 +47,11 @@ class Run(object):
 
         while not self.slurm_ready:
             logging.info("HPC not ready for {}".format(self.runid))
-            time.sleep(10.)
+            time.sleep(60.)
+
+        # TODO: Temporarily stop race conditions - we might want a better implementation
+        with _run_lock:
+            self.run_flight_tasks("pre")
 
         if Arguments().nosubmission:
             logging.info("Skipping actual slurm submission based on arguments")
@@ -58,7 +65,9 @@ class Run(object):
                 except ValueError:
                     logging.warning("Job {} not registered yet".format(self.slurm_id))
 
-                if self.slurm_state and (self.slurm_state in ("RUNNING", "COMPLETED", "FAILED", "CANCELLED")):
+                if self.slurm_state and (self.slurm_state in (
+                        "COMPLETING", "PENDING", "RESV_DEL_HOLD", "RUNNING", "SUSPENDED"
+                        "RUNNING", "COMPLETED", "FAILED", "CANCELLED")):
                     self.slurm_running = True
                 else:
                     # TODO: Configurable sleeps please!
@@ -75,12 +84,17 @@ class Run(object):
                     time.sleep(10.)
 
         ret = self.run_tasks(self.batch.postprocess_tasks)
+
+        # TODO: Postflight tasks need to be run on thread death
+        self.run_flight_tasks("post")
+
         self.running = False
         if not ret:
             raise ProcessingException("Run postprocessing failure")
 
     def submit(self):
         self.running = True
+
         self._thread.start()
 
     def run_tasks(self, tasks):
@@ -92,6 +106,27 @@ class Run(object):
                 logging.exception(e)
                 return False
         return True
+
+    def run_flight_tasks(self, jobtype):
+        result = False
+
+        while not result:
+            result = True
+
+            for task in getattr(self.batch, "{}flight_tasks".format(jobtype)):
+                try:
+                    func = getattr(hpc_batcher.tasks, task.name)
+                    if not func(self, **task.args):
+                        result = False
+                        break
+                except RuntimeError as e:
+                    msg = "Issues with flight checks, abandoning"
+                    logging.exception(e)
+                    raise FlightException("Issues with flight checks, abandoning")
+
+            if not result:
+                logging.info("Cannot continue, waiting for next {}flight run".format(jobtype))
+                time.sleep(60.)
 
 
 # TODO: Work on multi-batches
@@ -120,7 +155,6 @@ class Executor(object):
             for run in self.runs[batch.name]:
                 self.prep_hpc_job(run)
 
-                self.run_flight_tasks(run, "pre")
                 run.submit()
 
                 active = len([r for r in self.runs[batch.name] if r.running])
@@ -132,7 +166,6 @@ class Executor(object):
 
                 run.slurm_ready = True
 
-                self.run_flight_tasks(run, "post")
             self.__active = None
 
     # TODO: Messy
@@ -172,28 +205,6 @@ class Executor(object):
             os.chmod(dst_file, os.stat(tmpl_path).st_mode)
 
             os.unlink(tmpl_path)
-
-    # TODO: LOCK during this phase to avoid conflicts
-    def run_flight_tasks(self, run, jobtype):
-        result = False
-
-        while not result:
-            result = True
-
-            for task in getattr(self.active, "{}flight_tasks".format(jobtype)):
-                try:
-                    func = getattr(hpc_batcher.tasks, task.name)
-                    if not func(run, **task.args):
-                        result = False
-                        break
-                except RuntimeError as e:
-                    msg = "Issues with flight checks, abandoning"
-                    logging.exception(e)
-                    raise FlightException("Issues with flight checks, abandoning")
-
-            if not result:
-                logging.info("Cannot continue, waiting for next {}flight run".format(jobtype))
-                time.sleep(10.)
 
     @property
     def active(self):
