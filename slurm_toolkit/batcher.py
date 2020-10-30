@@ -3,10 +3,11 @@ import os
 import threading
 import time
 
-import hpc_batcher.tasks
-from hpc_batcher.tasks import submit as slurm_submit
-from hpc_batcher.tasks.utils import execute_command
-from hpc_batcher.utils import Arguments
+import slurm_toolkit
+
+from .tasks import submit as slurm_submit
+from .tasks.utils import execute_command
+from .utils import Arguments
 
 import jinja2
 
@@ -16,7 +17,7 @@ from pyslurm import config, job
 _run_lock = threading.Lock()
 
 
-# TODO: Need to implement locking, currently the run thread should be safe
+# TODO: Re-architect to ensure this is thread-safe
 class Run(object):
     def __init__(self, batch, runid, rundir, runargs=None):
         self.runid = runid
@@ -36,22 +37,26 @@ class Run(object):
             self.__dict__.update(runargs)
 
         self.running = False
+        self.finished = False
         self.batch = batch
 
         self._thread = threading.Thread(name=runid, target=self.run)
 
     def run(self):
         logging.info("Starting ")
-        if not self.run_tasks(self.batch.preprocess_tasks):
-            raise ProcessingException("Run preprocessing failed")
 
         while not self.slurm_ready:
             logging.info("HPC not ready for {}".format(self.runid))
             time.sleep(60.)
 
-        # TODO: Temporarily stop race conditions - we might want a better implementation
+        # TODO: We're running through a sequence of checks & tasks, interleaved now.
+        ####### START
         with _run_lock:
-            self.run_flight_tasks("pre")
+            self.run_checks(self.batch.preflight_checks)
+
+        if not self.run_tasks(self.batch.preflight_tasks):
+            raise ProcessingException("Run preprocessing failed")
+        ####### END
 
         if Arguments().nosubmission:
             logging.info("Skipping actual slurm submission based on arguments")
@@ -83,14 +88,18 @@ class Run(object):
                 else:
                     time.sleep(10.)
 
-        ret = self.run_tasks(self.batch.postprocess_tasks)
-
-        # TODO: Postflight tasks need to be run on thread death
-        self.run_flight_tasks("post")
+        # TODO: We're running through a sequence of checks & tasks, interleaved now.
+        ####### START
+        self.run_checks(self.batch.postflight_checks)
 
         self.running = False
-        if not ret:
-            raise ProcessingException("Run postprocessing failure")
+
+        with _run_lock:
+            if not self.run_tasks(self.batch.postflight_tasks):
+                raise ProcessingException("Run onfinish tasks failed")
+        ####### END
+
+        self.finished = True
 
     def submit(self):
         self.running = True
@@ -100,22 +109,22 @@ class Run(object):
     def run_tasks(self, tasks):
         for task in tasks:
             try:
-                func = getattr(hpc_batcher.tasks, task.name)
+                func = getattr(slurm_toolkit.tasks, task.name)
                 func(self, **task.args)
             except ProcessingException as e:
                 logging.exception(e)
                 return False
         return True
 
-    def run_flight_tasks(self, jobtype):
+    def run_checks(self, checks):
         result = False
 
         while not result:
             result = True
 
-            for task in getattr(self.batch, "{}flight_tasks".format(jobtype)):
+            for task in checks:
                 try:
-                    func = getattr(hpc_batcher.tasks, task.name)
+                    func = getattr(slurm_toolkit.tasks, task.name)
                     if not func(self, **task.args):
                         result = False
                         break
@@ -148,27 +157,26 @@ class Executor(object):
             for run in batch.runs:
                 runid = "{}-{}".format(self.active.name, batch.runs.index(run))
                 self.runs[batch.name].append(Run(batch=batch,
-                                             runid=runid,
-                                             rundir=os.path.join(self.active.basedir, runid),
-                                             runargs=run))
+                                                 runid=runid,
+                                                 rundir=os.path.join(self.active.basedir, runid),
+                                                 runargs=run))
 
             for run in self.runs[batch.name]:
                 self.prep_hpc_job(run)
 
                 run.submit()
 
-                active = len([r for r in self.runs[batch.name] if r.running])
+                active = len([r for r in self.runs[batch.name] if r.running and not r.finished])
                 while active >= batch.maxruns:
                     logging.info("Waiting for number of running threads to diminish {} ({})".format(
                         active, batch.maxruns))
                     time.sleep(10.)
-                    active = len([r for r in self.runs[batch.name] if r.running])
+                    active = len([r for r in self.runs[batch.name] if r.running and not r.finished])
 
                 run.slurm_ready = True
 
             self.__active = None
 
-    # TODO: Messy
     def prep_hpc_job(self, run):
         if not os.path.exists(self.active.basedir):
             raise ActiveBatchException("No basedir to process batch in!")
@@ -180,7 +188,6 @@ class Executor(object):
             raise ActiveBatchException("Run directory {} already exists".format(run.dir))
 
         os.mkdir(run.dir, mode=0o775)
-        # TODO: Hardcoded path
 
         sync = execute_command("rsync -aXE {}/ {}/".format(self.active.template_dir, run.dir))
         if sync.returncode != 0:

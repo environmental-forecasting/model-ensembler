@@ -1,6 +1,5 @@
-Cython
+Cython>=0.19.2
 Fabric>=2.0.0
 Jinja2
 jsonschema
-pyslurm==18.8.1.1
 pyyaml

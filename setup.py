@@ -4,11 +4,11 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="hpc_batcher",
-    version="0.0.1",
+    name="slurm_toolkit",
+    version="0.1.0",
     author="James Byrne",
     author_email="jambyr@bas.ac.uk",
-    description="Job batcher for HPCs facilitating external constraint management",
+    description="Job toolkit and batcher for SLURM HPCs facilitating external constraint management",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/pypa/sampleproject",
@@ -23,7 +23,7 @@ setuptools.setup(
     ],
     entry_points={
         'console_scripts': [
-            'hpc_batch=hpc_batcher:main',
+            'slurm_batch=slurm_toolkit.cli:main',
         ],
     },
 )

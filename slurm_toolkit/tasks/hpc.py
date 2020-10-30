@@ -5,7 +5,7 @@ import time
 
 # TODO: from fabric import task
 
-from hpc_batcher.tasks.utils import execute_command, batch_task
+from .utils import execute_command, batch_task
 
 from pyslurm import job
 
@@ -13,10 +13,8 @@ from pyslurm import job
 @batch_task(check=False)
 def submit(run, script=None):
     r_sbatch_id = re.compile(r'Submitted batch job (\d+)$')
-    orig = os.getcwd()
-    os.chdir(run.dir)
-    output = execute_command("sbatch {}".format(script)).stdout
-    os.chdir(orig)
+
+    output = execute_command("sbatch {}".format(script), cwd=run.dir).stdout
 
     sbatch_match = r_sbatch_id.match(output)
     if sbatch_match:
@@ -27,9 +25,10 @@ def submit(run, script=None):
 
 
 @batch_task
-def quota(run, atleast, mnt):
+def quota(run, atleast, mnt=None):
     # Command responds in 1k blocks
-    quota_cmd = " ".join(["quota -uw -f", mnt])
+    path = run.dir if not mnt else mnt
+    quota_cmd = " ".join(["quota -uw -f", path])
     quota_out = execute_command(quota_cmd).stdout
 
     try:

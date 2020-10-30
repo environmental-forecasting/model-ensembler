@@ -2,11 +2,11 @@ import logging
 import os
 import shutil
 
-from hpc_batcher.tasks.utils import batch_task, execute_command
+from .utils import batch_task, execute_command
 
 
 # TODO: Better rsync handling wrt logging, rsync specs and validation
-def do_rsync(spec, source, dest, ssh):
+def do_rsync(run, spec, source, dest, ssh):
     if not dest.endswith(os.sep):
         dest += os.sep
 
@@ -15,7 +15,7 @@ def do_rsync(spec, source, dest, ssh):
     )
 
     logging.info("Running getdata using {}".format(cmd))
-    res = execute_command(cmd)
+    res = execute_command(cmd, cwd=run.dir)
 
     if res.returncode == 0:
         return True
@@ -30,7 +30,7 @@ def getdata(run, source, dest, ssh="", spec=""):
         cmd = basecmd + "{2}:{0} {1}"
 
     logging.info("Running getdata using {}".format(cmd))
-    return do_rsync(cmd, source, dest, ssh)
+    return do_rsync(run, cmd, source, dest, ssh)
 
 
 @batch_task(check=False)
@@ -41,7 +41,7 @@ def putdata(run, source, dest, ssh="", spec=""):
         cmd = basecmd + "{0} {2}:{1}"
 
     logging.info("Running putdata using {}".format(cmd))
-    return do_rsync(cmd, source, dest, ssh)
+    return do_rsync(run, cmd, source, dest, ssh)
 
 
 @batch_task(check=False)

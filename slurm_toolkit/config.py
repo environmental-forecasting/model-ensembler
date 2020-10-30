@@ -4,7 +4,7 @@ import jsonschema
 import logging
 import os
 
-from yaml import load, dump
+from yaml import load
 try:
     from yaml import CLoader as Loader, CDumper as Dumper
 except ImportError:
@@ -13,6 +13,7 @@ except ImportError:
 path = os.path.abspath(os.path.dirname(__file__))
 
 
+# TODO: Would like very much for some kind of itertools interactions to generate parameter setups
 class YAMLConfig(object):
     def __init__(self, configuration):
         self._schema = os.path.join(path, "config-schema.json")
@@ -58,7 +59,7 @@ BatchSpec = collections.namedtuple('Batch',
                                    ['name', 'template', 'template_dir', 'job_file', 'cluster', 'basedir',
                                     "runs", "maxruns",
                                     "email", "nodes", "ntasks", "days",
-                                    'preflight', "preprocess", "postprocess", "postflight"])
+                                    'preflight_checks', "preflight_tasks", "postflight_checks", "postflight_tasks"])
 BatchSpec.__new__.__defaults__ = tuple([None for i in range(0, 8)])
 
 
@@ -72,21 +73,20 @@ class Batch(BatchSpec):
         return None
 
     @property
-    def preprocess_tasks(self):
-        return self.task_array("preprocess")
-
-    @property
-    def postprocess_tasks(self):
-        return self.task_array("postprocess")
+    def preflight_checks(self):
+        return self.task_array("preflight_checks")
 
     @property
     def preflight_tasks(self):
-        return self.task_array("preflight")
+        return self.task_array("preflight_tasks")
+
+    @property
+    def postflight_checks(self):
+        return self.task_array("postflight_checks")
 
     @property
     def postflight_tasks(self):
-        return self.task_array("postflight")
-
+        return self.task_array("postflight_tasks")
 
 
 TaskSpec = collections.namedtuple('Task',

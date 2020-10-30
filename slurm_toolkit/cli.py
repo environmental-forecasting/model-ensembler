@@ -1,10 +1,10 @@
 import argparse
 import logging
 
-from hpc_batcher.config import BatcherConfig
-from hpc_batcher.batcher import Executor
+from .config import BatcherConfig
+from .batcher import Executor
 # TODO: logging and parse_args should be in utils
-from hpc_batcher.utils import Arguments
+from .utils import Arguments
 
 
 def parse_args():
@@ -17,7 +17,7 @@ def parse_args():
     return Arguments(**vars(a.parse_args()))
 
 
-if __name__ == "__main__":
+def main():
     logging.getLogger().setLevel(logging.INFO)
     logging.info("HPC Batching Tool")
 

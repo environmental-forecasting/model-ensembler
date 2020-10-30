@@ -1,3 +1,4 @@
+# Should have used a namedtuple for this
 class Arguments(object):
     class __Arguments(object):
         def __init__(self, **kwargs):

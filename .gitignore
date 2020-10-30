@@ -2,3 +2,4 @@
 configurations/
 venv/
 *.pyc
+*.egg-info/

@@ -3,7 +3,7 @@ import logging
 import shlex
 import subprocess
 
-from hpc_batcher.utils import Arguments
+from ..utils import Arguments
 
 
 def batch_task(func=None, check=True):
@@ -14,7 +14,7 @@ def batch_task(func=None, check=True):
     @functools.wraps(func)
     def new_func(run, **kwargs):
         # TODO: we need to consolidate arguments into the configuration and make these contextually
-        # available to all actions
+        #  available to all actions
         config = Arguments()
 
         for k, v in kwargs.items():
@@ -36,13 +36,14 @@ def batch_task(func=None, check=True):
     return new_func
 
 
-def execute_command(cmd):
+def execute_command(cmd, cwd=None):
     logging.info("Executing command {0}".format(cmd))
 
     ret = subprocess.run(shlex.split(cmd),
                          stdout=subprocess.PIPE,
                          stderr=subprocess.STDOUT,
-                         text=True)
+                         text=True,
+                         cwd=cwd)
 
     if ret.returncode != 0:
         logging.warning("Command returned err {}: {}".format(ret.returncode, ret.stdout))
