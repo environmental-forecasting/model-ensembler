@@ -3,3 +3,5 @@ configurations/
 venv/
 *.pyc
 *.egg-info/
+test/tst*
+*.pid

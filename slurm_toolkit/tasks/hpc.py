@@ -1,16 +1,29 @@
 import logging
-import os
 import re
-import time
 
-# TODO: from fabric import task
-
-from .utils import execute_command, batch_task
+from .utils import check_task, processing_task, execute_command
 
 from pyslurm import job
 
 
-@batch_task(check=False)
+@check_task
+def jobs(ctx, limit, match):
+    # TODO: match with regex
+    # TODO: Race condition present with last job submission
+    job_names = [j['name'] for j in job().get().values()
+                 if j['name'].startswith(match)
+                 and j['job_state'] in ["COMPLETING", "PENDING", "RESV_DEL_HOLD", "RUNNING", "SUSPENDED"]]
+    res = len(job_names) < int(limit)
+
+    if not res:
+        log = logging.warning
+    else:
+        log = logging.debug
+    log("Jobs in action {} with limit {}".format(len(job_names), limit))
+    return res
+
+
+@processing_task
 def submit(run, script=None):
     r_sbatch_id = re.compile(r'Submitted batch job (\d+)$')
 
@@ -24,7 +37,7 @@ def submit(run, script=None):
     return None
 
 
-@batch_task
+@check_task
 def quota(run, atleast, mnt=None):
     # Command responds in 1k blocks
     path = run.dir if not mnt else mnt
@@ -46,19 +59,3 @@ def quota(run, atleast, mnt=None):
         logging.warning("Quota remaining {} is less than {}".format(limit - usage, atleast))
     return res
 
-
-@batch_task
-def jobs(run, limit, match):
-    # TODO: match with regex
-    # TODO: Race condition present with last job submission
-    job_names = [j['name'] for j in job().get().values()
-                 if j['name'].startswith(match)
-                 and j['job_state'] in ["COMPLETING", "PENDING", "RESV_DEL_HOLD", "RUNNING", "SUSPENDED"]]
-    res = len(job_names) < int(limit)
-
-    if not res:
-        log = logging.warning
-    else:
-        log = logging.debug
-    log("Jobs in action {} with limit {}".format(len(job_names), limit))
-    return res

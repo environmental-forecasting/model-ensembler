@@ -6,20 +6,13 @@ import subprocess
 from ..utils import Arguments
 
 
-def batch_task(func=None, check=True):
-    if not func:
-        new = functools.partial(batch_task, check=check)
-        return new
-
+def flight_task(func, check=True):
     @functools.wraps(func)
-    def new_func(run, **kwargs):
-        # TODO: we need to consolidate arguments into the configuration and make these contextually
-        #  available to all actions
+    def new_func(run, *args, **kwargs):
         config = Arguments()
 
         for k, v in kwargs.items():
             try:
-                # TODO: Problem if we call the job run.sh
                 if type(v) == str and v.startswith("run."):
                     nom = v.split(".")[1]
                     kwargs[k] = getattr(run, nom)
@@ -28,12 +21,17 @@ def batch_task(func=None, check=True):
                     k, kwargs[k])
                 )
 
-        # TODO: Not sure we need this now we have pre/post processing
         if config.nochecks and check:
             logging.info("Skipping checks for {}".format(func.__name__))
             return True
-        return func(run, **kwargs)
+        return func(run, *args, **kwargs)
+
+    new_func.check = check
     return new_func
+
+
+check_task = functools.partial(flight_task, check=True)
+processing_task = functools.partial(flight_task, check=False)
 
 
 def execute_command(cmd, cwd=None):
@@ -42,7 +40,6 @@ def execute_command(cmd, cwd=None):
     ret = subprocess.run(shlex.split(cmd),
                          stdout=subprocess.PIPE,
                          stderr=subprocess.STDOUT,
-                         text=True,
                          cwd=cwd)
 
     if ret.returncode != 0:

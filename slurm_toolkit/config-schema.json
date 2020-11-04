@@ -8,45 +8,45 @@
       "properties":  {
         "name": { "type": "string" },
         "templatedir": { "type":  "string" },
-        "template": { "type": "array", "items": {
+        "templates": { "type": "array", "items": {
           "type":  "string",
           "pattern": "\\.j2$"
         } },
         "job_file": { "type":  "string" },
-        "cluster":  { "type": "string", "enum": ["quick", "compute"] },
+        "cluster":  { "type": "string", "enum": ["short","medium","long","gpu","dev"] },
         "basedir": { "type": "string" },
         "email": { "type": "string" },
         "nodes": { "type": ["number","string"] },
         "ntasks": { "type": "number" },
         "days": { "type": "number" },
         "maxruns": { "type": "number" },
+        "pre_batch": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/task"
+          }
+        },
+        "pre_run": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/task"
+          }
+        },
         "runs": {
           "type": "array",
           "items": { "type": "object" },
           "default": []
         },
-        "preflight_checks": {
+        "post_run": {
           "type": "array",
           "items": {
             "type": "object",
             "$ref": "#/definitions/task"
           }
         },
-        "preflight_tasks": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/task"
-          }
-        },
-        "postprocess_checks": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/task"
-          }
-        },
-        "postflight_tasks": {
+        "post_batch": {
           "type": "array",
           "items": {
             "type": "object",
@@ -54,7 +54,7 @@
           }
         }
       },
-      "required": ["name", "template", "cluster", "basedir", "runs", "maxruns"]
+      "required": ["name", "templatedir", "templates", "cluster", "basedir", "runs", "maxruns"]
     },
     "task": {
       "$id": "#task",
@@ -73,6 +73,23 @@
   "properties":  {
     "slurm_toolkit": { "type": "object",
       "properties": {
+        "vars": { "type": "object" },
+
+        "pre_process": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/task"
+          }
+        },
+        "post_process": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/task"
+          }
+        },
+
         "batches": { "type": "array",
           "items": {
             "type": "object",

@@ -1,0 +1,32 @@
+#!/bin/bash
+#
+# Output directory
+#SBATCH --output={{ run.dir }}/job.%j.%N.out
+#SBATCH --chdir={{ run.dir }}
+#SBATCH --mail-type=begin,end,fail,requeue
+#SBATCH --mail-user={{ run.email }}
+#SBATCH --time=14-00:00:00
+#SBATCH --job-name={{ run.name }}
+#SBATCH --nodes={{ run.nodes }}
+#SBATCH --ntasks-per-node {{ run.ntasks }}
+#SBATCH --ntasks-per-core 1
+#SBATCH --mem=20gb
+#SBATCH --partition={{ run.cluster }}
+#SBATCH --account={{ run.cluster }}
+
+# Now run some programs.
+
+cd {{ run.dir }}
+
+source /etc/profile.d/modules.sh
+
+module load hpc/mpich/gcc/3.2
+module load hpc/gcc/7.2.0   # (also, on workstations gcc 4.8.5 is available as part of the OS)
+module load hpc/netcdf/gcc/4.4.1.1
+module load hpc/hdf5/gcc/1.8.19
+
+
+NETCDF=${NETCDFDIR}/../
+
+mpirun -np {{ run.ntasks }} wrf.exe
+

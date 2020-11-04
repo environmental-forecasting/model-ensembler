@@ -1,4 +1,6 @@
-# Should have used a namedtuple for this
+
+
+# Should have used a collection for this
 class Arguments(object):
     class __Arguments(object):
         def __init__(self, **kwargs):
@@ -13,4 +15,6 @@ class Arguments(object):
 
     def __getattr__(self, item):
         return getattr(self.instance, item)
+
+
 

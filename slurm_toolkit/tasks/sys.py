@@ -1,21 +1,43 @@
 import logging
+import shutil
 
-from .utils import execute_command, batch_task
+from .utils import check_task, processing_task, execute_command
 
 
-@batch_task
-def check(run, cmdstr):
-    logging.info("Running check: {}".format(cmdstr))
+@check_task
+def check(ctx, cmd):
+    logging.info("Running check: {}".format(cmd))
+    kwargs = {}
 
-    if execute_command(cmdstr, cwd=run.dir).returncode == 0:
+    if dir in ctx:
+        kwargs['cwd'] = ctx.dir
+        
+    if execute_command(cmd, **kwargs).returncode == 0:
         return True
     return False
 
 
-@batch_task(check=False)
-def execute(run, cmdstr):
-    logging.info("Running command: {}".format(cmdstr))
+@processing_task
+def execute(ctx, cmd):
+    logging.info("Running command: {}".format(cmd))
+    kwargs = {}
 
-    if execute_command(cmdstr, cwd=run.dir).returncode == 0:
+    if dir in ctx:
+        kwargs['cwd'] = ctx.dir
+
+    if execute_command(cmd, **kwargs).returncode == 0:
         return True
     return False
+
+
+# TODO: This is a good example of a task to be run at the batch level, as well as at the run level...
+@processing_task
+def remove(ctx, dir):
+    logging.info("Attempting to remove data on {}".format(dir))
+
+    try:
+        shutil.rmtree(dir)
+    except OSError as e:
+        logging.exception("Could not remove {}: {}".format(dir, e.strerror))
+        return False
+    return True
