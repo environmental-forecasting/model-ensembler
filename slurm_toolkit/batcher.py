@@ -49,6 +49,11 @@ def run_task_items(ctx, items):
     try:
         for item in items:
             func = getattr(slurm_toolkit.tasks, item.name)
+
+            logging.debug("TASK CWD: {}".format(os.getcwd()))
+            logging.debug("TASK CTX: {}".format(pformat(ctx)))
+            logging.debug("TASK FUNC: {}".format(pformat(item)))
+
             if func.check:
                 run_check(ctx, func, item)
             else:
@@ -96,6 +101,10 @@ async def run_runner(run, batch):
 
         os.unlink(tmpl_path)
 
+    orig_dir = os.getcwd()
+    logging.info("Changing from {} into {}".format(orig_dir, run.dir))
+    os.chdir(run.dir)
+
     run_task_items(run, batch.pre_run)
 
     if Arguments().nosubmission:
@@ -133,6 +142,9 @@ async def run_runner(run, batch):
     run_task_items(run, batch.post_run)
     logging.info("End run")
 
+    logging.info("Changing from {} into {}".format(os.getcwd(), orig_dir))
+    os.chdir(orig_dir)
+
 
 def do_batch_execution(batch):
     # TODO: Here we have a dedicated process but need the async semaphore local to the proc
@@ -150,7 +162,7 @@ def do_batch_execution(batch):
 
     for run in batch.runs:
         runid = "{}-{}".format(batch.name, batch.runs.index(run))
-        rundir = os.path.join(batch.basedir, runid)
+        rundir = runid
 
         # TODO: Not really the best way of doing this, use some appropriate typing for all the data used
         run_vars = collections.defaultdict()

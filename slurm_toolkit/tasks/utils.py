@@ -1,5 +1,6 @@
 import functools
 import logging
+import os
 import shlex
 import subprocess
 
@@ -35,7 +36,8 @@ processing_task = functools.partial(flight_task, check=False)
 
 
 def execute_command(cmd, cwd=None):
-    logging.info("Executing command {0}".format(cmd))
+    logging.info("Executing command {0}, cwd {1}".format(cmd, cwd if cwd else "unset"))
+    logging.info("CWD: {}".format(os.getcwd()))
 
     ret = subprocess.run(shlex.split(cmd),
                          stdout=subprocess.PIPE,

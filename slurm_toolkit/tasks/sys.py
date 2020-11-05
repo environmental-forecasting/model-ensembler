@@ -5,25 +5,17 @@ from .utils import check_task, processing_task, execute_command
 
 
 @check_task
-def check(ctx, cmd):
+def check(ctx, cmd, **kwargs):
     logging.info("Running check: {}".format(cmd))
-    kwargs = {}
 
-    if dir in ctx:
-        kwargs['cwd'] = ctx.dir
-        
     if execute_command(cmd, **kwargs).returncode == 0:
         return True
     return False
 
 
 @processing_task
-def execute(ctx, cmd):
+def execute(ctx, cmd, **kwargs):
     logging.info("Running command: {}".format(cmd))
-    kwargs = {}
-
-    if dir in ctx:
-        kwargs['cwd'] = ctx.dir
 
     if execute_command(cmd, **kwargs).returncode == 0:
         return True
