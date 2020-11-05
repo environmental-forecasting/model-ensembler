@@ -40,6 +40,7 @@ slurm_toolkit:
       - name:   execute
         args:
           cmd:  ./preprocess.sh
+          log:  True
       - name:   check
         args:
           cmd:  /usr/bin/test -d ../datadir
@@ -94,6 +95,7 @@ slurm_toolkit:
       - name:   execute
         args:
           cmd:  ./preprocess.sh
+          log:  True
       - name:   check
         args:
           cmd:  /usr/bin/test -d ../datadir

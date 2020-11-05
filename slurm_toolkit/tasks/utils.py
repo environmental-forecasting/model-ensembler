@@ -4,6 +4,8 @@ import os
 import shlex
 import subprocess
 
+from datetime import datetime
+
 from ..utils import Arguments
 
 
@@ -35,18 +37,27 @@ check_task = functools.partial(flight_task, check=True)
 processing_task = functools.partial(flight_task, check=False)
 
 
-def execute_command(cmd, cwd=None):
+def execute_command(cmd, cwd=None, log=False):
     logging.info("Executing command {0}, cwd {1}".format(cmd, cwd if cwd else "unset"))
     logging.info("CWD: {}".format(os.getcwd()))
+
+    start_dt = datetime.now()
 
     ret = subprocess.run(shlex.split(cmd),
                          stdout=subprocess.PIPE,
                          stderr=subprocess.STDOUT,
                          cwd=cwd)
 
+    if log and ret.stdout:
+        log_name = "execute_command.{}.log".format(start_dt.strftime("%H%M%S.%f"))
+
+        with open(log_name, "w") as fh:
+            fh.write(ret.stdout.decode())
+
+        logging.info("Command log written to {}".format(log_name))
     if ret.returncode != 0:
-        logging.warning("Command returned err {}: {}".format(ret.returncode, ret.stdout))
+        logging.warning("Command returned err {}".format(ret.returncode))
         return ret
     else:
-        logging.info("Check return output: {}".format(ret.stdout))
+        logging.info("Command successful")
     return ret
