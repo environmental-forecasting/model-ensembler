@@ -5,26 +5,28 @@ from .utils import check_task, processing_task, execute_command
 
 
 @check_task
-def check(ctx, cmd, **kwargs):
+async def check(ctx, cmd, **kwargs):
     logging.info("Running check: {}".format(cmd))
 
-    if execute_command(cmd, **kwargs).returncode == 0:
+    res = await execute_command(cmd, **kwargs)
+    if res.returncode == 0:
         return True
     return False
 
 
 @processing_task
-def execute(ctx, cmd, **kwargs):
+async def execute(ctx, cmd, **kwargs):
     logging.info("Running command: {}".format(cmd))
 
-    if execute_command(cmd, **kwargs).returncode == 0:
+    res = await execute_command(cmd, **kwargs)
+    if res.returncode == 0:
         return True
     return False
 
 
 # TODO: This is a good example of a task to be run at the batch level, as well as at the run level...
 @processing_task
-def remove(ctx, dir):
+async def remove(ctx, dir):
     logging.info("Attempting to remove data on {}".format(dir))
 
     try:

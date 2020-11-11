@@ -1,8 +1,11 @@
+import asyncio
 import functools
 import logging
 import os
 import shlex
 import subprocess
+import sys
+import types
 
 from datetime import datetime
 
@@ -37,26 +40,37 @@ check_task = functools.partial(flight_task, check=True)
 processing_task = functools.partial(flight_task, check=False)
 
 
-def execute_command(cmd, cwd=None, log=False):
+async def execute_command(cmd, cwd=None, log=False):
     logging.info("Executing command {0}, cwd {1}".format(cmd, cwd if cwd else "unset"))
-    logging.info("CWD: {}".format(os.getcwd()))
+    # The asyncio loop has the cwd context of the loop, not of the chdir we've done. I think :-/
+    cwd = os.getcwd() if not cwd else cwd
 
     start_dt = datetime.now()
 
-    ret = subprocess.run(shlex.split(cmd),
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT,
-                         cwd=cwd)
+    args = shlex.split(cmd)
+    logging.debug(args)
 
-    if log and ret.stdout:
+    proc = await asyncio.create_subprocess_exec(*args,
+                                                stdout=subprocess.PIPE,
+                                                stderr=subprocess.STDOUT,
+                                                cwd=cwd,
+                                                encoding="utf8")
+
+    (stdout, stderr) = await proc.communicate()
+
+    if log and stdout:
         log_name = "execute_command.{}.log".format(start_dt.strftime("%H%M%S.%f"))
 
         with open(log_name, "w") as fh:
-            fh.write(ret.stdout.decode())
+            fh.write(stdout.decode())
 
         logging.info("Command log written to {}".format(log_name))
+
+    ret = types.SimpleNamespace(returncode=proc.returncode, stdout=stdout, stderr=stderr)
+    logging.info(ret)
+
     if ret.returncode != 0:
-        logging.warning("Command returned err {}".format(ret.returncode))
+        logging.warning("Command returned err: {}".format(ret.stderr))
         return ret
     else:
         logging.info("Command successful")

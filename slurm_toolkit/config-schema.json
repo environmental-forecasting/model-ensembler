@@ -18,7 +18,7 @@
         "email": { "type": "string" },
         "nodes": { "type": ["number","string"] },
         "ntasks": { "type": "number" },
-        "days": { "type": "number" },
+        "length": { "type": ["number","string"] },
         "maxruns": { "type": "number" },
         "pre_batch": {
           "type": "array",

@@ -9,7 +9,7 @@ slurm_toolkit:
   post_process:
   - name:   execute
     args:
-      cmd:  /usr/bin/rm p
+      cmd:  /usr/bin/rm process.touch
   batches:
     - name:         tst1
       templatedir:  /tmp/template_job
@@ -25,7 +25,7 @@ slurm_toolkit:
       nodes:        1
       ntasks:       8
       length:       14
-      maxruns:      8
+      maxruns:      10
       pre_batch:    
       - name:   check
         args:
@@ -49,6 +49,25 @@ slurm_toolkit:
           cmd:  /usr/bin/touch pre_run.keep
       runs:         
       - custom_id:  1
+      - custom_id:  2
+      - custom_id:  3
+      - custom_id:  4
+      - custom_id:  5
+      - custom_id:  6
+      - custom_id:  7
+      - custom_id:  8
+      - custom_id:  9
+      - custom_id:  10
+      - custom_id:  11
+      - custom_id:  12
+      - custom_id:  13
+      - custom_id:  14
+      - custom_id:  15
+      - custom_id:  16
+      - custom_id:  17
+      - custom_id:  18
+      - custom_id:  19
+      - custom_id:  20
       post_run:     
       - name:   execute
         args:

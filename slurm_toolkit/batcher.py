@@ -4,6 +4,8 @@ import concurrent.futures
 import logging
 import os
 import random
+import shlex
+import subprocess
 import time
 
 from datetime import datetime
@@ -20,13 +22,13 @@ from .tasks.utils import execute_command
 from .utils import Arguments
 
 
-def run_check(ctx, func, check):
+async def run_check(ctx, func, check):
     result = False
     args = Arguments()
 
     while not result:
         try:
-            result = func(ctx, **check.args)
+            result = await func(ctx, **check.args)
         except Exception as e:
             logging.exception(e)
             raise CheckException("Issues with flight checks, abandoning")
@@ -36,16 +38,16 @@ def run_check(ctx, func, check):
             time.sleep(args.check_timeout)
 
 
-def run_task(ctx, func, task):
+async def run_task(ctx, func, task):
     try:
-        func(ctx, **task.args)
+        await func(ctx, **task.args)
     except Exception as e:
         logging.exception(e)
         raise TaskException("Issues with flight checks, abandoning")
     return True
 
 
-def run_task_items(ctx, items):
+async def run_task_items(ctx, items):
     try:
         for item in items:
             func = getattr(slurm_toolkit.tasks, item.name)
@@ -55,19 +57,25 @@ def run_task_items(ctx, items):
             logging.debug("TASK FUNC: {}".format(pformat(item)))
 
             if func.check:
-                run_check(ctx, func, item)
+                await run_check(ctx, func, item)
             else:
-                run_task(ctx, func, item)
+                await run_task(ctx, func, item)
     except (TaskException, CheckException) as e:
         raise ProcessingException(e)
 
+
 ## CORE EXECUTION FOR BATCHER
 #
-# TODO: There's still refactoring to do, but this is better than it was
+async def run_runner(limit, tasks):
+    sem = asyncio.Semaphore(limit)
+
+    async def sem_task(task):
+        async with sem:
+            return await task
+    return await asyncio.gather(*(sem_task(task) for task in tasks))
 
 
-# TODO: WE HAVE A PROBLEM WITH THE CONTEXT VARS BEING SUPPLIED
-async def run_runner(run, batch):
+async def run_batch_item(run, batch):
     logging.info("Start run {}".format(run))
 
     if os.path.exists(run.dir):
@@ -77,8 +85,10 @@ async def run_runner(run, batch):
 
     cmd = "rsync -aXE {}/ {}/".format(batch.templatedir, run.dir)
     logging.info(cmd)
-    sync = execute_command(cmd)
-    if sync.returncode != 0:
+    proc = await asyncio.create_subprocess_exec(*shlex.split(cmd))
+    rc = await proc.wait()
+
+    if rc != 0:
         raise RuntimeError("Could not grab template directory {} to {}".format(
             batch.templatedir, run.dir
         ))
@@ -105,12 +115,12 @@ async def run_runner(run, batch):
     logging.info("Changing from {} into {}".format(orig_dir, run.dir))
     os.chdir(run.dir)
 
-    run_task_items(run, batch.pre_run)
+    await run_task_items(run, batch.pre_run)
 
     if Arguments().nosubmission:
         logging.info("Skipping actual slurm submission based on arguments")
     else:
-        slurm_id = slurm_submit(script=batch.job_file)
+        slurm_id = await slurm_submit(script=batch.job_file)
         slurm_running = False
         slurm_state = None
 
@@ -139,14 +149,14 @@ async def run_runner(run, batch):
             else:
                 time.sleep(10.)
 
-    run_task_items(run, batch.post_run)
+    await run_task_items(run, batch.post_run)
     logging.info("End run")
 
     logging.info("Changing from {} into {}".format(os.getcwd(), orig_dir))
     os.chdir(orig_dir)
 
 
-def do_batch_execution(batch):
+def do_batch_execution(loop, batch):
     # TODO: Here we have a dedicated process but need the async semaphore local to the proc
     logging.info(pformat(batch))
     logging.warning("Start: {}".format(datetime.utcnow()))
@@ -158,7 +168,7 @@ def do_batch_execution(batch):
         os.makedirs(batch.basedir, exist_ok=True)
     os.chdir(batch.basedir)
 
-    run_task_items(batch, batch.pre_batch)
+    loop.run_until_complete(run_task_items(batch, batch.pre_batch))
 
     for run in batch.runs:
         runid = "{}-{}".format(batch.name, batch.runs.index(run))
@@ -178,14 +188,12 @@ def do_batch_execution(batch):
 
         Run = collections.namedtuple('Run', field_names=run_vars.keys())
         r = Run(**run_vars)
-        task = run_runner(r, batch)
+        task = run_batch_item(r, batch)
         batch_tasks.append(task)
 
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(asyncio.gather(*batch_tasks))
-    loop.close()
+    loop.run_until_complete(run_runner(batch.maxruns, batch_tasks))
 
-    run_task_items(batch, batch.post_batch)
+    loop.run_until_complete(run_task_items(batch, batch.post_batch))
 
     logging.info("Batch {} completed: {}".format(batch.name, datetime.utcnow()))
     return "Success"
@@ -197,19 +205,14 @@ class BatchExecutor(object):
 
     def run(self):
         logging.info("Running batcher")
+        # TODO: Be nice to run batches, optionally, concurrently, but it's not strictly required (use >1 instance!)
 
-        run_task_items(self._cfg.vars, self._cfg.pre_process)
+        loop = asyncio.get_event_loop()
 
-        with concurrent.futures.ProcessPoolExecutor() as executor:
-            futures = [executor.submit(do_batch_execution, batch)
-                       for batch in self._cfg.batches]
-
-            for future in concurrent.futures.as_completed(futures):
-                try:
-                    run_log = future.result()
-                except Exception as e:
-                    logging.exception(e)
-                else:
-                    logging.info(run_log)
-
-        run_task_items(self._cfg.vars, self._cfg.post_process)
+        try:
+            loop.run_until_complete(run_task_items(self._cfg.vars, self._cfg.pre_process))
+            do_batch_execution(loop, self._cfg.batches[0])
+            loop.run_until_complete(run_task_items(self._cfg.vars, self._cfg.post_process))
+        finally:
+            loop.shutdown_asyncgens()
+            loop.close()

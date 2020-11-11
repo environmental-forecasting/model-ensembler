@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import re
 
@@ -6,28 +7,34 @@ from .utils import check_task, processing_task, execute_command
 from pyslurm import job
 
 
+_job_lock = asyncio.Lock()
+
+
 @check_task
-def jobs(ctx, limit, match):
+async def jobs(ctx, limit, match):
     # TODO: match with regex
     # TODO: Race condition present with last job submission
-    job_names = [j['name'] for j in job().get().values()
-                 if j['name'].startswith(match)
-                 and j['job_state'] in ["COMPLETING", "PENDING", "RESV_DEL_HOLD", "RUNNING", "SUSPENDED"]]
-    res = len(job_names) < int(limit)
+    with _job_lock:
+        job_names = [j['name'] for j in job().get().values()
+                     if j['name'].startswith(match)
+                     and j['job_state'] in ["COMPLETING", "PENDING", "RESV_DEL_HOLD", "RUNNING", "SUSPENDED"]]
+        res = len(job_names) < int(limit)
 
-    if not res:
-        log = logging.warning
-    else:
-        log = logging.debug
-    log("Jobs in action {} with limit {}".format(len(job_names), limit))
+        if not res:
+            log = logging.warning
+        else:
+            log = logging.debug
+        log("Jobs in action {} with limit {}".format(len(job_names), limit))
     return res
 
 
 @processing_task
-def submit(run, script=None):
+async def submit(run, script=None):
     r_sbatch_id = re.compile(r'Submitted batch job (\d+)$')
 
-    output = execute_command("sbatch {}".format(script), cwd=run.dir).stdout
+    with _job_lock:
+        res = await execute_command("sbatch {}".format(script), cwd=run.dir)
+        output = res.stdout
 
     sbatch_match = r_sbatch_id.match(output)
     if sbatch_match:
@@ -38,11 +45,12 @@ def submit(run, script=None):
 
 
 @check_task
-def quota(run, atleast, mnt=None):
+async def quota(run, atleast, mnt=None):
     # Command responds in 1k blocks
     path = run.dir if not mnt else mnt
     quota_cmd = " ".join(["quota -uw -f", path])
-    quota_out = execute_command(quota_cmd).stdout
+    res = await execute_command(quota_cmd)
+    quota_out = res.stdout
 
     try:
         fields = quota_out.splitlines()[-1].split()

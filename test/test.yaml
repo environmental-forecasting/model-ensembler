@@ -24,7 +24,7 @@ slurm_toolkit:
       email:        test@example.org
       nodes:        1
       ntasks:       8
-      days:         14
+      length:       14
       maxruns:      8
       pre_batch:    
       - name:   check
@@ -79,7 +79,7 @@ slurm_toolkit:
       email:        test@example.org
       nodes:        1
       ntasks:       8
-      days:         14
+      length:       14
       maxruns:      8
       pre_batch:    
       - name:   check
