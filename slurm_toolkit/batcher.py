@@ -35,7 +35,7 @@ async def run_check(ctx, func, check):
 
         if not result:
             logging.info("Cannot continue, waiting {} seconds for next check".format(args.check_timeout))
-            time.sleep(args.check_timeout)
+            await asyncio.sleep(args.check_timeout)
 
 
 async def run_task(ctx, func, task):
@@ -111,10 +111,6 @@ async def run_batch_item(run, batch):
 
         os.unlink(tmpl_path)
 
-    orig_dir = os.getcwd()
-    logging.info("Changing from {} into {}".format(orig_dir, run.dir))
-    os.chdir(run.dir)
-
     await run_task_items(run, batch.pre_run)
 
     if Arguments().nosubmission:
@@ -152,18 +148,16 @@ async def run_batch_item(run, batch):
     await run_task_items(run, batch.post_run)
     logging.info("End run")
 
-    logging.info("Changing from {} into {}".format(os.getcwd(), orig_dir))
-    os.chdir(orig_dir)
-
 
 def do_batch_execution(loop, batch):
-    # TODO: Here we have a dedicated process but need the async semaphore local to the proc
     logging.info(pformat(batch))
     logging.warning("Start: {}".format(datetime.utcnow()))
 
     batch_tasks = list()
 
-    # This should work on with distinct basedir for each process
+    # We are process dependent here, so this is where we have the choice of concurrency strategies but each batch
+    # is dependent on chdir remaining consistent after this point.
+    orig = os.getcwd()
     if not os.path.exists(batch.basedir):
         os.makedirs(batch.basedir, exist_ok=True)
     os.chdir(batch.basedir)
@@ -172,12 +166,11 @@ def do_batch_execution(loop, batch):
 
     for run in batch.runs:
         runid = "{}-{}".format(batch.name, batch.runs.index(run))
-        rundir = runid
 
         # TODO: Not really the best way of doing this, use some appropriate typing for all the data used
         run_vars = collections.defaultdict()
-        run['id'] = runid
-        run['dir'] = rundir
+        # This dir parameters becomes very important for running commands in the correct directory context
+        run['id'] = run['dir'] = runid
 
         batch_dict = batch._asdict()
         for k, v in batch_dict.items():
@@ -195,6 +188,7 @@ def do_batch_execution(loop, batch):
 
     loop.run_until_complete(run_task_items(batch, batch.post_batch))
 
+    os.chdir(orig)
     logging.info("Batch {} completed: {}".format(batch.name, datetime.utcnow()))
     return "Success"
 
@@ -205,14 +199,14 @@ class BatchExecutor(object):
 
     def run(self):
         logging.info("Running batcher")
-        # TODO: Be nice to run batches, optionally, concurrently, but it's not strictly required (use >1 instance!)
-
-        loop = asyncio.get_event_loop()
 
         try:
-            loop.run_until_complete(run_task_items(self._cfg.vars, self._cfg.pre_process))
-            do_batch_execution(loop, self._cfg.batches[0])
-            loop.run_until_complete(run_task_items(self._cfg.vars, self._cfg.post_process))
+            loop = asyncio.get_event_loop()
+
+            for batch in self._cfg.batches:
+                loop.run_until_complete(run_task_items(self._cfg.vars, self._cfg.pre_process))
+                do_batch_execution(loop, batch)
+                loop.run_until_complete(run_task_items(self._cfg.vars, self._cfg.post_process))
         finally:
-            loop.shutdown_asyncgens()
+            loop.run_until_complete(loop.shutdown_asyncgens())
             loop.close()

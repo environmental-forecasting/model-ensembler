@@ -27,11 +27,12 @@ async def execute(ctx, cmd, **kwargs):
 # TODO: This is a good example of a task to be run at the batch level, as well as at the run level...
 @processing_task
 async def remove(ctx, dir):
-    logging.info("Attempting to remove data on {}".format(dir))
-
-    try:
-        shutil.rmtree(dir)
-    except OSError as e:
-        logging.exception("Could not remove {}: {}".format(dir, e.strerror))
-        return False
-    return True
+    raise NotImplementedError("remove not implemented")
+#    logging.info("Attempting to remove data on {}".format(dir))
+#
+#    try:
+#        shutil.rmtree(dir)
+#    except OSError as e:
+#        logging.exception("Could not remove {}: {}".format(dir, e.strerror))
+#        return False
+#    return True

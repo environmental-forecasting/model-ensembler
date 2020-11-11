@@ -3,7 +3,6 @@ import functools
 import logging
 import os
 import shlex
-import subprocess
 import sys
 import types
 
@@ -14,23 +13,27 @@ from ..utils import Arguments
 
 def flight_task(func, check=True):
     @functools.wraps(func)
-    def new_func(run, *args, **kwargs):
+    def new_func(ctx, *args, **kwargs):
         config = Arguments()
 
         for k, v in kwargs.items():
             try:
                 if type(v) == str and v.startswith("run."):
                     nom = v.split(".")[1]
-                    kwargs[k] = getattr(run, nom)
+                    kwargs[k] = getattr(ctx, nom)
             finally:
                 logging.debug("Calling with {} = {}".format(
                     k, kwargs[k])
                 )
 
+        # A bit of context magic for execute_command calls below (TODO: better way with context stack/proxy)
+        if hasattr(ctx, 'dir'):
+            kwargs['cwd'] = ctx.dir
+
         if config.nochecks and check:
             logging.info("Skipping checks for {}".format(func.__name__))
             return True
-        return func(run, *args, **kwargs)
+        return func(ctx, *args, **kwargs)
 
     new_func.check = check
     return new_func
@@ -42,24 +45,23 @@ processing_task = functools.partial(flight_task, check=False)
 
 async def execute_command(cmd, cwd=None, log=False):
     logging.info("Executing command {0}, cwd {1}".format(cmd, cwd if cwd else "unset"))
-    # The asyncio loop has the cwd context of the loop, not of the chdir we've done. I think :-/
-    cwd = os.getcwd() if not cwd else cwd
 
     start_dt = datetime.now()
 
-    args = shlex.split(cmd)
-    logging.debug(args)
-
-    proc = await asyncio.create_subprocess_exec(*args,
-                                                stdout=subprocess.PIPE,
-                                                stderr=subprocess.STDOUT,
-                                                cwd=cwd,
-                                                encoding="utf8")
+    proc = await asyncio.create_subprocess_shell(cmd,
+                                                 executable='/usr/bin/bash',
+                                                 stdout=asyncio.subprocess.PIPE,
+                                                 stderr=asyncio.subprocess.STDOUT,
+                                                 cwd=cwd)
 
     (stdout, stderr) = await proc.communicate()
+    await proc.wait()
 
     if log and stdout:
         log_name = "execute_command.{}.log".format(start_dt.strftime("%H%M%S.%f"))
+
+        if cwd:
+            log_name = os.path.join(cwd, log_name)
 
         with open(log_name, "w") as fh:
             fh.write(stdout.decode())

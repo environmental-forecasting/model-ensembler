@@ -29,11 +29,11 @@ async def jobs(ctx, limit, match):
 
 
 @processing_task
-async def submit(run, script=None):
+async def submit(ctx, script=None):
     r_sbatch_id = re.compile(r'Submitted batch job (\d+)$')
 
     with _job_lock:
-        res = await execute_command("sbatch {}".format(script), cwd=run.dir)
+        res = await execute_command("sbatch {}".format(script), cwd=ctx.dir)
         output = res.stdout
 
     sbatch_match = r_sbatch_id.match(output)
@@ -45,9 +45,9 @@ async def submit(run, script=None):
 
 
 @check_task
-async def quota(run, atleast, mnt=None):
+async def quota(ctx, atleast, mnt=None):
     # Command responds in 1k blocks
-    path = run.dir if not mnt else mnt
+    path = ctx.dir if not mnt else mnt
     quota_cmd = " ".join(["quota -uw -f", path])
     res = await execute_command(quota_cmd)
     quota_out = res.stdout

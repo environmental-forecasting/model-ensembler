@@ -3,6 +3,7 @@ build/
 configurations/
 dist/
 venv/
+.eggs/
 *.pyc
 *.egg-info/
 *.pid

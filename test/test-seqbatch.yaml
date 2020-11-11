@@ -5,11 +5,11 @@ slurm_toolkit:
   pre_process: 
   - name:   execute
     args:
-      cmd:  /usr/bin/touch process.touch process.keep
+      cmd:  touch process.touch process.keep
   post_process:
   - name:   execute
     args:
-      cmd:  /usr/bin/rm process.touch
+      cmd:  rm process.touch
   batches:
     - name:         tst1
       templatedir:  /tmp/template_job
@@ -25,17 +25,17 @@ slurm_toolkit:
       nodes:        1
       ntasks:       8
       length:       14
-      maxruns:      10
+      maxruns:      2
       pre_batch:    
       - name:   check
         args:
-          cmd:  /usr/bin/test -f batch.ready
+          cmd:  test -f batch.ready
       - name:   execute
         args:
-          cmd:  /usr/bin/mkdir -p datadir
+          cmd:  mkdir -p datadir
       - name:   execute
         args:
-          cmd:  /usr/bin/touch pre_batch.keep
+          cmd:  touch pre_batch.keep
       pre_run:      
       - name:   execute
         args:
@@ -43,10 +43,10 @@ slurm_toolkit:
           log:  True
       - name:   check
         args:
-          cmd:  /usr/bin/test -d ../datadir
+          cmd:  test -d ../datadir
       - name:   execute
         args:
-          cmd:  /usr/bin/touch pre_run.keep
+          cmd:  touch pre_run.keep
       runs:         
       - custom_id:  1
       - custom_id:  2
@@ -74,11 +74,11 @@ slurm_toolkit:
           cmd:  ./postprocess.sh
       - name:   execute
         args:
-          cmd:  /usr/bin/touch post_run.keep
+          cmd:  touch post_run.keep
       post_batch:
       - name:   execute
         args:
-          cmd:  /usr/bin/rmdir datadir
+          cmd:  rmdir datadir
       - name:   execute
         args:
-          cmd:  /usr/bin/touch post_batch.keep
+          cmd:  touch post_batch.keep
