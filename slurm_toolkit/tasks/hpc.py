@@ -14,7 +14,7 @@ _job_lock = asyncio.Lock()
 async def jobs(ctx, limit, match):
     # TODO: match with regex
     # TODO: Race condition present with last job submission
-    with _job_lock:
+    async with _job_lock:
         job_names = [j['name'] for j in job().get().values()
                      if j['name'].startswith(match)
                      and j['job_state'] in ["COMPLETING", "PENDING", "RESV_DEL_HOLD", "RUNNING", "SUSPENDED"]]
@@ -32,7 +32,7 @@ async def jobs(ctx, limit, match):
 async def submit(ctx, script=None):
     r_sbatch_id = re.compile(r'Submitted batch job (\d+)$')
 
-    with _job_lock:
+    async with _job_lock:
         res = await execute_command("sbatch {}".format(script), cwd=ctx.dir)
         output = res.stdout
 
