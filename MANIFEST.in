@@ -1,3 +1,4 @@
 include pyproject.toml
 include *.md
 include LICENSE
+include slurm_toolkit/config-schema.json

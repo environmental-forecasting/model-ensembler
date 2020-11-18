@@ -5,20 +5,20 @@ from .utils import check_task, processing_task, execute_command
 
 
 @check_task
-async def check(ctx, cmd, **kwargs):
+async def check(ctx, cmd, cwd=None, log=False):
     logging.info("Running check: {}".format(cmd))
 
-    res = await execute_command(cmd, **kwargs)
+    res = await execute_command(cmd, cwd, log)
     if res.returncode == 0:
         return True
     return False
 
 
 @processing_task
-async def execute(ctx, cmd, **kwargs):
+async def execute(ctx, cmd, cwd=None, log=False):
     logging.info("Running command: {}".format(cmd))
 
-    res = await execute_command(cmd, **kwargs)
+    res = await execute_command(cmd, cwd, log)
     if res.returncode == 0:
         return True
     return False

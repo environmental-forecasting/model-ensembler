@@ -1,5 +1,6 @@
 import asyncio
 import functools
+import inspect
 import logging
 import os
 import shlex
@@ -27,7 +28,7 @@ def flight_task(func, check=True):
                 )
 
         # A bit of context magic for execute_command calls below (TODO: better way with context stack/proxy)
-        if hasattr(ctx, 'dir'):
+        if hasattr(ctx, 'dir') and 'cwd' in inspect.signature(func).parameters:
             kwargs['cwd'] = ctx.dir
 
         if config.nochecks and check:
