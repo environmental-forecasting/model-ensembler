@@ -47,8 +47,8 @@ async def submit(ctx, script=None):
 @check_task
 async def quota(ctx, atleast, mnt=None):
     # Command responds in 1k blocks
-    path = ctx.dir if not mnt else mnt
-    quota_cmd = " ".join(["quota -uw -f", path])
+    path_arg = " -f " + mnt if mnt else ""
+    quota_cmd = "quota -uw" + path_arg
     res = await execute_command(quota_cmd)
     quota_out = res.stdout
 
