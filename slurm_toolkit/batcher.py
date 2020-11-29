@@ -40,7 +40,8 @@ async def run_check(ctx, func, check):
 
 async def run_task(ctx, func, task):
     try:
-        await func(ctx, **task.args)
+        args = dict() if not task.args else task.args
+        await func(ctx, **args)
     except Exception as e:
         logging.exception(e)
         raise TaskException("Issues with flight checks, abandoning")
@@ -116,7 +117,7 @@ async def run_batch_item(run, batch):
     if Arguments().nosubmission:
         logging.info("Skipping actual slurm submission based on arguments")
     else:
-        slurm_id = await slurm_submit(script=batch.job_file)
+        slurm_id = await slurm_submit(run, script=batch.job_file)
         slurm_running = False
         slurm_state = None
 
@@ -133,7 +134,7 @@ async def run_batch_item(run, batch):
                 slurm_running = True
             else:
                 # TODO: Configurable sleeps please!
-                time.sleep(2.)
+                await asyncio.sleep(2.)
 
         while True:
             slurm_state = job().find_id(int(slurm_id))[0]['job_state']
@@ -143,7 +144,7 @@ async def run_batch_item(run, batch):
             if slurm_state in ("COMPLETED", "FAILED", "CANCELLED"):
                 break
             else:
-                time.sleep(10.)
+                await asyncio.sleep(10.)
 
     await run_task_items(run, batch.post_run)
     logging.info("End run")
@@ -170,7 +171,8 @@ def do_batch_execution(loop, batch):
         # TODO: Not really the best way of doing this, use some appropriate typing for all the data used
         run_vars = collections.defaultdict()
         # This dir parameters becomes very important for running commands in the correct directory context
-        run['id'] = run['dir'] = runid
+        run['id'] = runid
+        run['dir'] = os.path.abspath(os.path.join(os.getcwd(), runid))
 
         batch_dict = batch._asdict()
         for k, v in batch_dict.items():
@@ -199,6 +201,7 @@ class BatchExecutor(object):
 
     def run(self):
         logging.info("Running batcher")
+        loop = None
 
         try:
             loop = asyncio.get_event_loop()
@@ -208,5 +211,6 @@ class BatchExecutor(object):
                 do_batch_execution(loop, batch)
                 loop.run_until_complete(run_task_items(self._cfg.vars, self._cfg.post_process))
         finally:
-            loop.run_until_complete(loop.shutdown_asyncgens())
-            loop.close()
+            if loop:
+                loop.run_until_complete(loop.shutdown_asyncgens())
+                loop.close()

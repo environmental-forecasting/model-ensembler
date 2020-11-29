@@ -34,7 +34,7 @@ async def submit(ctx, script=None):
 
     async with _job_lock:
         res = await execute_command("sbatch {}".format(script), cwd=ctx.dir)
-        output = res.stdout
+        output = res.stdout.decode()
 
     sbatch_match = r_sbatch_id.match(output)
     if sbatch_match:
