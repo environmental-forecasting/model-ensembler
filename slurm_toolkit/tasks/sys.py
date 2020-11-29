@@ -6,10 +6,10 @@ from .utils import check_task, processing_task, execute_command
 
 
 @check_task
-async def check(ctx, cmd, cwd=None, log=False, fail=False):
+async def check(ctx, cmd, cwd=None, log=False, fail=False, shell=None):
     logging.info("Running check: {}".format(cmd))
 
-    res = await execute_command(cmd, cwd, log)
+    res = await execute_command(cmd, cwd, log, shell)
     if res.returncode == 0:
         return True
 
@@ -19,10 +19,10 @@ async def check(ctx, cmd, cwd=None, log=False, fail=False):
 
 
 @processing_task
-async def execute(ctx, cmd, cwd=None, log=False):
+async def execute(ctx, cmd, cwd=None, log=False, shell=None):
     logging.info("Running command: {}".format(cmd))
 
-    res = await execute_command(cmd, cwd, log)
+    res = await execute_command(cmd, cwd, log, shell)
     if res.returncode == 0:
         return True
     return False

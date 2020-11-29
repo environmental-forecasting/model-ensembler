@@ -44,13 +44,15 @@ check_task = functools.partial(flight_task, check=True)
 processing_task = functools.partial(flight_task, check=False)
 
 
-async def execute_command(cmd, cwd=None, log=False):
+async def execute_command(cmd, cwd=None, log=False, shell=None):
     logging.info("Executing command {0}, cwd {1}".format(cmd, cwd if cwd else "unset"))
 
     start_dt = datetime.now()
 
+    shell = '/usr/bin/bash' if not shell else shell
+
     proc = await asyncio.create_subprocess_shell(cmd,
-                                                 executable='/usr/bin/bash',
+                                                 executable=shell,
                                                  stdout=asyncio.subprocess.PIPE,
                                                  stderr=asyncio.subprocess.STDOUT,
                                                  cwd=cwd)
