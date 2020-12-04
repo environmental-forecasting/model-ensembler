@@ -1,12 +1,9 @@
 import asyncio
 import collections
-import concurrent.futures
 import logging
 import os
-import random
 import shlex
-import subprocess
-import time
+import shutil
 
 from datetime import datetime
 from pprint import pformat
@@ -18,7 +15,6 @@ import slurm_toolkit
 
 from .tasks import CheckException, TaskException, ProcessingException
 from .tasks import submit as slurm_submit
-from .tasks.utils import execute_command
 from .utils import Arguments
 
 
@@ -68,6 +64,7 @@ async def run_task_items(ctx, items):
 ## CORE EXECUTION FOR BATCHER
 #
 async def run_runner(limit, tasks):
+    # TODO: return run task windows/info
     sem = asyncio.Semaphore(limit)
 
     async def sem_task(task):
@@ -76,83 +73,109 @@ async def run_runner(limit, tasks):
     return await asyncio.gather(*(sem_task(task) for task in tasks))
 
 
-async def run_batch_item(run, batch):
-    logging.info("Start run {}".format(run))
-
-    if os.path.exists(run.dir):
-        raise RuntimeError("Run directory {} already exists".format(run.dir))
-
-    os.makedirs(run.dir, mode=0o775)
-
-    cmd = "rsync -aXE {}/ {}/".format(batch.templatedir, run.dir)
-    logging.info(cmd)
-    proc = await asyncio.create_subprocess_exec(*shlex.split(cmd))
-    rc = await proc.wait()
-
-    if rc != 0:
-        raise RuntimeError("Could not grab template directory {} to {}".format(
-            batch.templatedir, run.dir
-        ))
-
-    for tmpl_file in batch.templates:
+def process_templates(ctx, template_list):
+    for tmpl_file in template_list:
         if tmpl_file[-3:] != ".j2":
             raise RuntimeError("{} doe not appear to be a Jinja2 template (.j2)".format(tmpl_file))
 
-        tmpl_path = os.path.join(run.dir, tmpl_file)
+        tmpl_path = os.path.join(ctx.dir, tmpl_file)
         with open(tmpl_path, "r") as fh:
             tmpl_data = fh.read()
 
         dst_file = tmpl_path[:-3]
         logging.info("Templating {} to {}".format(tmpl_path, dst_file))
         tmpl = jinja2.Template(tmpl_data)
-        dst_data = tmpl.render(run=run)
+        dst_data = tmpl.render(run=ctx)
         with open(dst_file, "w+") as fh:
             fh.write(dst_data)
         os.chmod(dst_file, os.stat(tmpl_path).st_mode)
 
         os.unlink(tmpl_path)
 
-    await run_task_items(run, batch.pre_run)
 
-    if Arguments().nosubmission:
-        logging.info("Skipping actual slurm submission based on arguments")
+async def run_batch_item(run, batch):
+    logging.info("Start run {} at {}".format(run.id, datetime.utcnow()))
+    logging.debug(pformat(run))
+
+    args = Arguments()
+
+    if args.pickup and os.path.exists(run.dir):
+        if not os.path.exists(run.dir):
+            raise RuntimeError("Pickup previous run dir {} cannot work, it doesn't exist".format(run.dir))
+
+        logging.info("Picked up previous job directory for run {}".format(run.id))
+
+        for tmpl_file in batch.templates:
+            src_path = os.path.join(batch.templatedir, tmpl_file)
+            dst_path = shutil.copy(src_path, run.dir)
+            logging.info("Re-copied {} to {} for template regeneration".format(src_path, dst_path))
     else:
-        slurm_id = await slurm_submit(run, script=batch.job_file)
-        slurm_running = False
-        slurm_state = None
+        if os.path.exists(run.dir):
+            raise RuntimeError("Run directory {} already exists".format(run.dir))
 
-        while not slurm_running:
-            try:
+        os.makedirs(run.dir, mode=0o775)
+
+        cmd = "rsync -aXE {}/ {}/".format(batch.templatedir, run.dir)
+        logging.info(cmd)
+        proc = await asyncio.create_subprocess_exec(*shlex.split(cmd))
+        rc = await proc.wait()
+
+        if rc != 0:
+            raise RuntimeError("Could not grab template directory {} to {}".format(
+                batch.templatedir, run.dir
+            ))
+
+    process_templates(run, batch.templates)
+
+    try:
+        await run_task_items(run, batch.pre_run)
+
+        if args.nosubmission:
+            logging.info("Skipping actual slurm submission based on arguments")
+        else:
+            slurm_id = await slurm_submit(run, script=batch.job_file)
+            slurm_running = False
+            slurm_state = None
+
+            while not slurm_running:
+                try:
+                    slurm_state = job().find_id(int(slurm_id))[0]['job_state']
+                except ValueError:
+                    logging.warning("Job {} not registered yet".format(slurm_id))
+
+                if slurm_state and (slurm_state in (
+                        "COMPLETING", "PENDING", "RESV_DEL_HOLD", "RUNNING", "SUSPENDED"
+                                                                             "RUNNING", "COMPLETED", "FAILED",
+                        "CANCELLED")):
+                    slurm_running = True
+                else:
+                    # TODO: Configurable sleeps please!
+                    await asyncio.sleep(2.)
+
+            while True:
                 slurm_state = job().find_id(int(slurm_id))[0]['job_state']
-            except ValueError:
-                logging.warning("Job {} not registered yet".format(slurm_id))
+                logging.debug("{} monitor got state {} for job {}".format(
+                    run.id, slurm_state, slurm_id))
 
-            if slurm_state and (slurm_state in (
-                    "COMPLETING", "PENDING", "RESV_DEL_HOLD", "RUNNING", "SUSPENDED"
-                                                                         "RUNNING", "COMPLETED", "FAILED",
-                    "CANCELLED")):
-                slurm_running = True
-            else:
-                # TODO: Configurable sleeps please!
-                await asyncio.sleep(2.)
+                if slurm_state in ("COMPLETED", "FAILED", "CANCELLED"):
+                    logging.info("{} monitor got state {} for job {}".format(
+                        run.id, slurm_state, slurm_id))
+                    break
+                else:
+                    await asyncio.sleep(60.)
 
-        while True:
-            slurm_state = job().find_id(int(slurm_id))[0]['job_state']
-            logging.info("{} monitor got state {} for job {}".format(
-                run.id, slurm_state, slurm_id))
+        await run_task_items(run, batch.post_run)
+    except ProcessingException as e:
+        logging.exception("Run failure caught, abandoning {} but not the batch".format(run.id))
+        return
 
-            if slurm_state in ("COMPLETED", "FAILED", "CANCELLED"):
-                break
-            else:
-                await asyncio.sleep(10.)
-
-    await run_task_items(run, batch.post_run)
-    logging.info("End run")
+    # TODO: return run windows/info
+    logging.info("End run {} at {}".format(run.id, datetime.utcnow()))
 
 
 def do_batch_execution(loop, batch):
-    logging.info(pformat(batch))
-    logging.warning("Start: {}".format(datetime.utcnow()))
+    logging.info("Start batch: {}".format(datetime.utcnow()))
+    logging.debug(pformat(batch))
 
     batch_tasks = list()
 
@@ -192,6 +215,7 @@ def do_batch_execution(loop, batch):
 
     os.chdir(orig)
     logging.info("Batch {} completed: {}".format(batch.name, datetime.utcnow()))
+    # TODO: return batch windows/info
     return "Success"
 
 

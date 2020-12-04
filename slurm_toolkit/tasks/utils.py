@@ -45,7 +45,7 @@ processing_task = functools.partial(flight_task, check=False)
 
 
 async def execute_command(cmd, cwd=None, log=False, shell=None):
-    logging.info("Executing command {0}, cwd {1}".format(cmd, cwd if cwd else "unset"))
+    logging.debug("Executing command {0}, cwd {1}".format(cmd, cwd if cwd else "unset"))
 
     start_dt = datetime.now()
 
@@ -72,7 +72,7 @@ async def execute_command(cmd, cwd=None, log=False, shell=None):
         logging.info("Command log written to {}".format(log_name))
 
     ret = types.SimpleNamespace(returncode=proc.returncode, stdout=stdout, stderr=stderr)
-    logging.info(ret)
+    logging.debug(ret)
 
     if ret.returncode != 0:
         logging.warning("Command returned err: {}".format(ret.stderr))

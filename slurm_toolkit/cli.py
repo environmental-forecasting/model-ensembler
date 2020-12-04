@@ -12,6 +12,8 @@ def parse_args():
     a.add_argument("-v", "--verbose", default=False, action="store_true")
     a.add_argument("-c", "--nochecks", default=False, action="store_true")
     a.add_argument("-s", "--nosubmission", default=False, action="store_true")
+    a.add_argument("-p", "--pickup", help="Continue a previous set of runs, for example when previously failed",
+                   default=False, action="store_true")
     a.add_argument("-ct", "--check-timeout", default=10, type=int)
     a.add_argument("configuration")
     # Prefer retaining immutable Arguments() by not using the instance as a namespace

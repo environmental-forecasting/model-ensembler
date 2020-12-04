@@ -13,7 +13,7 @@ _job_lock = asyncio.Lock()
 @check_task
 async def jobs(ctx, limit, match):
     # TODO: match with regex
-    # TODO: Race condition present with last job submission
+    # TODO: Race condition present with last job submission (??? since asyncio)
     async with _job_lock:
         job_names = [j['name'] for j in job().get().values()
                      if j['name'].startswith(match)

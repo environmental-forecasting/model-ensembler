@@ -1,5 +1,5 @@
 from .hpc import jobs, quota, submit
-from .sys import check, execute, move, remove
+from .sys import check, execute, move, remove, FailureNotToleratedError
 
 
 class CheckException(Exception):
