@@ -55,14 +55,14 @@ async def submit(ctx, script=None):
         if sbatch_match:
             job_id = sbatch_match.group(1)
             logging.info("Submitted job with ID {}".format(job_id))
-            await asyncio.sleep(args.submit_sleep)
+            await asyncio.sleep(args.submit_timeout)
 
             job_results = job().find_id(int(job_id))
             while len(job_results) != 1:
                 logging.warning("Job {} has not appeared in {} queue results yet, waiting for appearance".format(
                     job_id, len(job_results)
                 ))
-                await asyncio.sleep(args.submit_sleep)
+                await asyncio.sleep(args.submit_timeout)
                 job_results = job().find_id(int(job_id))
 
             return job_id
