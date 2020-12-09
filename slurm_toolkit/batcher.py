@@ -144,13 +144,12 @@ async def run_batch_item(run, batch):
                     logging.warning("Job {} not registered yet".format(slurm_id))
 
                 if slurm_state and (slurm_state in (
-                        "COMPLETING", "PENDING", "RESV_DEL_HOLD", "RUNNING", "SUSPENDED"
-                                                                             "RUNNING", "COMPLETED", "FAILED",
-                        "CANCELLED")):
+                        "COMPLETING", "PENDING", "RESV_DEL_HOLD", "RUNNING", "SUSPENDED",
+                        "RUNNING", "COMPLETED", "FAILED", "CANCELLED")):
                     slurm_running = True
                 else:
                     # TODO: Configurable sleeps please!
-                    await asyncio.sleep(2.)
+                    await asyncio.sleep(args.slurm_timeout)
 
             while True:
                 slurm_state = job().find_id(int(slurm_id))[0]['job_state']
@@ -162,7 +161,7 @@ async def run_batch_item(run, batch):
                         run.id, slurm_state, slurm_id))
                     break
                 else:
-                    await asyncio.sleep(60.)
+                    await asyncio.sleep(args.running_timeout)
 
         await run_task_items(run, batch.post_run)
     except ProcessingException as e:
