@@ -134,25 +134,31 @@ async def run_batch_item(run, batch):
             logging.info("Skipping actual slurm submission based on arguments")
         else:
             slurm_id = await slurm_submit(run, script=batch.job_file)
+            # TODO: slurm_id could be false, we should make an issue of this!
             slurm_running = False
             slurm_state = None
 
             while not slurm_running:
                 try:
                     slurm_state = job().find_id(int(slurm_id))[0]['job_state']
-                except ValueError:
-                    logging.warning("Job {} not registered yet".format(slurm_id))
+                except (IndexError, ValueError):
+                    logging.warning("Job {} not registered yet, or error encountered".format(slurm_id))
 
                 if slurm_state and (slurm_state in (
                         "COMPLETING", "PENDING", "RESV_DEL_HOLD", "RUNNING", "SUSPENDED",
                         "RUNNING", "COMPLETED", "FAILED", "CANCELLED")):
                     slurm_running = True
                 else:
-                    # TODO: Configurable sleeps please!
-                    await asyncio.sleep(args.slurm_timeout)
+                    await asyncio.sleep(args.submit_timeout)
 
             while True:
-                slurm_state = job().find_id(int(slurm_id))[0]['job_state']
+                try:
+                    slurm_state = job().find_id(int(slurm_id))[0]['job_state']
+                except (IndexError, ValueError):
+                    logging.exception("Job status for run {} retrieval whilst slurm running, waiting and retrying".format(run.id))
+                    await asyncio.sleep(args.error_timeout)
+                    continue
+
                 logging.debug("{} monitor got state {} for job {}".format(
                     run.id, slurm_state, slurm_id))
 

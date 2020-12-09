@@ -17,6 +17,7 @@ def parse_args():
     a.add_argument("-ct", "--check-timeout", default=10, type=int)
     a.add_argument("-st", "--submit-timeout", default=10, type=int)
     a.add_argument("-rt", "--running-timeout", default=10, type=int)
+    a.add_argument("-et", "--error-timeout", default=120, type=int)
     a.add_argument("configuration")
     # Prefer retaining immutable Arguments() by not using the instance as a namespace
     return Arguments(**vars(a.parse_args()))
