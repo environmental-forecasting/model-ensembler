@@ -9,11 +9,13 @@ from .utils import Arguments
 
 def parse_args():
     a = argparse.ArgumentParser()
+    # TODO: Need to validate the argument selections/group certain commands
     a.add_argument("-v", "--verbose", default=False, action="store_true")
     a.add_argument("-c", "--nochecks", default=False, action="store_true")
     a.add_argument("-s", "--nosubmission", default=False, action="store_true")
     a.add_argument("-p", "--pickup", help="Continue a previous set of runs, for example when previously failed",
                    default=False, action="store_true")
+    a.add_argument("-k", "--skips", help="Number of run entries to skip", default=0, type=int)
     a.add_argument("-ct", "--check-timeout", default=10, type=int)
     a.add_argument("-st", "--submit-timeout", default=10, type=int)
     a.add_argument("-rt", "--running-timeout", default=10, type=int)

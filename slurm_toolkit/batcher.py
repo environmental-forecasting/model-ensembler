@@ -198,6 +198,7 @@ def do_batch_execution(loop, batch):
     logging.info("Start batch: {}".format(datetime.utcnow()))
     logging.debug(pformat(batch))
 
+    args = Arguments()
     batch_tasks = list()
     _batch_job_sems[batch.name] = asyncio.Semaphore(batch.maxjobs)
 
@@ -210,8 +211,12 @@ def do_batch_execution(loop, batch):
 
     loop.run_until_complete(run_task_items(batch, batch.pre_batch))
 
-    for run in batch.runs:
+    for idx, run in enumerate(batch.runs):
         runid = "{}-{}".format(batch.name, batch.runs.index(run))
+
+        if idx < args.skips:
+            logging.warning("Skipping run index {} due to {} skips, run ID: {}".format(idx, args.skips, runid))
+            continue
 
         # TODO: Not really the best way of doing this, use some appropriate typing for all the data used
         run_vars = collections.defaultdict()
