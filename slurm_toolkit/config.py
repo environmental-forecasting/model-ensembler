@@ -92,7 +92,7 @@ class BatcherConfig(YAMLConfig, TaskArrayMixin):
 
 BatchSpec = collections.namedtuple("Batch",
                                    ["name", "templates", "templatedir", "job_file", "cluster", "basedir",
-                                    "runs", "maxruns",
+                                    "runs", "maxruns", "maxjobs",
                                     "email", "nodes", "ntasks", "length",
                                     "pre_batch", "pre_run", "post_run", "post_batch"])
 BatchSpec.__new__.__defaults__ = tuple([None for i in range(0, 8)])

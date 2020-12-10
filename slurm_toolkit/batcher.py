@@ -93,6 +93,9 @@ def process_templates(ctx, template_list):
         os.unlink(tmpl_path)
 
 
+_batch_job_sems = dict()
+
+
 async def run_batch_item(run, batch):
     logging.info("Start run {} at {}".format(run.id, datetime.utcnow()))
     logging.debug(pformat(run))
@@ -133,41 +136,54 @@ async def run_batch_item(run, batch):
         if args.nosubmission:
             logging.info("Skipping actual slurm submission based on arguments")
         else:
-            slurm_id = await slurm_submit(run, script=batch.job_file)
-            # TODO: slurm_id could be false, we should make an issue of this!
-            slurm_running = False
-            slurm_state = None
+            async with _batch_job_sems[batch.name]:
+                func = getattr(slurm_toolkit.tasks, "jobs")
+                check = collections.namedtuple("check", ["args"])
+                await run_check(run, func, check({
+                    "limit": batch.maxjobs,
+                    "match": batch.name,
+                }))
 
-            while not slurm_running:
-                try:
-                    slurm_state = job().find_id(int(slurm_id))[0]['job_state']
-                except (IndexError, ValueError):
-                    logging.warning("Job {} not registered yet, or error encountered".format(slurm_id))
+                slurm_id = await slurm_submit(run, script=batch.job_file)
 
-                if slurm_state and (slurm_state in (
-                        "COMPLETING", "PENDING", "RESV_DEL_HOLD", "RUNNING", "SUSPENDED",
-                        "RUNNING", "COMPLETED", "FAILED", "CANCELLED")):
-                    slurm_running = True
+                if not slurm_id:
+                    # TODO: Maybe not the best way to handle this!
+                    logging.exception("{} could not be submitted, we won't continue")
                 else:
-                    await asyncio.sleep(args.submit_timeout)
+                    slurm_running = False
+                    slurm_state = None
 
-            while True:
-                try:
-                    slurm_state = job().find_id(int(slurm_id))[0]['job_state']
-                except (IndexError, ValueError):
-                    logging.exception("Job status for run {} retrieval whilst slurm running, waiting and retrying".format(run.id))
-                    await asyncio.sleep(args.error_timeout)
-                    continue
+                    while not slurm_running:
+                        try:
+                            slurm_state = job().find_id(int(slurm_id))[0]['job_state']
+                        except (IndexError, ValueError):
+                            logging.warning("Job {} not registered yet, or error encountered".format(slurm_id))
 
-                logging.debug("{} monitor got state {} for job {}".format(
-                    run.id, slurm_state, slurm_id))
+                        if slurm_state and (slurm_state in (
+                                "COMPLETING", "PENDING", "RESV_DEL_HOLD", "RUNNING", "SUSPENDED",
+                                "RUNNING", "COMPLETED", "FAILED", "CANCELLED")):
+                            slurm_running = True
+                        else:
+                            await asyncio.sleep(args.submit_timeout)
 
-                if slurm_state in ("COMPLETED", "FAILED", "CANCELLED"):
-                    logging.info("{} monitor got state {} for job {}".format(
-                        run.id, slurm_state, slurm_id))
-                    break
-                else:
-                    await asyncio.sleep(args.running_timeout)
+                    while True:
+                        try:
+                            slurm_state = job().find_id(int(slurm_id))[0]['job_state']
+                        except (IndexError, ValueError):
+                            logging.exception("Job status for run {} retrieval whilst slurm running, "
+                                              "waiting and retrying".format(run.id))
+                            await asyncio.sleep(args.error_timeout)
+                            continue
+
+                        logging.debug("{} monitor got state {} for job {}".format(
+                            run.id, slurm_state, slurm_id))
+
+                        if slurm_state in ("COMPLETED", "FAILED", "CANCELLED"):
+                            logging.info("{} monitor got state {} for job {}".format(
+                                run.id, slurm_state, slurm_id))
+                            break
+                        else:
+                            await asyncio.sleep(args.running_timeout)
 
         await run_task_items(run, batch.post_run)
     except ProcessingException as e:
@@ -183,6 +199,7 @@ def do_batch_execution(loop, batch):
     logging.debug(pformat(batch))
 
     batch_tasks = list()
+    _batch_job_sems[batch.name] = asyncio.Semaphore(batch.maxjobs)
 
     # We are process dependent here, so this is where we have the choice of concurrency strategies but each batch
     # is dependent on chdir remaining consistent after this point.

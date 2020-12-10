@@ -7,6 +7,7 @@ from ..utils import Arguments
 
 from pyslurm import job
 
+from pprint import pformat
 
 _job_lock = asyncio.Lock()
 
@@ -20,7 +21,6 @@ async def jobs(ctx, limit, match):
         jobs = None
 
         while not jobs:
-            # TODO: Haven't checked whether anything other than a list can come back from pyslurm
             try:
                 jobs = job().get()
             except ValueError:
@@ -28,9 +28,12 @@ async def jobs(ctx, limit, match):
                 await asyncio.sleep(args.error_timeout)
                 continue
 
-            job_names = [j['name'] for j in jobs.values()
+            job_names = [{"name": j['name'], "state": j["job_state"]}
+                         for j in jobs.values()
                          if j['name'].startswith(match)
                          and j['job_state'] in ["COMPLETING", "PENDING", "RESV_DEL_HOLD", "RUNNING", "SUSPENDED"]]
+
+            logging.debug("SLURM JOBS result: {}".format(pformat(job_names)))
 
             res = len(job_names) < int(limit)
 
@@ -55,7 +58,6 @@ async def submit(ctx, script=None):
         if sbatch_match:
             job_id = sbatch_match.group(1)
             logging.info("Submitted job with ID {}".format(job_id))
-            await asyncio.sleep(args.submit_timeout)
 
             job_results = job().find_id(int(job_id))
             while len(job_results) != 1:

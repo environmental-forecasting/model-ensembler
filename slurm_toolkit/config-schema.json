@@ -20,6 +20,7 @@
         "ntasks": { "type": "number" },
         "length": { "type": ["number","string"] },
         "maxruns": { "type": "number" },
+        "maxjobs": { "type": "number" },
         "pre_batch": {
           "type": "array",
           "items": {
