@@ -31,7 +31,7 @@ def flight_task(func, check=True):
         if hasattr(ctx, 'dir') and 'cwd' in inspect.signature(func).parameters:
             kwargs['cwd'] = ctx.dir
 
-        if config.nochecks and check:
+        if config.no_checks and check:
             logging.info("Skipping checks for {}".format(func.__name__))
             return True
         return func(ctx, *args, **kwargs)

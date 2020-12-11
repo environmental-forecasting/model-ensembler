@@ -133,7 +133,7 @@ async def run_batch_item(run, batch):
     try:
         await run_task_items(run, batch.pre_run)
 
-        if args.nosubmission:
+        if args.no_submission:
             logging.info("Skipping actual slurm submission based on arguments")
         else:
             async with _batch_job_sems[batch.name]:

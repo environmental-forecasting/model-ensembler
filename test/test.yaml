@@ -26,6 +26,7 @@ slurm_toolkit:
       ntasks:       8
       length:       14
       maxruns:      8
+      maxjobs:      2
       pre_batch:    
       - name:   check
         args:

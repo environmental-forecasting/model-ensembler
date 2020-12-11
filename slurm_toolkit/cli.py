@@ -4,15 +4,18 @@ import logging
 from .config import BatcherConfig
 from .batcher import BatchExecutor
 # TODO: logging and parse_args should be in utils
-from .utils import Arguments
+from .utils import Arguments, background_fork
 
 
 def parse_args():
     a = argparse.ArgumentParser()
+
+    a.add_argument("-n", "--no-daemon", help="Do not daemon", default=True, action="store_true")
+
     # TODO: Need to validate the argument selections/group certain commands
     a.add_argument("-v", "--verbose", default=False, action="store_true")
-    a.add_argument("-c", "--nochecks", default=False, action="store_true")
-    a.add_argument("-s", "--nosubmission", default=False, action="store_true")
+    a.add_argument("-c", "--no-checks", default=False, action="store_true")
+    a.add_argument("-s", "--no-submission", default=False, action="store_true")
     a.add_argument("-p", "--pickup", help="Continue a previous set of runs, for example when previously failed",
                    default=False, action="store_true")
     a.add_argument("-k", "--skips", help="Number of run entries to skip", default=0, type=int)
@@ -30,7 +33,12 @@ def main():
     logging.info("HPC Batching Tool")
 
     args = parse_args()
+
+    if not args.no_daemon:
+        background_fork(True)
+
     if args.verbose:
         logging.getLogger().setLevel(logging.DEBUG)
+
     config = BatcherConfig(args.configuration)
     BatchExecutor(config).run()
