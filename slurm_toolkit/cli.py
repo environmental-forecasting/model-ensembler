@@ -1,10 +1,11 @@
 import argparse
 import logging
+import os
 
 from .config import BatcherConfig
 from .batcher import BatchExecutor
 # TODO: logging and parse_args should be in utils
-from .utils import Arguments, background_fork
+from .utils import Arguments, background_fork, setup_logging
 
 
 def parse_args():
@@ -29,16 +30,14 @@ def parse_args():
 
 
 def main():
-    logging.getLogger().setLevel(logging.INFO)
-    logging.info("HPC Batching Tool")
-
     args = parse_args()
 
     if not args.no_daemon:
         background_fork(True)
 
-    if args.verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
+    setup_logging("{}".format(os.path.basename(args.configuration)),
+                              verbose=args.verbose)
 
+    logging.info("HPC Batching Tool")
     config = BatcherConfig(args.configuration)
     BatchExecutor(config).run()
