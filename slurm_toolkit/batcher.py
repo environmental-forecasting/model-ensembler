@@ -30,7 +30,7 @@ async def run_check(ctx, func, check):
             raise CheckException("Issues with flight checks, abandoning")
 
         if not result:
-            logging.info("Cannot continue, waiting {} seconds for next check".format(args.check_timeout))
+            logging.debug("Cannot continue, waiting {} seconds for next check".format(args.check_timeout))
             await asyncio.sleep(args.check_timeout)
 
 
@@ -216,6 +216,10 @@ def do_batch_execution(loop, batch):
 
         if idx < args.skips:
             logging.warning("Skipping run index {} due to {} skips, run ID: {}".format(idx, args.skips, runid))
+            continue
+
+        if args.indexes and idx not in args.indexes:
+            logging.warning("Skipping run index {} due to not being in indexes argument, run ID: {}".format(idx, runid))
             continue
 
         # TODO: Not really the best way of doing this, use some appropriate typing for all the data used

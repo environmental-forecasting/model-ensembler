@@ -12,7 +12,7 @@ slurm_toolkit:
       cmd:  rm process.touch
   batches:
     - name:         tst1
-      templatedir:  /tmp/template_job
+      templatedir:  ..//template_job
       templates:
       - slurm_run.sh.j2
       - inputfile.j2

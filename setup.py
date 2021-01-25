@@ -9,7 +9,7 @@ dist.Distribution().fetch_build_eggs(['Cython'])
 
 setup(
     name="slurm_toolkit",
-    version="0.4.0a1",
+    version="0.4.0a2",
     author="James Byrne",
     author_email="jambyr@bas.ac.uk",
     description="Task toolkit and batcher for SLURM HPCs",

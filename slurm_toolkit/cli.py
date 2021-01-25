@@ -1,11 +1,18 @@
 import argparse
 import logging
 import os
+import re
 
 from .config import BatcherConfig
 from .batcher import BatchExecutor
 # TODO: logging and parse_args should be in utils
 from .utils import Arguments, background_fork, setup_logging
+
+
+def parse_indexes(argv):
+    if re.match(r'^([0-9]+,)*[0-9]+$', argv):
+        return [int(v) for v in argv.split(",")]
+    raise argparse.ArgumentTypeError("{} is not a CSV delimited integer list of indexes".format(argv))
 
 
 def parse_args():
@@ -20,6 +27,7 @@ def parse_args():
     a.add_argument("-p", "--pickup", help="Continue a previous set of runs, for example when previously failed",
                    default=False, action="store_true")
     a.add_argument("-k", "--skips", help="Number of run entries to skip", default=0, type=int)
+    a.add_argument("-i", "--indexes", help="Specify which indexes to run", type=parse_indexes)
     a.add_argument("-ct", "--check-timeout", default=10, type=int)
     a.add_argument("-st", "--submit-timeout", default=10, type=int)
     a.add_argument("-rt", "--running-timeout", default=10, type=int)

@@ -37,11 +37,7 @@ async def jobs(ctx, limit, match):
 
             res = len(job_names) < int(limit)
 
-            if not res:
-                log = logging.warning
-            else:
-                log = logging.debug
-            log("Jobs in action {} with limit {}".format(len(job_names), limit))
+            logging.debug("Jobs in action {} with limit {}".format(len(job_names), limit))
     return res
 
 
