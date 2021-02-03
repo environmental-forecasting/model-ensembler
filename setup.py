@@ -8,14 +8,14 @@ with open("README.md", "r") as fh:
 dist.Distribution().fetch_build_eggs(['Cython'])
 
 setup(
-    name="slurm_toolkit",
-    version="0.4.0a2",
+    name="model_toolkit",
+    version="0.4.0a3",
     author="James Byrne",
     author_email="jambyr@bas.ac.uk",
-    description="Task toolkit and batcher for SLURM HPCs",
+    description="Task toolkit and batcher for modelling on HPCs",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/pypa/sampleproject",
+    url="https://github.com/jimcircadian/model-toolkit",
     packages=setuptools.find_packages(),
     keywords='slurm, hpc, tools, batching',
     classifiers=[
@@ -28,7 +28,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'slurm_batch=slurm_toolkit.cli:main',
+            'slurm_batch=model_toolkit.cli:main',
         ],
     },
     python_requires='>=3.6, <4',
@@ -37,7 +37,8 @@ setup(
         "Fabric",
         "jinja2",
         "jsonschema",
-        # Why are they not packaging this any more? 
+        # TODO: Why are they not packaging this any more? 
+        # TODO: This isn't a strong dependency for what we do, maybe break it off...
         #"pyslurm==19.5.0.0",
         "pyyaml",
     ],

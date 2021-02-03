@@ -16,5 +16,4 @@ pyrsistent==0.17.3
 #pyslurm==19.5.0.0
 PyYAML==5.3.1
 six==1.15.0
-#-e git+git@gitlab.data.bas.ac.uk:it/slurm-toolkit.git@69c34c9df9ab1ff5378cdb3e5da5ca4341b33cf7#egg=slurm_toolkit
 zipp==3.4.0

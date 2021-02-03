@@ -1,4 +1,4 @@
-# SLURM Toolkit
+# Model Toolkit
 
 ## Introduction
 
