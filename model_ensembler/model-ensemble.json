@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://www.bas.ac.uk/schemas/json/slurm-toolkit.json",
+  "$id": "https://www.bas.ac.uk/schemas/json/model-ensemble.json",
 
   "definitions": {
     "batch": {
@@ -72,7 +72,7 @@
   "type": "object",
 
   "properties":  {
-    "slurm_toolkit": { "type": "object",
+    "ensemble": { "type": "object",
       "properties": {
         "vars": { "type": "object" },
 

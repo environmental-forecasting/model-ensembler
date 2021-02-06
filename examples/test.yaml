@@ -1,5 +1,5 @@
 ---
-slurm_toolkit:
+ensemble:
   vars:  
     configuration:  test.yaml
   pre_process: 
@@ -12,7 +12,7 @@ slurm_toolkit:
       cmd:  rm process.touch
   batches:
     - name:         tst1
-      templatedir:  ../template_job
+      templatedir:  ..//template_job
       templates:
       - slurm_run.sh.j2
       - inputfile.j2
@@ -25,8 +25,63 @@ slurm_toolkit:
       nodes:        1
       ntasks:       8
       length:       14
-      maxruns:      2
-      maxjobs:      1
+      maxruns:      8
+      maxjobs:      2
+      pre_batch:    
+      - name:   check
+        args:
+          cmd:  test -f batch.ready
+      - name:   execute
+        args:
+          cmd:  mkdir -p datadir
+      - name:   execute
+        args:
+          cmd:  touch pre_batch.keep
+      pre_run:      
+      - name:   execute
+        args:
+          cmd:  ./preprocess.sh
+          log:  True
+      - name:   check
+        args:
+          cmd:  test -d ../datadir
+      - name:   execute
+        args:
+          cmd:  pre_run.keep
+      runs:         
+      - custom_id:  1
+      - custom_id:  2
+      - custom_id:  3
+      - custom_id:  4
+      post_run:     
+      - name:   execute
+        args:
+          cmd:  ./postprocess.sh
+      - name:   execute
+        args:
+          cmd:  touch post_run.keep
+      post_batch:
+      - name:   execute
+        args:
+          cmd:  rmdir datadir
+      - name:   execute
+        args:
+          cmd:  touch post_batch.keep
+    - name:         tst2
+      templatedir:  ../template_job
+      templates:
+      - slurm_run.sh.j2
+      - inputfile.j2
+      - preprocess.sh.j2
+      - postprocess.sh.j2
+      job_file:     slurm_run.sh
+      cluster:      long
+      basedir:      ./tst2
+      email:        test@example.org
+      nodes:        1
+      ntasks:       8
+      length:       14
+      maxruns:      8
       pre_batch:    
       - name:   check
         args:
@@ -49,26 +104,10 @@ slurm_toolkit:
         args:
           cmd:  touch pre_run.keep
       runs:         
-      - custom_id:  1
-      - custom_id:  2
-      - custom_id:  3
-      - custom_id:  4
       - custom_id:  5
       - custom_id:  6
       - custom_id:  7
       - custom_id:  8
-      - custom_id:  9
-      - custom_id:  10
-      - custom_id:  11
-      - custom_id:  12
-      - custom_id:  13
-      - custom_id:  14
-      - custom_id:  15
-      - custom_id:  16
-      - custom_id:  17
-      - custom_id:  18
-      - custom_id:  19
-      - custom_id:  20
       post_run:     
       - name:   execute
         args:

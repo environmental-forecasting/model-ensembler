@@ -1,4 +1,4 @@
 include pyproject.toml
 include *.md
 include LICENSE
-include model_toolkit/config-schema.json
+include model_ensembler/model-ensemble.json

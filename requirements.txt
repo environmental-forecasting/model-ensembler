@@ -5,3 +5,4 @@ jsonschema
 # Not being packaged at the moment
 #pyslurm==19.5.0.0
 pyyaml
+wheel

@@ -21,11 +21,14 @@ def parse_args():
     a.add_argument("-n", "--no-daemon", help="Do not daemon", default=True, action="store_true")
 
     # TODO: Need to validate the argument selections/group certain commands
-    a.add_argument("-v", "--verbose", default=False, action="store_true")
-    a.add_argument("-c", "--no-checks", default=False, action="store_true")
-    a.add_argument("-s", "--no-submission", default=False, action="store_true")
-    a.add_argument("-p", "--pickup", help="Continue a previous set of runs, for example when previously failed",
+    a.add_argument("-v", "--verbose", help="Log verbosely", default=False, action="store_true")
+    a.add_argument("-c", "--no-checks", help="Do not run check commands", default=False, action="store_true")
+    a.add_argument("-s", "--no-submission", help="Do not try to submit to SLURM, just log the step",
                    default=False, action="store_true")
+    a.add_argument("-p", "--pickup", help="Continue a previous set of runs by picking up existing directories rather, "
+                                          "than assuming to create them; for example if ensemble has previously failed",
+                   default=False, action="store_true")
+    # FIXME: These should not be applied in multi-batch ensembles
     a.add_argument("-k", "--skips", help="Number of run entries to skip", default=0, type=int)
     a.add_argument("-i", "--indexes", help="Specify which indexes to run", type=parse_indexes)
     a.add_argument("-ct", "--check-timeout", default=10, type=int)
@@ -46,6 +49,6 @@ def main():
     setup_logging("{}".format(os.path.basename(args.configuration)),
                               verbose=args.verbose)
 
-    logging.info("HPC Batching Tool")
+    logging.info("Model Ensemble Runner")
     config = BatcherConfig(args.configuration)
     BatchExecutor(config).run()

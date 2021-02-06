@@ -16,7 +16,7 @@ path = os.path.abspath(os.path.dirname(__file__))
 # TODO: Would like very much for some kind of itertools interactions to generate parameter setups
 class YAMLConfig(object):
     def __init__(self, configuration):
-        self._schema = os.path.join(path, "config-schema.json")
+        self._schema = os.path.join(path, "model-ensemble.json")
         self._configuration_file = configuration
 
         self._schema_data, self._data = \
@@ -65,10 +65,10 @@ class TaskArrayMixin:
 class BatcherConfig(YAMLConfig, TaskArrayMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._vars = self._data['slurm_toolkit']['vars']
-        self._pre_process = self._data['slurm_toolkit']['pre_process']
-        self._post_process = self._data['slurm_toolkit']['post_process']
-        self._batches = self._data['slurm_toolkit']['batches']
+        self._vars = self._data['ensemble']['vars']
+        self._pre_process = self._data['ensemble']['pre_process']
+        self._post_process = self._data['ensemble']['post_process']
+        self._batches = self._data['ensemble']['batches']
 
     @property
     def pre_process(self):

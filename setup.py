@@ -8,16 +8,16 @@ with open("README.md", "r") as fh:
 dist.Distribution().fetch_build_eggs(['Cython'])
 
 setup(
-    name="model_toolkit",
-    version="0.4.0a3",
+    name="model-ensembler",
+    version="0.4.0a4",
     author="James Byrne",
     author_email="jambyr@bas.ac.uk",
-    description="Task toolkit and batcher for modelling on HPCs",
+    description="Model Ensemble for batch workflows on HPCs",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/jimcircadian/model-toolkit",
+    url="https://github.com/jimcircadian/meg",
     packages=setuptools.find_packages(),
-    keywords='slurm, hpc, tools, batching',
+    keywords='slurm, hpc, tools, batch, model, ensemble',
     classifiers=[
         "Programming Language :: Python :: 3",
         "Intended Audience :: Science/Research",
@@ -28,7 +28,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'slurm_batch=model_toolkit.cli:main',
+            'model_ensemble=model_ensembler.cli:main',
         ],
     },
     python_requires='>=3.6, <4',

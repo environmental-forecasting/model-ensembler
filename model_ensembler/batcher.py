@@ -11,7 +11,7 @@ from pprint import pformat
 import jinja2
 from pyslurm import config, job
 
-import slurm_toolkit
+import model_ensembler
 
 from .tasks import CheckException, TaskException, ProcessingException
 from .tasks import submit as slurm_submit
@@ -47,7 +47,7 @@ async def run_task(ctx, func, task):
 async def run_task_items(ctx, items):
     try:
         for item in items:
-            func = getattr(slurm_toolkit.tasks, item.name)
+            func = getattr(model_ensembler.tasks, item.name)
 
             logging.debug("TASK CWD: {}".format(os.getcwd()))
             logging.debug("TASK CTX: {}".format(pformat(ctx)))
@@ -137,7 +137,7 @@ async def run_batch_item(run, batch):
             logging.info("Skipping actual slurm submission based on arguments")
         else:
             async with _batch_job_sems[batch.name]:
-                func = getattr(slurm_toolkit.tasks, "jobs")
+                func = getattr(model_ensembler.tasks, "jobs")
                 check = collections.namedtuple("check", ["args"])
                 await run_check(run, func, check({
                     "limit": batch.maxjobs,

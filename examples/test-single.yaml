@@ -1,5 +1,5 @@
 ---
-slurm_toolkit:
+ensemble:
   vars:  
     configuration:  test.yaml
   pre_process: 
