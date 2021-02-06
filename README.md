@@ -10,36 +10,49 @@ being easy to extend code wise for new tasks that support the ensemble workflows
 
 pyslurm needs to be installed from source, it seems they're not packaging it. (*TODO: chase this up*)
 
-**Whilst this is the case we won't release this via pypi. Turns out we need to change the name if we do anyway.**
+This is a bit of an annoyance currently, but it'll be good to pick that up and revise accordingly.
+
+Refit the instructions to match however you like created virtual environments! 
 
 ```
-cd <repo_dest>
-python3 -m venv venv
+python3.6 -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
-pip install -r requirements.txt
-
-# PySlurm Dependency (see below)
-
-pip install <repo_dest>
+pip install model-ensembler
 ```
 
 ### PySlurm Dependency
 
-Install from source pyslurm ref. 19.05.00
+You'll need to manually install the PySlurm library and at time of writing the one we've been using is v19. v18 used to 
+work for us too, and can be installed with `pip install pyslurm` but v19, which we were on at time of writing, is more 
+involved to install :
+
+#### Install pyslurm from source for anything other than v18
 
 ```
 git clone git@github.com:PySlurm/pyslurm.git <pyslurm_dest>
 cd <pyslurm_dest>
+# Change as appropriate
 git checkout 19.05.0
 
 # If you are repeating the build
 python setup.py clean
 
-# FIXME: Don't ask me why, but the build process sometimes doesn't work just with pip
+# FIXME: Don't ask me why, but sometimes the build process sometimes doesn't work just with pip
 python setup.py build
 pip install .
 ```
+
+### Checking it works
+
+This runs a nice little test job in the examples directory of the source. It doesn't need slurm behind PySlurm, if you use the `-s` option.
+
+```
+git clone https://github.com/JimCircadian/model-ensembler.git
+cd model-ensembler/examples/
+model_ensemble -s sanity-check.yml
+```
+
 
 ## Basic Usage
 
@@ -155,6 +168,7 @@ There are a few items on the list:
 * document the code now it's in the public domain!
 * better documentation and examples
 * move the repo to model-ensembler rather than meg
+* packaging needs to be cleaner (pyslurm)
 
 This tool was merely to help out with a single support ticket for a weather model run, but the concept had potential 
 and it was easier than deploying something more substantial! If there are better approaches or tools that do something 
