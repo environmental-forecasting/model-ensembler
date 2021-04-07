@@ -3,7 +3,9 @@ import json
 import jsonschema
 import logging
 import os
+import sys
 
+from pprint import pprint
 from yaml import load
 try:
     from yaml import CLoader as Loader, CDumper as Dumper
@@ -30,6 +32,19 @@ class YAMLConfig(object):
 
         with open(yaml_file, "r") as fh:
             yaml_data = load(fh, Loader=Loader)
+
+        # FIXME: this is a cheat for extreme batch numbers by allowing common parameters
+        if "batch_config" in yaml_data["ensemble"]:
+            batch_config = yaml_data["ensemble"]["batch_config"]
+
+            for batch in yaml_data["ensemble"]["batches"]:
+                for k, v in batch_config.items():
+                    if k in ["name", "basedir"]:
+                        raise RuntimeError("I can tell you now that putting those parameters in the general \
+                        batch_config is a bad move")
+                    if k not in batch:
+                        batch[k] = v
+            yaml_data["ensemble"].pop("batch_config", None)
 
         with open(json_schema, "r") as fh:
             json_data = json.load(fh)

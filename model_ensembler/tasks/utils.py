@@ -1,6 +1,7 @@
 import asyncio
 import functools
 import inspect
+import jinja2
 import logging
 import os
 import shlex
@@ -19,7 +20,7 @@ def flight_task(func, check=True):
 
         for k, v in kwargs.items():
             try:
-                if type(v) == str and v.startswith("run."):
+                if type(v) == str and str(v).startswith("run."):
                     nom = v.split(".")[1]
                     kwargs[k] = getattr(ctx, nom)
             finally:
@@ -78,5 +79,5 @@ async def execute_command(cmd, cwd=None, log=False, shell=None):
         logging.warning("Command returned err: {}".format(ret.stderr))
         return ret
     else:
-        logging.info("Command successful")
+        logging.info("Command successful: {}".format(ret.stdout))
     return ret

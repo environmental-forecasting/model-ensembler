@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="model-ensembler",
-    version="0.4.0",
+    version="0.5.0a0",
     author="James Byrne",
     author_email="jambyr@bas.ac.uk",
     description="Model Ensemble for batch workflows on HPCs",
@@ -40,7 +40,7 @@ setup(
         "jinja2",
         "jsonschema",
         # TODO: Why are they not packaging this any more? 
-        # TODO: This isn't a strong dependency for what we do, maybe break it off...
+        #  This isn't a strong dependency for what we do, definitely break it off as it's causing hassle as well...
         #"pyslurm==19.5.0.0",
         "pyyaml",
     ],

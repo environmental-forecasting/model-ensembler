@@ -1,5 +1,6 @@
 import asyncio
 import collections
+import copy
 import logging
 import os
 import shlex
@@ -261,10 +262,10 @@ class BatchExecutor(object):
         try:
             loop = asyncio.get_event_loop()
 
+            loop.run_until_complete(run_task_items(self._cfg.vars, self._cfg.pre_process))
             for batch in self._cfg.batches:
-                loop.run_until_complete(run_task_items(self._cfg.vars, self._cfg.pre_process))
                 do_batch_execution(loop, batch)
-                loop.run_until_complete(run_task_items(self._cfg.vars, self._cfg.post_process))
+            loop.run_until_complete(run_task_items(self._cfg.vars, self._cfg.post_process))
         finally:
             if loop:
                 loop.run_until_complete(loop.shutdown_asyncgens())
