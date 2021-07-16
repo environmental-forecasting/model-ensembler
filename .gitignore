@@ -2,6 +2,7 @@
 build/
 configurations/
 dist/
+docs/build/
 venv/
 .eggs/
 *.pyc

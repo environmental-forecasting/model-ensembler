@@ -150,9 +150,11 @@ usage: model_ensemble [-h] [-n] [-v] [-c] [-s] [-p] [-k SKIPS] [-i INDEXES]
 ## Contributing
 
 This program is still under development and is in its infancy, though it's progressed from a one-off tool to reusable 
-(at the British Antarctic Survey it's been used for running WRF[1] ensembles numerous times.) 
+(at the British Antarctic Survey it's been used for running [WRF][1] ensembles numerous times.) 
 
 Contributions now this is in the public domain are welcome!
+
+I'm now trying to keep to the [Google Style Guide][2] for documentation
 
 ## Future plans
 
@@ -189,3 +191,4 @@ structure and operation.
 &copy; British Antarctic Survey 2021 
  
 [1]: https://github.com/wrf-model/WRF
+[2]: https://www.sphinx-doc.org/en/master/usage/extensions/example_google.html#example-google

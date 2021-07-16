@@ -1,11 +1,8 @@
 import asyncio
 import functools
 import inspect
-import jinja2
 import logging
 import os
-import shlex
-import sys
 import types
 
 from datetime import datetime
@@ -14,6 +11,18 @@ from ..utils import Arguments
 
 
 def flight_task(func, check=True):
+    """Decorator for making func as a task, providing context preprocessing
+
+    Args:
+        func (callable): callable to wrap with context
+        check (bool, optional): determine whether the func is to be treated
+            as a check or another type of action (checks can be skipped)
+
+    Returns:
+        func: the wrapped function that can process the context provided
+            appropriately
+    """
+
     @functools.wraps(func)
     def new_func(ctx, *args, **kwargs):
         config = Arguments()
@@ -28,7 +37,9 @@ def flight_task(func, check=True):
                     k, kwargs[k])
                 )
 
-        # A bit of context magic for execute_command calls below (TODO: better way with context stack/proxy)
+        # FIXME: context magic for execute_command calls below,
+        #  not necessarily the best manner to achieve this as it would be
+        #  better handled via the decorator
         if hasattr(ctx, 'dir') and 'cwd' in inspect.signature(func).parameters:
             kwargs['cwd'] = ctx.dir
 
@@ -46,23 +57,41 @@ processing_task = functools.partial(flight_task, check=False)
 
 
 async def execute_command(cmd, cwd=None, log=False, shell=None):
-    logging.debug("Executing command {0}, cwd {1}".format(cmd, cwd if cwd else "unset"))
+    """Standard handling for calling external command
+
+    Args:
+        cmd (str): the relative path of the command being called to cwd
+        cwd (str, optional): the current working directory to call the cmd
+            from, passed to subprocess
+        log (bool, optional): if true, output stdout/stderr to logfile in cwd
+        shell (str, optional): which shell to ask subprocess to invoke when
+            processing the command, will default to bash internally
+
+    Returns:
+        object: Namespace containing the returncode, stdout and stderr from
+            the process that was invoked
+    """
+
+    logging.debug("Executing command {0}, cwd {1}".
+                  format(cmd, cwd if cwd else "unset"))
 
     start_dt = datetime.now()
 
     shell = '/usr/bin/bash' if not shell else shell
 
-    proc = await asyncio.create_subprocess_shell(cmd,
-                                                 executable=shell,
-                                                 stdout=asyncio.subprocess.PIPE,
-                                                 stderr=asyncio.subprocess.STDOUT,
-                                                 cwd=cwd)
+    proc = await asyncio.create_subprocess_shell(
+        cmd,
+        executable=shell,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.STDOUT,
+        cwd=cwd)
 
     (stdout, stderr) = await proc.communicate()
     await proc.wait()
 
     if log and stdout:
-        log_name = "execute_command.{}.log".format(start_dt.strftime("%H%M%S.%f"))
+        log_name = "execute_command.{}.log".\
+            format(start_dt.strftime("%H%M%S.%f"))
 
         if cwd:
             log_name = os.path.join(cwd, log_name)
@@ -72,7 +101,8 @@ async def execute_command(cmd, cwd=None, log=False, shell=None):
 
         logging.info("Command log written to {}".format(log_name))
 
-    ret = types.SimpleNamespace(returncode=proc.returncode, stdout=stdout, stderr=stderr)
+    ret = types.SimpleNamespace(
+        returncode=proc.returncode, stdout=stdout, stderr=stderr)
     logging.debug(ret)
 
     if ret.returncode != 0:

@@ -1,6 +1,5 @@
 import asyncio
 import collections
-import copy
 import logging
 import os
 import shlex
@@ -20,6 +19,16 @@ from .utils import Arguments
 
 
 async def run_check(ctx, func, check):
+    """Run a check configuration
+
+    Args:
+        ctx (object): context object for retrieving configuration
+        func (callable): async check method
+        check (dict): check configuration
+
+    Raises:
+        CheckException: any exception from the called check
+    """
     result = False
     args = Arguments()
 
@@ -31,11 +40,22 @@ async def run_check(ctx, func, check):
             raise CheckException("Issues with flight checks, abandoning")
 
         if not result:
-            logging.debug("Cannot continue, waiting {} seconds for next check".format(args.check_timeout))
+            logging.debug("Cannot continue, waiting {} seconds for next check".
+                          format(args.check_timeout))
             await asyncio.sleep(args.check_timeout)
 
 
 async def run_task(ctx, func, task):
+    """Run a task configuration
+
+    Args:
+        ctx (object): context object for retrieving configuration
+        func (callable): async task method
+        task (dict): task configuration
+
+    Raises:
+        TaskException: any exception from the called task
+    """
     try:
         args = dict() if not task.args else task.args
         await func(ctx, **args)
@@ -46,6 +66,21 @@ async def run_task(ctx, func, task):
 
 
 async def run_task_items(ctx, items):
+    """Run a set of task and checks
+
+    Run the list of tasks and check items, the configuration references the
+    ``model_ensemble.tasks`` method to use and the context/configuration
+    provides the arguments. TaskException and CheckException are trapped and
+    rethrown as ProcessingException
+
+    Args:
+        ctx (object): context object for retrieving configuration
+        tasks (list): a list of tasks and checks
+
+    Raises:
+        ProcessingException: a common exception thrown for failures in the
+        individual tasks
+    """
     try:
         for item in items:
             func = getattr(model_ensembler.tasks, item.name)
@@ -65,6 +100,16 @@ async def run_task_items(ctx, items):
 ## CORE EXECUTION FOR BATCHER
 #
 async def run_runner(limit, tasks):
+    """Runs a list of tasks asynchronously
+
+    Given a particular limit, establish a semaphore and run up to limit tasks.
+    Once the list of tasks is complete, return
+
+    Args:
+        limit (int): context object for retrieving configuration
+        tasks (list): a list of tasks and checks
+    """
+
     # TODO: return run task windows/info
     sem = asyncio.Semaphore(limit)
 
@@ -75,9 +120,17 @@ async def run_runner(limit, tasks):
 
 
 def process_templates(ctx, template_list):
+    """Render templates based on provided context
+
+    Args:
+        ctx (object): context object for retrieving configuration
+        template_list (list): list of paths to template sources
+    """
+
     for tmpl_file in template_list:
         if tmpl_file[-3:] != ".j2":
-            raise RuntimeError("{} doe not appear to be a Jinja2 template (.j2)".format(tmpl_file))
+            raise RuntimeError("{} doe not appear to be a Jinja2 template "
+                               "(.j2)".format(tmpl_file))
 
         tmpl_path = os.path.join(ctx.dir, tmpl_file)
         with open(tmpl_path, "r") as fh:
@@ -98,6 +151,13 @@ _batch_job_sems = dict()
 
 
 async def run_batch_item(run, batch):
+    """Execute a run configuration
+
+    Args:
+        run (object): specific run configuration
+        batch (object): whole batch configuration
+    """
+
     logging.info("Start run {} at {}".format(run.id, datetime.utcnow()))
     logging.debug(pformat(run))
 
@@ -105,17 +165,21 @@ async def run_batch_item(run, batch):
 
     if args.pickup and os.path.exists(run.dir):
         if not os.path.exists(run.dir):
-            raise RuntimeError("Pickup previous run dir {} cannot work, it doesn't exist".format(run.dir))
+            raise RuntimeError("Pickup previous run dir {} cannot work, it "
+                               "doesn't exist".format(run.dir))
 
-        logging.info("Picked up previous job directory for run {}".format(run.id))
+        logging.info("Picked up previous job directory for run {}".
+                     format(run.id))
 
         for tmpl_file in batch.templates:
             src_path = os.path.join(batch.templatedir, tmpl_file)
             dst_path = shutil.copy(src_path, run.dir)
-            logging.info("Re-copied {} to {} for template regeneration".format(src_path, dst_path))
+            logging.info("Re-copied {} to {} for template regeneration".
+                         format(src_path, dst_path))
     else:
         if os.path.exists(run.dir):
-            raise RuntimeError("Run directory {} already exists".format(run.dir))
+            raise RuntimeError("Run directory {} already exists".
+                               format(run.dir))
 
         os.makedirs(run.dir, mode=0o775)
 
@@ -125,9 +189,8 @@ async def run_batch_item(run, batch):
         rc = await proc.wait()
 
         if rc != 0:
-            raise RuntimeError("Could not grab template directory {} to {}".format(
-                batch.templatedir, run.dir
-            ))
+            raise RuntimeError("Could not grab template directory {} to {}".
+                format(batch.templatedir, run.dir))
 
     process_templates(run, batch.templates)
 
@@ -149,46 +212,57 @@ async def run_batch_item(run, batch):
 
                 if not slurm_id:
                     # TODO: Maybe not the best way to handle this!
-                    logging.exception("{} could not be submitted, we won't continue")
+                    logging.exception(
+                        "{} could not be submitted, we won't continue".format(
+                            batch.name
+                        ))
                 else:
                     slurm_running = False
                     slurm_state = None
 
                     while not slurm_running:
                         try:
-                            slurm_state = job().find_id(int(slurm_id))[0]['job_state']
+                            slurm_state = job().find_id(
+                                int(slurm_id))[0]['job_state']
                         except (IndexError, ValueError):
-                            logging.warning("Job {} not registered yet, or error encountered".format(slurm_id))
+                            logging.warning("Job {} not registered yet, "
+                                            "or error encountered".
+                                            format(slurm_id))
 
                         if slurm_state and (slurm_state in (
-                                "COMPLETING", "PENDING", "RESV_DEL_HOLD", "RUNNING", "SUSPENDED",
-                                "RUNNING", "COMPLETED", "FAILED", "CANCELLED")):
+                                "COMPLETING", "PENDING", "RESV_DEL_HOLD",
+                                "RUNNING", "SUSPENDED", "COMPLETED", "FAILED",
+                                "CANCELLED")):
                             slurm_running = True
                         else:
                             await asyncio.sleep(args.submit_timeout)
 
                     while True:
                         try:
-                            slurm_state = job().find_id(int(slurm_id))[0]['job_state']
+                            slurm_state = job().find_id(
+                                int(slurm_id))[0]['job_state']
                         except (IndexError, ValueError):
-                            logging.exception("Job status for run {} retrieval whilst slurm running, "
-                                              "waiting and retrying".format(run.id))
+                            logging.exception("Job status for run {} retrieval "
+                                              "whilst slurm running, waiting "
+                                              "and retrying".
+                                              format(run.id))
                             await asyncio.sleep(args.error_timeout)
                             continue
 
-                        logging.debug("{} monitor got state {} for job {}".format(
-                            run.id, slurm_state, slurm_id))
+                        logging.debug("{} monitor got state {} for job {}".
+                            format(run.id, slurm_state, slurm_id))
 
                         if slurm_state in ("COMPLETED", "FAILED", "CANCELLED"):
-                            logging.info("{} monitor got state {} for job {}".format(
-                                run.id, slurm_state, slurm_id))
+                            logging.info("{} monitor got state {} for job {}".
+                                format(run.id, slurm_state, slurm_id))
                             break
                         else:
                             await asyncio.sleep(args.running_timeout)
 
         await run_task_items(run, batch.post_run)
     except ProcessingException as e:
-        logging.exception("Run failure caught, abandoning {} but not the batch".format(run.id))
+        logging.exception("Run failure caught, abandoning {} but not the batch".
+                          format(run.id))
         return
 
     # TODO: return run windows/info
@@ -196,6 +270,13 @@ async def run_batch_item(run, batch):
 
 
 def do_batch_execution(loop, batch):
+    """Execute a batch configuration
+
+    Args:
+        loop (object): event loop
+        batch (object): whole batch configuration
+    """
+
     logging.info("Start batch: {}".format(datetime.utcnow()))
     logging.debug(pformat(batch))
 
@@ -203,7 +284,8 @@ def do_batch_execution(loop, batch):
     batch_tasks = list()
     _batch_job_sems[batch.name] = asyncio.Semaphore(batch.maxjobs)
 
-    # We are process dependent here, so this is where we have the choice of concurrency strategies but each batch
+    # We are process dependent here, so this is where we have the choice of
+    # concurrency strategies but each batch
     # is dependent on chdir remaining consistent after this point.
     orig = os.getcwd()
     if not os.path.exists(batch.basedir):
@@ -216,22 +298,29 @@ def do_batch_execution(loop, batch):
         runid = "{}-{}".format(batch.name, batch.runs.index(run))
 
         if idx < args.skips:
-            logging.warning("Skipping run index {} due to {} skips, run ID: {}".format(idx, args.skips, runid))
+            logging.warning("Skipping run index {} due to {} skips, run ID: {}".
+                            format(idx, args.skips, runid))
             continue
 
         if args.indexes and idx not in args.indexes:
-            logging.warning("Skipping run index {} due to not being in indexes argument, run ID: {}".format(idx, runid))
+            logging.warning("Skipping run index {} due to not being in indexes "
+                            "argument, run ID: {}".format(idx, runid))
             continue
 
-        # TODO: Not really the best way of doing this, use some appropriate typing for all the data used
+        # TODO: Not really the best way of doing this, use some appropriate
+        #  typing for all the data used
         run_vars = collections.defaultdict()
-        # This dir parameters becomes very important for running commands in the correct directory context
+
+        # This dir parameters becomes very important for running commands in
+        # the correct directory context
         run['id'] = runid
         run['dir'] = os.path.abspath(os.path.join(os.getcwd(), runid))
 
         batch_dict = batch._asdict()
         for k, v in batch_dict.items():
-            if not k.startswith("pre_") and not k.startswith("post_") and k != "runs":
+            if not k.startswith("pre_") \
+                    and not k.startswith("post_") \
+                    and k != "runs":
                 run_vars[k] = v
 
         run_vars.update(run)
@@ -252,20 +341,50 @@ def do_batch_execution(loop, batch):
 
 
 class BatchExecutor(object):
+    """Create an executor for a ensemble configuration
+
+    The purpose of this is act as the extensible master executor for the
+    ensemble configuration provided. It handles the event loop and should be
+    used to contain and control the execution overall
+    """
+
     def __init__(self, cfg):
+        """Constructor
+
+        Args:
+            cfg (object): EnsembleConfig ensemble configuration
+        """
         self._cfg = cfg
 
     def run(self):
+        """Run the executor
+
+        This will establish the event loop, run the preprocessing actions for
+        the ensemble, cycle through executing the batches and then run
+        postprocessing actions. Exceptions will be caught and the event loop
+        closed, currently with no specific handling
+
+        Args:
+            loop (object): event loop
+            batch (object): whole batch configuration
+        """
         logging.info("Running batcher")
         loop = None
 
         try:
             loop = asyncio.get_event_loop()
 
-            loop.run_until_complete(run_task_items(self._cfg.vars, self._cfg.pre_process))
+            loop.run_until_complete(
+                run_task_items(self._cfg.vars, self._cfg.pre_process))
+
             for batch in self._cfg.batches:
                 do_batch_execution(loop, batch)
-            loop.run_until_complete(run_task_items(self._cfg.vars, self._cfg.post_process))
+
+            loop.run_until_complete(
+                run_task_items(self._cfg.vars, self._cfg.post_process))
+
+        # TODO: provide except block for user specified handling of failures
+
         finally:
             if loop:
                 loop.run_until_complete(loop.shutdown_asyncgens())

@@ -1,13 +1,15 @@
+"""Setup module for model_ensembler"""
+
 import setuptools
 
-from setuptools import dist, setup
+from setuptools import setup
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
     name="model-ensembler",
-    version="0.5.0a0",
+    version="0.5.0a1",
     author="James Byrne",
     author_email="jambyr@bas.ac.uk",
     description="Model Ensemble for batch workflows on HPCs",
@@ -39,9 +41,10 @@ setup(
         "Fabric",
         "jinja2",
         "jsonschema",
-        # TODO: Why are they not packaging this any more? 
-        #  This isn't a strong dependency for what we do, definitely break it off as it's causing hassle as well...
-        #"pyslurm==19.5.0.0",
+        # TODO: Why are they not packaging this any more?
+        #  This isn't a strong dependency for what we do, definitely break it
+        #  off as it's causing hassle as well...
+        #  "pyslurm==19.5.0.0",
         "pyyaml",
     ],
     include_package_data=True,

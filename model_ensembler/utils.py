@@ -5,9 +5,12 @@ import resource
 import sys
 
 
-# Should have used a collection for this
 class Arguments(object):
+    """Singleton implementation of the arguments as an immutable object"""
+
     class __Arguments(object):
+        """Arguments inner singleton"""
+
         def __init__(self, **kwargs):
             for k, v in kwargs.items():
                 setattr(self, k, v)
@@ -23,6 +26,14 @@ class Arguments(object):
 
 
 def background_fork(double=False):
+    """
+    background_fork allows for the calling process to fork into the background
+
+    Args:
+        double (bool): If true, we'll fork again as to allow the parent of
+                       the first child to kill it, leaving the daemon process
+    """
+
     try:
         pid = os.fork()
         if pid > 0:
@@ -43,6 +54,17 @@ def setup_logging(name='',
                   logdir=os.path.join("logs"),
                   logformat="[%(asctime)-20s :%(levelname)-8s] - %(message)s",
                   ):
+    """
+    Sets up the python `logging` library for output with some user friendly
+    options
+
+    Args:
+        name (string): A string indicating the name of the caller
+        level (int): `logging` level enum
+        verbose (bool): Shorthand for setting level to `logging.DEBUG`
+        logdir (string): If logging to a file, allow directory destination
+        logformat (string): Allow specification of `logging` format string
+    """
     if verbose:
         level = logging.DEBUG
 
