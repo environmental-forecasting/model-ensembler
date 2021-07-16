@@ -9,6 +9,12 @@ from pyslurm import job
 
 from pprint import pformat
 
+"""HPC tasks
+
+This module contains HPC related task methods
+"""
+
+
 _job_lock = asyncio.Lock()
 
 
@@ -35,8 +41,8 @@ async def jobs(ctx, limit, match):
             try:
                 jobs = job().get()
             except ValueError:
-                logging.exception("Error retrieving list of jobs, is something "
-                                  "wrong with slurm!?!")
+                logging.exception("Error retrieving list of jobs, is "
+                                  "something wrong with slurm!?!")
                 await asyncio.sleep(args.error_timeout)
                 continue
 
@@ -70,10 +76,12 @@ async def submit(ctx, script=None):
     r_sbatch_id = re.compile(r'Submitted batch job (\d+)$')
     args = Arguments()
 
-    # TODO: check this as an optional argument avoids run submission as intended
+    # TODO: check this as an optional argument avoids run submission
+    #  as intended
     if script:
         async with _job_lock:
-            res = await execute_command("sbatch {}".format(script), cwd=ctx.dir)
+            res = await execute_command("sbatch {}".format(script),
+                                        cwd=ctx.dir)
             output = res.stdout.decode()
 
             sbatch_match = r_sbatch_id.match(output)
@@ -85,8 +93,7 @@ async def submit(ctx, script=None):
                 while len(job_results) != 1:
                     logging.warning("Job {} has not appeared in {} queue "
                                     "results yet, waiting for appearance".
-                        format(job_id, len(job_results)
-                    ))
+                                    format(job_id, len(job_results)))
                     await asyncio.sleep(args.submit_timeout)
                     job_results = job().find_id(int(job_id))
 
@@ -119,7 +126,7 @@ async def quota(ctx, atleast, mnt=None):
         usage = int(fields[1])
         limit = int(fields[2])
         atleast = int(atleast)
-    except (IndexError, TypeError) as e:
+    except (IndexError, TypeError):
         logging.exception("Could not reliably determine quota information")
         return False
 
@@ -129,4 +136,3 @@ async def quota(ctx, atleast, mnt=None):
         logging.warning("Quota remaining {} is less than {}".
                         format(limit - usage, atleast))
     return res
-

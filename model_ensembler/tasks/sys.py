@@ -5,6 +5,11 @@ import shutil
 from .exceptions import FailureNotToleratedError
 from .utils import check_task, processing_task, execute_command
 
+"""System tasks
+
+This module contains all methods for system related tasks
+"""
+
 
 @check_task
 async def check(ctx, cmd, cwd=None, log=False, fail=False, shell=None):
@@ -129,4 +134,3 @@ async def remove(ctx, directory=None):
                           format(directory, e.strerror))
         return False
     return True
-

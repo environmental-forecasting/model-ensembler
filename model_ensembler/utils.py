@@ -1,8 +1,12 @@
 import logging
 import logging.handlers
 import os
-import resource
 import sys
+
+"""Ensembler utilities
+
+Classes and methods for general purpose functionality
+"""
 
 
 class Arguments(object):

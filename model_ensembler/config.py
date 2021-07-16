@@ -1,23 +1,28 @@
 import collections
 import json
-import jsonschema
 import logging
 import os
-import sys
 
-from pprint import pprint
+import jsonschema
+
 from yaml import load
 try:
-    from yaml import CLoader as Loader, CDumper as Dumper
+    from yaml import CLoader as Loader
 except ImportError:
-    from yaml import Loader, Dumper
+    from yaml import Loader
+
+"""Configuration module
+
+Contains classes, handlers and types relating to the configuration of ensembles
+"""
+
 
 path = os.path.abspath(os.path.dirname(__file__))
 
 
-# TODO: Would like very much for some kind of itertools interactions to generate
-#  parameter setups
-class YAMLConfig(object):
+# TODO: Would like very much for some kind of itertools interactions to
+#  generate parameter setups
+class YAMLConfig:
     """Configuration processor for model-ensemble YAML-based configurations
 
     Args:
@@ -138,8 +143,8 @@ class EnsembleConfig(YAMLConfig, TaskArrayMixin):
     def batches(self):
         """list(Batch): The batches contained in the ensemble configuration"""
         batches = list()
-        for b in self._batches:
-            batches.append(Batch(**b))
+        for batch in self._batches:
+            batches.append(Batch(**batch))
         return batches
 
     @property
@@ -155,7 +160,8 @@ BatchSpec = collections.namedtuple("Batch",
                                     "email", "nodes", "ntasks", "length",
                                     "pre_batch", "pre_run", "post_run",
                                     "post_batch"])
-BatchSpec.__new__.__defaults__ = tuple([None for i in range(0, 8)])
+BatchSpec.__new__.__defaults__ = (None, None, None, None,
+                                  None, None, None, None)
 
 
 class Batch(BatchSpec, TaskArrayMixin):
@@ -171,7 +177,7 @@ class Batch(BatchSpec, TaskArrayMixin):
     def __init__(self,
                  pre_batch=None, pre_run=None, post_run=None, post_batch=None,
                  **kwargs):
-        super().__init__()
+        super().__init__(**kwargs)
         self._pre_batch = pre_batch
         self._pre_run = pre_run
         self._post_run = post_run
@@ -196,4 +202,3 @@ class Batch(BatchSpec, TaskArrayMixin):
     def post_batch(self):
         """list(Task): post batch tasks"""
         return self.task_array("_post_batch")
-

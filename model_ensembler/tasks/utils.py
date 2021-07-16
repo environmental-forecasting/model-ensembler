@@ -9,6 +9,12 @@ from datetime import datetime
 
 from ..utils import Arguments
 
+"""Task utilities
+
+This module contains implementation and functionality relating generally to
+tasks
+"""
+
 
 def flight_task(func, check=True):
     """Decorator for making func as a task, providing context preprocessing

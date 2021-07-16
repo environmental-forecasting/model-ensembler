@@ -9,13 +9,17 @@ from datetime import datetime
 from pprint import pformat
 
 import jinja2
-from pyslurm import config, job
+from pyslurm import job
 
 import model_ensembler
 
 from .tasks import CheckException, TaskException, ProcessingException
 from .tasks import submit as slurm_submit
 from .utils import Arguments
+
+"""Main ensembler module with execution core code
+
+"""
 
 
 async def run_check(ctx, func, check):
@@ -97,7 +101,7 @@ async def run_task_items(ctx, items):
         raise ProcessingException(e)
 
 
-## CORE EXECUTION FOR BATCHER
+# CORE EXECUTION FOR BATCHER
 #
 async def run_runner(limit, tasks):
     """Runs a list of tasks asynchronously
@@ -190,7 +194,7 @@ async def run_batch_item(run, batch):
 
         if rc != 0:
             raise RuntimeError("Could not grab template directory {} to {}".
-                format(batch.templatedir, run.dir))
+                               format(batch.templatedir, run.dir))
 
     process_templates(run, batch.templates)
 
@@ -242,27 +246,27 @@ async def run_batch_item(run, batch):
                             slurm_state = job().find_id(
                                 int(slurm_id))[0]['job_state']
                         except (IndexError, ValueError):
-                            logging.exception("Job status for run {} retrieval "
-                                              "whilst slurm running, waiting "
+                            logging.exception("Job status for run {} retrieval"
+                                              " whilst slurm running, waiting "
                                               "and retrying".
                                               format(run.id))
                             await asyncio.sleep(args.error_timeout)
                             continue
 
                         logging.debug("{} monitor got state {} for job {}".
-                            format(run.id, slurm_state, slurm_id))
+                                      format(run.id, slurm_state, slurm_id))
 
                         if slurm_state in ("COMPLETED", "FAILED", "CANCELLED"):
                             logging.info("{} monitor got state {} for job {}".
-                                format(run.id, slurm_state, slurm_id))
+                                         format(run.id, slurm_state, slurm_id))
                             break
                         else:
                             await asyncio.sleep(args.running_timeout)
 
         await run_task_items(run, batch.post_run)
-    except ProcessingException as e:
-        logging.exception("Run failure caught, abandoning {} but not the batch".
-                          format(run.id))
+    except ProcessingException:
+        logging.exception("Run failure caught, abandoning {} but not the "
+                          "batch".format(run.id))
         return
 
     # TODO: return run windows/info
@@ -298,13 +302,13 @@ def do_batch_execution(loop, batch):
         runid = "{}-{}".format(batch.name, batch.runs.index(run))
 
         if idx < args.skips:
-            logging.warning("Skipping run index {} due to {} skips, run ID: {}".
-                            format(idx, args.skips, runid))
+            logging.warning("Skipping run index {} due to {} skips, run ID: "
+                            "{}".format(idx, args.skips, runid))
             continue
 
         if args.indexes and idx not in args.indexes:
-            logging.warning("Skipping run index {} due to not being in indexes "
-                            "argument, run ID: {}".format(idx, runid))
+            logging.warning("Skipping run index {} due to not being in "
+                            "indexes argument, run ID: {}".format(idx, runid))
             continue
 
         # TODO: Not really the best way of doing this, use some appropriate
@@ -335,7 +339,8 @@ def do_batch_execution(loop, batch):
     loop.run_until_complete(run_task_items(batch, batch.post_batch))
 
     os.chdir(orig)
-    logging.info("Batch {} completed: {}".format(batch.name, datetime.utcnow()))
+    logging.info("Batch {} completed: {}".
+                 format(batch.name, datetime.utcnow()))
     # TODO: return batch windows/info
     return "Success"
 

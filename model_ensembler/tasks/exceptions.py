@@ -1,3 +1,9 @@
+"""Task Exceptions
+
+Exceptions relating to tasks
+"""
+
+
 class EnsembleException(Exception):
     """Common ensemble exception for common implementation"""
     pass

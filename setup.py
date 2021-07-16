@@ -1,8 +1,10 @@
-"""Setup module for model_ensembler"""
-
 import setuptools
 
 from setuptools import setup
+
+"""Setup module for model_ensembler
+
+"""
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
