@@ -39,14 +39,9 @@ setup(
     },
     python_requires='>=3.6, <4',
     install_requires=[
-        "Cython",
         "Fabric",
         "jinja2",
         "jsonschema",
-        # TODO: Why are they not packaging this any more?
-        #  This isn't a strong dependency for what we do, definitely break it
-        #  off as it's causing hassle as well...
-        #  "pyslurm==19.5.0.0",
         "pyyaml",
     ],
     include_package_data=True,

@@ -5,8 +5,6 @@ import re
 from .utils import check_task, processing_task, execute_command
 from ..utils import Arguments
 
-from pyslurm import job
-
 from pprint import pformat
 
 """HPC tasks
@@ -39,26 +37,30 @@ async def jobs(ctx, limit, match):
 
         while not jobs:
             try:
-                jobs = job().get()
-            except ValueError:
-                logging.exception("Error retrieving list of jobs, is "
-                                  "something wrong with slurm!?!")
-                await asyncio.sleep(args.error_timeout)
-                continue
+                res = await execute_command("squeue -o \"%j,%T\" -h",
+                                            cwd=ctx.dir)
+                output = res.stdout.decode()
+            except Exception as e:
+                logging.warning("Could not retrieve list: {}".format(e))
+            else:
+                jobs = []
+                for line in output.split():
+                    fields = line.strip().split(",")
+                    jobs.append({"name": fields[0], "job_state": fields[1]})
 
-            job_names = [{"name": j['name'], "state": j["job_state"]}
-                         for j in jobs.values()
-                         if j['name'].startswith(match)
-                         and j['job_state'] in [
-                             "COMPLETING", "PENDING", "RESV_DEL_HOLD",
-                             "RUNNING", "SUSPENDED"]]
+                job_names = [{"name": j['name'], "state": j["job_state"]}
+                             for j in jobs
+                             if j['name'].startswith(match)
+                             and j['job_state'] in [
+                                 "COMPLETING", "PENDING", "RESV_DEL_HOLD",
+                                 "RUNNING", "SUSPENDED"]]
 
-            logging.debug("SLURM JOBS result: {}".format(pformat(job_names)))
+                logging.debug("SLURM JOBS result: {}".format(pformat(job_names)))
 
-            res = len(job_names) < int(limit)
+                res = len(job_names) < int(limit)
 
-            logging.debug("Jobs in action {} with limit {}".format(
-                len(job_names), limit))
+                logging.debug("Jobs in action {} with limit {}".format(
+                    len(job_names), limit))
     return res
 
 
