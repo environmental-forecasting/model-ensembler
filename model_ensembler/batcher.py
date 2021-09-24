@@ -9,13 +9,15 @@ from datetime import datetime
 from pprint import pformat
 
 import jinja2
-from pyslurm import job
 
 import model_ensembler
 
 from .tasks import CheckException, TaskException, ProcessingException
 from .tasks import submit as slurm_submit
 from .utils import Arguments
+# TODO: start of a move towards multi-platform compatibility (got rid of
+#  pyslurm pip dependency)
+from .cluster.pyslurm import find_id
 
 """Main ensembler module with execution core code
 
@@ -221,13 +223,14 @@ async def run_batch_item(run, batch):
                             batch.name
                         ))
                 else:
+                    # TODO: see note about moving toward multi-platform
+                    #  compatibility, naming is awry
                     slurm_running = False
                     slurm_state = None
 
                     while not slurm_running:
                         try:
-                            slurm_state = job().find_id(
-                                int(slurm_id))[0]['job_state']
+                            slurm_state = await find_id(int(slurm_id)).state
                         except (IndexError, ValueError):
                             logging.warning("Job {} not registered yet, "
                                             "or error encountered".
@@ -243,8 +246,7 @@ async def run_batch_item(run, batch):
 
                     while True:
                         try:
-                            slurm_state = job().find_id(
-                                int(slurm_id))[0]['job_state']
+                            slurm_state = await find_id(int(slurm_id)).state
                         except (IndexError, ValueError):
                             logging.exception("Job status for run {} retrieval"
                                               " whilst slurm running, waiting "

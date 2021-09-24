@@ -27,6 +27,8 @@ You'll need to manually install the PySlurm library and at time of writing the o
 work for us too, and can be installed with `pip install pyslurm` but v19, which we were on at time of writing, is more 
 involved to install :
 
+___THIS IS NO LONGER UP TO DATE (TODO: sort out)___
+
 #### Install pyslurm from source for anything other than v18
 
 ```

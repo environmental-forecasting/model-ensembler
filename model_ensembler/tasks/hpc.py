@@ -2,8 +2,11 @@ import asyncio
 import logging
 import re
 
-from .utils import check_task, processing_task, execute_command
-from ..utils import Arguments
+from model_ensembler.cluster.pyslurm import job_lock, find_id
+
+from model_ensembler.tasks.utils import \
+    check_task, processing_task, execute_command
+from model_ensembler.utils import Arguments
 
 from pprint import pformat
 
@@ -11,9 +14,6 @@ from pprint import pformat
 
 This module contains HPC related task methods
 """
-
-
-_job_lock = asyncio.Lock()
 
 
 @check_task
@@ -28,11 +28,10 @@ async def jobs(ctx, limit, match):
     Returns:
         bool: true if number of jobs is less than limit, otherwise false
     """
-    args = Arguments()
     res = False
 
     # TODO: match with regex
-    async with _job_lock:
+    async with job_lock:
         jobs = None
 
         while not jobs:
@@ -81,7 +80,7 @@ async def submit(ctx, script=None):
     # TODO: check this as an optional argument avoids run submission
     #  as intended
     if script:
-        async with _job_lock:
+        async with job_lock:
             res = await execute_command("sbatch {}".format(script),
                                         cwd=ctx.dir)
             output = res.stdout.decode()
@@ -91,13 +90,13 @@ async def submit(ctx, script=None):
                 job_id = sbatch_match.group(1)
                 logging.info("Submitted job with ID {}".format(job_id))
 
-                job_results = job().find_id(int(job_id))
+                job_results = find_id(int(job_id))
                 while len(job_results) != 1:
                     logging.warning("Job {} has not appeared in {} queue "
                                     "results yet, waiting for appearance".
                                     format(job_id, len(job_results)))
                     await asyncio.sleep(args.submit_timeout)
-                    job_results = job().find_id(int(job_id))
+                    job_results = find_id(int(job_id))
 
                 return job_id
     return None
@@ -121,7 +120,7 @@ async def quota(ctx, atleast, mnt=None):
     path_arg = " -f " + mnt if mnt else ""
     quota_cmd = "quota -uw" + path_arg
     res = await execute_command(quota_cmd)
-    quota_out = res.stdout
+    quota_out = res.stdout.decode()
 
     try:
         fields = quota_out.splitlines()[-1].split()
