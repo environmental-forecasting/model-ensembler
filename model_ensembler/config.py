@@ -175,9 +175,10 @@ class Batch(BatchSpec, TaskArrayMixin):
         **kwargs: Keyword arguments for BatchSpec instance
     """
     def __init__(self,
+                 *args,
                  pre_batch=None, pre_run=None, post_run=None, post_batch=None,
                  **kwargs):
-        super().__init__(**kwargs)
+        super().__init__()
         self._pre_batch = pre_batch
         self._pre_run = pre_run
         self._post_run = post_run

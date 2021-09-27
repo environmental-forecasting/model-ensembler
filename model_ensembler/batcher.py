@@ -275,7 +275,7 @@ async def run_batch_item(run, batch):
     logging.info("End run {} at {}".format(run.id, datetime.utcnow()))
 
 
-def do_batch_execution(loop, batch):
+def do_batch_execution(loop, batch, root_vars):
     """Execute a batch configuration
 
     Args:
@@ -316,6 +316,7 @@ def do_batch_execution(loop, batch):
         # TODO: Not really the best way of doing this, use some appropriate
         #  typing for all the data used
         run_vars = collections.defaultdict()
+        run_vars.update(root_vars)
 
         # This dir parameters becomes very important for running commands in
         # the correct directory context
@@ -385,7 +386,7 @@ class BatchExecutor(object):
                 run_task_items(self._cfg.vars, self._cfg.pre_process))
 
             for batch in self._cfg.batches:
-                do_batch_execution(loop, batch)
+                do_batch_execution(loop, batch, self._cfg.vars)
 
             loop.run_until_complete(
                 run_task_items(self._cfg.vars, self._cfg.post_process))
