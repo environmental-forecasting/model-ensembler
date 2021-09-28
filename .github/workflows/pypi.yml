@@ -17,7 +17,7 @@ jobs:
     - name: Install and build
       run: python -m pip install build --user
     - name: Build a binary and source tarball
-      run: python -m pip --sdist --wheel --outdir dist/
+      run: python -m build --sdist --wheel --outdir dist/
     - name: Publish to Test PYPI
       uses: pypa/gh-action-pypi-publish@master
       with:
