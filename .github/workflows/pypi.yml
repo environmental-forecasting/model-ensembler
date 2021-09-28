@@ -1,0 +1,28 @@
+name: Publish distributions to PYPI and TestPYPI
+on: 
+  push:
+    branches:
+    - main
+    - 0.5_work
+jobs:
+  build-publish:
+    name: Build and publish
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@main
+    - name: Set up Python 3.6
+      with:
+        python-version: 3.6
+    - name: Install and build
+      run: python -m pip install build --user
+    - name: Build a binary and source tarball
+      run: python -m pip --sdist --wheel --outdir dist/
+    - name: Publish to Test PYPI
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+        password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        repository_url: https://test.pypi.org/legacy/
+    - name: Publish to PYPI
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}

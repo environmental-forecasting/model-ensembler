@@ -17,7 +17,10 @@ setup(
     description="Model Ensemble for batch workflows on HPCs",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://www.github.com/JimCircadian/model-ensembler",
+    url="https://www.github.com/jimcircadian/model-ensembler",
+    project_urls={
+        "Bug Tracker": "https://github.com/jimcircadian/model-ensembler/issues",
+    },
     packages=setuptools.find_packages(),
     keywords='slurm, hpc, tools, batch, model, ensemble',
     classifiers=[
@@ -40,7 +43,6 @@ setup(
     },
     python_requires='>=3.6, <4',
     install_requires=[
-        "Fabric",
         "jinja2",
         "jsonschema",
         "pyyaml",

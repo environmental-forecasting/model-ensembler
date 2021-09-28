@@ -1,4 +1,3 @@
-Fabric>=2.0.0
 Jinja2
 jsonschema
 pyyaml
