@@ -2,3 +2,5 @@ include pyproject.toml
 include *.md
 include LICENSE
 include model_ensembler/model-ensemble.json
+include examples/sanity-check.yml
+recursive-include examples/template_job

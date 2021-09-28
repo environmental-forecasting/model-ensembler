@@ -33,7 +33,6 @@ def parse_args():
         Arguments: The immutable instance from ``.utils``
     """
     parser = argparse.ArgumentParser()
-
     parser.add_argument("-n", "--no-daemon",
                         help="Do not daemon", default=True,
                         action="store_true")
