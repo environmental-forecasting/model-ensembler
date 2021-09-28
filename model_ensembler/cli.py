@@ -67,6 +67,8 @@ def parse_args():
     parser.add_argument("-et", "--error-timeout", default=120, type=int)
 
     parser.add_argument("configuration")
+    parser.add_argument("backend", default="slurm", required=False,
+                        choices=("slurm", "dummy"))
 
     # Prefer retaining immutable Arguments()
     # by not using the instance as a namespace
@@ -86,4 +88,4 @@ def main():
 
     logging.info("Model Ensemble Runner")
     config = EnsembleConfig(args.configuration)
-    BatchExecutor(config).run()
+    BatchExecutor(config, args.backend).run()

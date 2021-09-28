@@ -14,6 +14,17 @@ Job = collections.namedtuple("Job", ["name", "state"])
 
 
 async def find_id(job_id):
+    """Method to find SLURM job by ID
+
+    This method provides an interface to the squeue SLURM queue utility to
+    identify a job and return it along with it's state
+
+    Args:
+        job_id (int): SLURM job identifier
+
+    Returns:
+        jobs (list): job objects including name and state
+    """
     res = False
 
     # TODO: match with regex

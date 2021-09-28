@@ -356,13 +356,28 @@ class BatchExecutor(object):
     used to contain and control the execution overall
     """
 
-    def __init__(self, cfg):
+    def __init__(self, cfg, backend="slurm"):
         """Constructor
 
         Args:
             cfg (object): EnsembleConfig ensemble configuration
         """
         self._cfg = cfg
+
+        self._init_backend(backend)
+
+    def _init_backend(self, backend):
+        """Initialise the backend for batch execution
+
+        Not yet implemented
+
+        Args:
+            backend (string): identifier for backend in
+            `model_ensembler.cluster`
+        """
+        if backend != "slurm":
+            raise NotImplementedError("Currently only the SLURM backend is "
+                                      "supported.")
 
     def run(self):
         """Run the executor
