@@ -159,19 +159,9 @@ I'm now trying to keep to the [Google Style Guide][2] for documentation
 
 ## Future plans
 
-There are a few items on the list: 
-
-* multiple batches can be specific and run, but some of the CLI switches 
-  aren't suitable for multi-batch ensembles (indexes/skips)
-* sort out a proper context hierarchy for variable injection into the 
-  templates/runs
-* ensure the slurm specific functionality is detached from the generic 
-  execution model 
-* add another HPC backend (e.g. PBS/dummy)
-* add a test suite and make it a properly maintained package now it's in the 
-  public domain
-* better documentation and examples
-* add sanity check as CLI operation
+Current plans are captured now in the github issues. There's nothing in the 
+long term that I'm focusing on for this tool, except to maintain it and see 
+if I can promote the usage a bit more. 
 
 This tool was merely to help out with a single support ticket for a weather 
 model run, but the concept had potential and it was easier than deploying 
@@ -181,6 +171,15 @@ something similar, very keen to look at them!
 Certainly, things like Airflow and job arrays have similar concepts, but are 
 either more heavyweight/less suitable deployment wise or not abstracted enough 
 for simplifying lives, respectively!!!
+
+### Cycl
+
+Recently we noticed at Cycl [4], so in the medium term it's worth evaluating this 
+tool and compare it to model\_ensembler, as it seems pretty lightweight (which
+is the reason many others are a pain to use) and could be a good tool to use in 
+place. model\_ensembler is just quick and easy, so moving to a decent graph based
+workflow executor is preferable if you're thinking of long term implementation and
+education. 
 
 ## Further documentation
 
@@ -196,3 +195,4 @@ further details about the configuration structure and operation.
 [1]: https://github.com/wrf-model/WRF
 [2]: https://www.sphinx-doc.org/en/master/usage/extensions/example_google.html#example-google
 [3]: https://github.com/antarctica/IceNet-Pipeline
+[4]: https://cylc.github.io/
