@@ -19,12 +19,12 @@ ensemble:
       - preprocess.sh.j2
       - postprocess.sh.j2
       job_file:     slurm_run.sh
-      cluster:      long
+      cluster:      short
       basedir:      ./tst1
       email:        test@example.org
       nodes:        1
       ntasks:       8
-      length:       14
+      length:       00:20:00
       maxruns:      8
       maxjobs:      2
       pre_batch:    

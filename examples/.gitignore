@@ -2,3 +2,4 @@
 *.ready
 *.touch
 tst*/
+logs/

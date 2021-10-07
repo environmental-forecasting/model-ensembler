@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
-cat inputfile | xargs echo
+echo "PRE PROCESSING: `cat inputfile`"
 
-sleep 2
+SLEEP_SECS=`expr $RANDOM / 3000`
+echo "Sleeping for $SLEEP_SECS"
+sleep $SLEEP_SECS

@@ -36,7 +36,8 @@ async def jobs(ctx, limit, match):
 
         while not jobs:
             try:
-                res = await execute_command("squeue -o \"%j,%T\" -h",
+                res = await execute_command("squeue -o \"%j,%T\" -h -p {}".
+                                            format(ctx.cluster),
                                             cwd=ctx.dir)
                 output = res.stdout.decode()
             except Exception as e:
@@ -54,12 +55,16 @@ async def jobs(ctx, limit, match):
                                  "COMPLETING", "PENDING", "RESV_DEL_HOLD",
                                  "RUNNING", "SUSPENDED"]]
 
-                logging.debug("SLURM JOBS result: {}".format(pformat(job_names)))
+                logging.debug("SLURM JOBS result: {}".
+                              format(pformat(job_names)))
 
                 res = len(job_names) < int(limit)
 
                 logging.debug("Jobs in action {} with limit {}".format(
                     len(job_names), limit))
+
+                if res:
+                    break
     return res
 
 
@@ -90,13 +95,13 @@ async def submit(ctx, script=None):
                 job_id = sbatch_match.group(1)
                 logging.info("Submitted job with ID {}".format(job_id))
 
-                job_results = find_id(int(job_id))
-                while len(job_results) != 1:
-                    logging.warning("Job {} has not appeared in {} queue "
-                                    "results yet, waiting for appearance".
-                                    format(job_id, len(job_results)))
-                    await asyncio.sleep(args.submit_timeout)
-                    job_results = find_id(int(job_id))
+                # This shouldn't be required but I remember there was a
+                # previous race condition with pyslurm.
+                # job = await find_id(int(job_id))
+                # while job.state == "PENDING":
+                #    logging.warning("Job {} has not started or be marked "
+                #                    "as pending yet, waiting for submission")
+                #    await asyncio.sleep(args.submit_timeout)
 
                 return job_id
     return None

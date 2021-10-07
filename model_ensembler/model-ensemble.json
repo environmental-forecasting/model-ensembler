@@ -55,7 +55,7 @@
           }
         }
       },
-      "required": ["name", "templatedir", "templates", "cluster", "basedir", "runs", "maxruns"]
+      "required": ["name", "templatedir", "templates", "cluster", "basedir", "runs", "maxruns", "maxjobs"]
     },
     "task": {
       "$id": "#task",

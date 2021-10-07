@@ -109,11 +109,10 @@ async def execute_command(cmd, cwd=None, log=False, shell=None):
 
     ret = types.SimpleNamespace(
         returncode=proc.returncode, stdout=stdout, stderr=stderr)
-    logging.debug(ret)
 
     if ret.returncode != 0:
         logging.warning("Command returned err: {}".format(ret.stderr))
         return ret
     else:
-        logging.info("Command successful: {}".format(ret.stdout))
+        logging.debug("Command successful")
     return ret

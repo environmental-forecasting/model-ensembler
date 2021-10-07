@@ -40,7 +40,9 @@ async def run_check(ctx, func, check):
 
     while not result:
         try:
+            logging.debug("PRE CHECK")
             result = await func(ctx, **check.args)
+            logging.debug("POST CHECK")
         except Exception as e:
             logging.exception(e)
             raise CheckException("Issues with flight checks, abandoning")
@@ -209,6 +211,7 @@ async def run_batch_item(run, batch):
             async with _batch_job_sems[batch.name]:
                 func = getattr(model_ensembler.tasks, "jobs")
                 check = collections.namedtuple("check", ["args"])
+
                 await run_check(run, func, check({
                     "limit": batch.maxjobs,
                     "match": batch.name,
@@ -230,7 +233,8 @@ async def run_batch_item(run, batch):
 
                     while not slurm_running:
                         try:
-                            slurm_state = await find_id(int(slurm_id)).state
+                            job = await find_id(int(slurm_id))
+                            slurm_state = job.state
                         except (IndexError, ValueError):
                             logging.warning("Job {} not registered yet, "
                                             "or error encountered".
@@ -246,7 +250,8 @@ async def run_batch_item(run, batch):
 
                     while True:
                         try:
-                            slurm_state = await find_id(int(slurm_id)).state
+                            job = await find_id(int(slurm_id))
+                            slurm_state = job.state
                         except (IndexError, ValueError):
                             logging.exception("Job status for run {} retrieval"
                                               " whilst slurm running, waiting "

@@ -10,7 +10,7 @@ from model_ensembler.tasks.utils import execute_command
 job_lock = asyncio.Lock()
 
 # TODO: Generic across package
-Job = collections.namedtuple("Job", ["name", "state"])
+Job = collections.namedtuple("Job", ["name", "state", "started", "finished"])
 
 
 async def find_id(job_id):
@@ -27,24 +27,30 @@ async def find_id(job_id):
     """
     res = False
 
-    # TODO: match with regex
-    async with job_lock:
-        jobs = None
+    # TODO: deadlocks submit
+    #async with job_lock:
+    job = None
 
-        while not jobs:
-            try:
-                res = await execute_command("squeue -o \"%j,%T\" -h")
-                output = res.stdout.decode()
-            except Exception as e:
-                logging.warning("Could not retrieve list: {}".format(e))
-            else:
-                jobs = []
-                for line in output.split():
-                    fields = line.strip().split(",")
-                    jobs.append(Job(
-                        name=fields[0],
-                        state=fields[1]
-                    ))
+    while not job:
+        try:
+            res = await execute_command("scontrol show job {} -o".
+                                        format(job_id))
+            output = res.stdout.decode()
+        except Exception as e:
+            logging.warning("Could not retrieve list: {}".format(e))
+        else:
+            fields = output.split()
+            job = Job(
+                # TODO: ewwwwwwww stop being so grim and make this nicer
+                name=[v.split("=")[1] for v in fields
+                      if v.split("=")[0] == "JobName"][0],
+                state=[v.split("=")[1] for v in fields
+                       if v.split("=")[0] == "JobState"][0],
+                started=[v.split("=")[1] for v in fields
+                         if v.split("=")[0] == "StartTime"][0] == "Unknown",
+                finished=[v.split("=")[1] for v in fields
+                          if v.split("=")[0] == "EndTime"][0] == "Unknown"
+            )
 
-                logging.debug("SLURM find result: {}".format(len(jobs)))
-    return res
+            logging.debug("SLURM find result name: {}".format(job.name))
+    return job
