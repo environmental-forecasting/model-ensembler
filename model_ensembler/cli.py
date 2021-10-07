@@ -66,8 +66,8 @@ def parse_args():
     parser.add_argument("-et", "--error-timeout", default=120, type=int)
 
     parser.add_argument("configuration")
-    parser.add_argument("backend", default="slurm", required=False,
-                        choices=("slurm", "dummy"))
+    parser.add_argument("backend", default="slurm", choices=("slurm", "dummy"),
+                        nargs="?")
 
     # Prefer retaining immutable Arguments()
     # by not using the instance as a namespace
