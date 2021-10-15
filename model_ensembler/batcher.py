@@ -1,6 +1,7 @@
 import asyncio
 import collections
 import contextvars
+import importlib
 import logging
 import os
 import shlex
@@ -13,13 +14,11 @@ import jinja2
 
 import model_ensembler
 
-from model_ensembler.tasks import CheckException, TaskException, ProcessingException
-from model_ensembler.tasks import submit as slurm_submit
+from model_ensembler.tasks import \
+    CheckException, TaskException, ProcessingException
 from model_ensembler.utils import Arguments
 
-import model_ensembler.cluster
-
-batch_ctx = contextvars.ContextVar("batch")
+batch_ctx = contextvars.ContextVar("batch_ctx")
 ctx = contextvars.ContextVar("ctx")
 cluster_ctx = contextvars.ContextVar("cluster")
 
@@ -167,7 +166,7 @@ def process_templates(template_list):
 _batch_job_sems = dict()
 
 
-async def run_batch_item():
+async def run_batch_item(run):
     """Execute a run configuration
 
     Args:
@@ -178,7 +177,7 @@ async def run_batch_item():
     # TODO: my understanding is that all context from here through to end
     #  methods/tasks will now be under run_context in do_batch_execution
     batch = batch_ctx.get()
-    run = ctx.get()
+    ctx.set(run)
     cluster = cluster_ctx.get()
 
     logging.info("Start run {} at {}".format(run.id, datetime.utcnow()))
@@ -300,7 +299,6 @@ def do_batch_execution(loop, batch):
     logging.debug(pformat(batch))
 
     args = Arguments()
-    batch_context = contextvars.copy_context()
     batch_ctx.set(batch)
     batch_tasks = list()
     _batch_job_sems[batch.name] = asyncio.Semaphore(batch.maxjobs)
@@ -308,7 +306,10 @@ def do_batch_execution(loop, batch):
     batch_dict = {k: v for k, v in batch._asdict().items() \
                   if not (k.startswith("pre_") or k.startswith("post_")
                           or k == "runs")}
-    batch_context[ctx].set(ctx.get().update(batch_dict))
+
+    run_vars = ctx.get()
+    run_vars.update(batch_dict)
+    ctx.set(run_vars)
 
     # We are process dependent here, so this is where we have the choice of
     # concurrency strategies but each batch
@@ -318,8 +319,7 @@ def do_batch_execution(loop, batch):
         os.makedirs(batch.basedir, exist_ok=True)
     os.chdir(batch.basedir)
 
-    loop.run_until_complete(
-        batch_context.run(run_task_items, batch.pre_batch))
+    loop.run_until_complete(run_task_items(batch.pre_batch))
 
     for idx, run in enumerate(batch.runs):
         # Auto-generated context vars for run
@@ -337,21 +337,18 @@ def do_batch_execution(loop, batch):
                             format(idx, run['id']))
             continue
 
-        run_context = batch_context.copy_context()
-        ctx_dict = ctx.get().update(run)
-
         # At this point the context changes at root to property based
+        ctx_dict = ctx.get()
+        ctx_dict.update(run)
+
         Run = collections.namedtuple('Run', field_names=ctx_dict.keys())
         r = Run(**ctx_dict)
-        run_context[ctx].set(r)
-
-        task = run_context.run(run_batch_item)
+        task = run_batch_item(r)
         batch_tasks.append(task)
 
     loop.run_until_complete(run_runner(batch.maxruns, batch_tasks))
 
-    loop.run_until_complete(
-        batch_context.run(run_task_items, batch.post_batch))
+    loop.run_until_complete(run_task_items(batch.post_batch))
 
     os.chdir(orig)
     logging.info("Batch {} completed: {}".
@@ -379,8 +376,6 @@ class BatchExecutor(object):
         self._init_cluster(backend)
         self._init_ctx()
 
-        self._context = contextvars.copy_context()
-
     def _init_cluster(self, backend):
         """Initialise the cluster backend for batch execution
 
@@ -388,18 +383,21 @@ class BatchExecutor(object):
             backend (string): identifier for backend in
             `model_ensembler.cluster`
         """
-        if hasattr(model_ensembler.cluster, backend):
-            mod = getattr(model_ensembler.cluster, backend)
-            cluster_ctx.set(mod)
-        else:
+        nom = "model_ensembler.cluster.{}".format(backend)
+        try:
+            mod = importlib.import_module(nom)
+        except ModuleNotFoundError:
             raise NotImplementedError("No {} implementation exists in "
-                                      "model_ensembler.cluster!")
+                                      "model_ensembler.cluster!".
+                                      format(backend))
+        cluster_ctx.set(mod)
 
     def _init_ctx(self):
         """Initialise the root context vars for batch execution
         """
-        var_dict = ctx.get()
-        ctx.set(var_dict.update(self._cfg.vars))
+        var_dict = ctx.get(dict())
+        var_dict.update(self._cfg.vars)
+        ctx.set(var_dict)
 
     def run(self):
         """Run the executor
@@ -422,13 +420,13 @@ class BatchExecutor(object):
 
             # TODO: test - loop outside context or vice versa?
             loop.run_until_complete(
-                self._context.run(run_task_items, self._cfg.pre_process))
+                run_task_items(self._cfg.pre_process))
 
             for batch in self._cfg.batches:
-                self._context.run(do_batch_execution, loop, batch)
+                do_batch_execution(loop, batch)
 
             loop.run_until_complete(
-                self._context.run(run_task_items, self._cfg.post_process))
+                run_task_items(self._cfg.post_process))
 
         # TODO: provide except block for user specified handling of failures
 
