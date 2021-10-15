@@ -1,19 +1,19 @@
-import asyncio
 import logging
-import re
 
-from model_ensembler.cluster.pyslurm import job_lock, find_id
+# TODO: dynamic imports need to take place here
+import model_ensembler.cluster.slurm as cluster
 
 from model_ensembler.tasks.utils import \
     check_task, processing_task, execute_command
-from model_ensembler.utils import Arguments
-
-from pprint import pformat
 
 """HPC tasks
 
 This module contains HPC related task methods
 """
+
+
+async def find_id(job_id):
+    return await cluster.find_id(job_id)
 
 
 @check_task
@@ -28,43 +28,15 @@ async def jobs(ctx, limit, match):
     Returns:
         bool: true if number of jobs is less than limit, otherwise false
     """
-    res = False
 
     # TODO: match with regex
-    async with job_lock:
-        jobs = None
+    async with cluster.job_lock:
+        jobs = await cluster.current_jobs(ctx, match)
+        res = len(jobs) < int(limit)
 
-        while not jobs:
-            try:
-                res = await execute_command("squeue -o \"%j,%T\" -h -p {}".
-                                            format(ctx.cluster),
-                                            cwd=ctx.dir)
-                output = res.stdout.decode()
-            except Exception as e:
-                logging.warning("Could not retrieve list: {}".format(e))
-            else:
-                jobs = []
-                for line in output.split():
-                    fields = line.strip().split(",")
-                    jobs.append({"name": fields[0], "job_state": fields[1]})
+        logging.debug("Jobs in action {} with limit {}".format(
+            len(jobs), limit))
 
-                job_names = [{"name": j['name'], "state": j["job_state"]}
-                             for j in jobs
-                             if j['name'].startswith(match)
-                             and j['job_state'] in [
-                                 "COMPLETING", "PENDING", "RESV_DEL_HOLD",
-                                 "RUNNING", "SUSPENDED"]]
-
-                logging.debug("SLURM JOBS result: {}".
-                              format(pformat(job_names)))
-
-                res = len(job_names) < int(limit)
-
-                logging.debug("Jobs in action {} with limit {}".format(
-                    len(job_names), limit))
-
-                if res:
-                    break
     return res
 
 
@@ -79,31 +51,13 @@ async def submit(ctx, script=None):
     Returns:
         int: job identifier
     """
-    r_sbatch_id = re.compile(r'Submitted batch job (\d+)$')
-    args = Arguments()
 
     # TODO: check this as an optional argument avoids run submission
     #  as intended
     if script:
-        async with job_lock:
-            res = await execute_command("sbatch {}".format(script),
-                                        cwd=ctx.dir)
-            output = res.stdout.decode()
+        async with cluster.job_lock:
+            await cluster.submit_job(ctx, script)
 
-            sbatch_match = r_sbatch_id.match(output)
-            if sbatch_match:
-                job_id = sbatch_match.group(1)
-                logging.info("Submitted job with ID {}".format(job_id))
-
-                # This shouldn't be required but I remember there was a
-                # previous race condition with pyslurm.
-                # job = await find_id(int(job_id))
-                # while job.state == "PENDING":
-                #    logging.warning("Job {} has not started or be marked "
-                #                    "as pending yet, waiting for submission")
-                #    await asyncio.sleep(args.submit_timeout)
-
-                return job_id
     return None
 
 
