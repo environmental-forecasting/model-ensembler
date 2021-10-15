@@ -1,5 +1,6 @@
 import asyncio
 import collections
+import contextvars
 import logging
 import os
 import shlex
@@ -12,19 +13,25 @@ import jinja2
 
 import model_ensembler
 
-from .tasks import CheckException, TaskException, ProcessingException
-from .tasks import submit as slurm_submit
-from .utils import Arguments
+from model_ensembler.tasks import CheckException, TaskException, ProcessingException
+from model_ensembler.tasks import submit as slurm_submit
+from model_ensembler.utils import Arguments
+
 # TODO: start of a move towards multi-platform compatibility (got rid of
 #  pyslurm pip dependency)
-from .cluster.pyslurm import find_id
+from model_ensembler.cluster.slurm import find_id
+
+batch_ctx = contextvars.ContextVar("batch")
+ctx = contextvars.ContextVar("ctx")
+cluster = contextvars.ContextVar("cluster")
+
 
 """Main ensembler module with execution core code
 
 """
 
 
-async def run_check(ctx, func, check):
+async def run_check(func, check):
     """Run a check configuration
 
     Args:
@@ -41,7 +48,8 @@ async def run_check(ctx, func, check):
     while not result:
         try:
             logging.debug("PRE CHECK")
-            result = await func(ctx, **check.args)
+            run_ctx = ctx.get()
+            result = await func(run_ctx, **check.args)
             logging.debug("POST CHECK")
         except Exception as e:
             logging.exception(e)
@@ -53,7 +61,7 @@ async def run_check(ctx, func, check):
             await asyncio.sleep(args.check_timeout)
 
 
-async def run_task(ctx, func, task):
+async def run_task(func, task):
     """Run a task configuration
 
     Args:
@@ -66,14 +74,15 @@ async def run_task(ctx, func, task):
     """
     try:
         args = dict() if not task.args else task.args
-        await func(ctx, **args)
+        run_ctx = ctx.get()
+        await func(run_ctx, **args)
     except Exception as e:
         logging.exception(e)
         raise TaskException("Issues with flight checks, abandoning")
     return True
 
 
-async def run_task_items(ctx, items):
+async def run_task_items(items):
     """Run a set of task and checks
 
     Run the list of tasks and check items, the configuration references the
@@ -94,13 +103,14 @@ async def run_task_items(ctx, items):
             func = getattr(model_ensembler.tasks, item.name)
 
             logging.debug("TASK CWD: {}".format(os.getcwd()))
-            logging.debug("TASK CTX: {}".format(pformat(ctx)))
+            logging.debug("TASK CTX: {}".format(pformat(ctx.get())))
             logging.debug("TASK FUNC: {}".format(pformat(item)))
 
+            # TODO: insert ctx into decorators (reflected methods)
             if func.check:
-                await run_check(ctx, func, item)
+                await run_check(func, item)
             else:
-                await run_task(ctx, func, item)
+                await run_task(func, item)
     except (TaskException, CheckException) as e:
         raise ProcessingException(e)
 
@@ -127,27 +137,28 @@ async def run_runner(limit, tasks):
     return await asyncio.gather(*(sem_task(task) for task in tasks))
 
 
-def process_templates(ctx, template_list):
+def process_templates(template_list):
     """Render templates based on provided context
 
     Args:
         ctx (object): context object for retrieving configuration
         template_list (list): list of paths to template sources
     """
+    run_ctx = ctx.get()
 
     for tmpl_file in template_list:
         if tmpl_file[-3:] != ".j2":
             raise RuntimeError("{} doe not appear to be a Jinja2 template "
                                "(.j2)".format(tmpl_file))
 
-        tmpl_path = os.path.join(ctx.dir, tmpl_file)
+        tmpl_path = os.path.join(run_ctx.dir, tmpl_file)
         with open(tmpl_path, "r") as fh:
             tmpl_data = fh.read()
 
         dst_file = tmpl_path[:-3]
         logging.info("Templating {} to {}".format(tmpl_path, dst_file))
         tmpl = jinja2.Template(tmpl_data)
-        dst_data = tmpl.render(run=ctx)
+        dst_data = tmpl.render(run=run_ctx)
         with open(dst_file, "w+") as fh:
             fh.write(dst_data)
         os.chmod(dst_file, os.stat(tmpl_path).st_mode)
@@ -158,13 +169,18 @@ def process_templates(ctx, template_list):
 _batch_job_sems = dict()
 
 
-async def run_batch_item(run, batch):
+async def run_batch_item():
     """Execute a run configuration
 
     Args:
         run (object): specific run configuration
         batch (object): whole batch configuration
     """
+
+    # TODO: my understanding is that all context from here through to end
+    #  methods/tasks will now be under run_context in do_batch_execution
+    batch = batch_ctx.get()
+    run = ctx.get()
 
     logging.info("Start run {} at {}".format(run.id, datetime.utcnow()))
     logging.debug(pformat(run))
@@ -200,10 +216,10 @@ async def run_batch_item(run, batch):
             raise RuntimeError("Could not grab template directory {} to {}".
                                format(batch.templatedir, run.dir))
 
-    process_templates(run, batch.templates)
+    process_templates(batch.templates)
 
     try:
-        await run_task_items(run, batch.pre_run)
+        await run_task_items(batch.pre_run)
 
         if args.no_submission:
             logging.info("Skipping actual slurm submission based on arguments")
@@ -212,7 +228,7 @@ async def run_batch_item(run, batch):
                 func = getattr(model_ensembler.tasks, "jobs")
                 check = collections.namedtuple("check", ["args"])
 
-                await run_check(run, func, check({
+                await run_check(func, check({
                     "limit": batch.maxjobs,
                     "match": batch.name,
                 }))
@@ -270,7 +286,7 @@ async def run_batch_item(run, batch):
                         else:
                             await asyncio.sleep(args.running_timeout)
 
-        await run_task_items(run, batch.post_run)
+        await run_task_items(batch.post_run)
     except ProcessingException:
         logging.exception("Run failure caught, abandoning {} but not the "
                           "batch".format(run.id))
@@ -280,20 +296,27 @@ async def run_batch_item(run, batch):
     logging.info("End run {} at {}".format(run.id, datetime.utcnow()))
 
 
-def do_batch_execution(loop, batch, root_vars):
+def do_batch_execution(loop, batch):
     """Execute a batch configuration
 
     Args:
         loop (object): event loop
-        batch (object): whole batch configuration
+        batch (object): batch configuration
     """
 
     logging.info("Start batch: {}".format(datetime.utcnow()))
     logging.debug(pformat(batch))
 
     args = Arguments()
+    batch_context = contextvars.copy_context()
+    batch_ctx.set(batch)
     batch_tasks = list()
     _batch_job_sems[batch.name] = asyncio.Semaphore(batch.maxjobs)
+
+    batch_dict = {k: v for k, v in batch._asdict().items() \
+                  if not (k.startswith("pre_") or k.startswith("post_")
+                          or k == "runs")}
+    batch_context[ctx].set(ctx.get().update(batch_dict))
 
     # We are process dependent here, so this is where we have the choice of
     # concurrency strategies but each batch
@@ -303,48 +326,40 @@ def do_batch_execution(loop, batch, root_vars):
         os.makedirs(batch.basedir, exist_ok=True)
     os.chdir(batch.basedir)
 
-    loop.run_until_complete(run_task_items(batch, batch.pre_batch))
+    loop.run_until_complete(
+        batch_context.run(run_task_items, batch.pre_batch))
 
     for idx, run in enumerate(batch.runs):
-        runid = "{}-{}".format(batch.name, batch.runs.index(run))
+        # Auto-generated context vars for run
+        run['id'] = "{}-{}".format(batch.name, batch.runs.index(run))
+        run['dir'] = os.path.abspath(os.path.join(os.getcwd(), run['id']))
 
         if idx < args.skips:
             logging.warning("Skipping run index {} due to {} skips, run ID: "
-                            "{}".format(idx, args.skips, runid))
+                            "{}".format(idx, args.skips, run['id']))
             continue
 
         if args.indexes and idx not in args.indexes:
             logging.warning("Skipping run index {} due to not being in "
-                            "indexes argument, run ID: {}".format(idx, runid))
+                            "indexes argument, run ID: {}".
+                            format(idx, run['id']))
             continue
 
-        # TODO: Not really the best way of doing this, use some appropriate
-        #  typing for all the data used
-        run_vars = collections.defaultdict()
-        run_vars.update(root_vars)
+        run_context = batch_context.copy_context()
+        ctx_dict = ctx.get().update(run)
 
-        # This dir parameters becomes very important for running commands in
-        # the correct directory context
-        run['id'] = runid
-        run['dir'] = os.path.abspath(os.path.join(os.getcwd(), runid))
+        # At this point the context changes at root to property based
+        Run = collections.namedtuple('Run', field_names=ctx_dict.keys())
+        r = Run(**ctx_dict)
+        run_context[ctx].set(r)
 
-        batch_dict = batch._asdict()
-        for k, v in batch_dict.items():
-            if not k.startswith("pre_") \
-                    and not k.startswith("post_") \
-                    and k != "runs":
-                run_vars[k] = v
-
-        run_vars.update(run)
-
-        Run = collections.namedtuple('Run', field_names=run_vars.keys())
-        r = Run(**run_vars)
-        task = run_batch_item(r, batch)
+        task = run_context.run(run_batch_item)
         batch_tasks.append(task)
 
     loop.run_until_complete(run_runner(batch.maxruns, batch_tasks))
 
-    loop.run_until_complete(run_task_items(batch, batch.post_batch))
+    loop.run_until_complete(
+        batch_context.run(run_task_items, batch.post_batch))
 
     os.chdir(orig)
     logging.info("Batch {} completed: {}".
@@ -369,20 +384,30 @@ class BatchExecutor(object):
         """
         self._cfg = cfg
 
-        self._init_backend(backend)
+        self._init_cluster(backend)
+        self._init_ctx()
 
-    def _init_backend(self, backend):
-        """Initialise the backend for batch execution
+        self._context = contextvars.copy_context()
 
-        Not yet implemented
+    def _init_cluster(self, backend):
+        """Initialise the cluster backend for batch execution
 
         Args:
             backend (string): identifier for backend in
             `model_ensembler.cluster`
         """
-        if backend != "slurm":
-            raise NotImplementedError("Currently only the SLURM backend is "
-                                      "supported.")
+        if hasattr(model_ensembler.cluster, backend):
+            mod = getattr(model_ensembler.cluster, backend)
+            cluster.set(mod)
+        else:
+            raise NotImplementedError("No {} implementation exists in "
+                                      "model_ensembler.cluster!")
+
+    def _init_ctx(self):
+        """Initialise the root context vars for batch execution
+        """
+        var_dict = ctx.get()
+        ctx.set(var_dict.update(self._cfg.vars))
 
     def run(self):
         """Run the executor
@@ -397,19 +422,21 @@ class BatchExecutor(object):
             batch (object): whole batch configuration
         """
         logging.info("Running batcher")
+
         loop = None
 
         try:
             loop = asyncio.get_event_loop()
 
+            # TODO: test - loop outside context or vice versa?
             loop.run_until_complete(
-                run_task_items(self._cfg.vars, self._cfg.pre_process))
+                self._context.run(run_task_items, self._cfg.pre_process))
 
             for batch in self._cfg.batches:
-                do_batch_execution(loop, batch, self._cfg.vars)
+                self._context.run(do_batch_execution, loop, batch)
 
             loop.run_until_complete(
-                run_task_items(self._cfg.vars, self._cfg.post_process))
+                self._context.run(run_task_items, self._cfg.post_process))
 
         # TODO: provide except block for user specified handling of failures
 
