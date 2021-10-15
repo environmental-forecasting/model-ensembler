@@ -5,6 +5,7 @@ import concurrent.futures
 import logging
 import os
 import subprocess
+import threading
 
 from model_ensembler.cluster import Job, job_lock
 
@@ -12,29 +13,33 @@ from model_ensembler.cluster import Job, job_lock
 START_STATES = ("SUBMITTED", "RUNNING")
 FINISH_STATES = ("COMPLETED", "FAILED")
 
-
-_executor = None
-_jobs = collections.OrderedDict()
+_submit_lock = threading.Lock()
+_jobs = dict()
 
 
 def threaded_job(run_dir, script):
     global _jobs
 
-    _jobs[run_dir].state = "RUNNING"
-    _jobs[run_dir].started = True
+    _jobs[run_dir] = Job(_jobs[run_dir].name,
+                         "RUNNING",
+                         True,
+                         False)
 
-    subprocess.run(script, cwd=run_dir)
+    logging.info("DUMMY RUN: {} - {}".format(run_dir, _jobs[run_dir]))
+    subprocess.run("./{}".format(script), cwd=run_dir)
 
     # TODO: failed
-    _jobs[run_dir].state = "COMPLETED"
-    _jobs[run_dir].finished = True
+    _jobs[run_dir] = Job(_jobs[run_dir].name,
+                         "COMPLETED",
+                         True,
+                         True)
 
 
 async def find_id(job_id):
     global _jobs
 
     job = None
-    job_arr = [el for el in _jobs if el.id == job_id]
+    job_arr = [el for el in _jobs.values() if el.name == job_id]
 
     if len(job_arr) == 1:
         job = job_arr[0]
@@ -47,22 +52,18 @@ async def find_id(job_id):
 async def current_jobs(ctx, match):
     global _jobs
 
-    job_arr = [el for el in _jobs if el.id.startswith(match)]
+    job_arr = [el for el in _jobs.values() if el.name.startswith(match)]
 
     return job_arr
 
 
 async def submit_job(ctx, script=None):
-    global _executor, _jobs
+    global _jobs
 
-    if not _executor:
-        logging.info("Creating dummy thread executor with {} threads".
-                     format(ctx.maxjobs))
-        _executor = concurrent.futures.ThreadPoolExecutor(ctx.maxjobs)
+    with _submit_lock:
+        _jobs[ctx.dir] = Job(ctx.id, "SUBMITTED", False, False)
 
-    _jobs[ctx.dir] = Job(ctx.id, "SUBMITTED", False, False)
-
-    _executor.submit(threaded_job, ctx.dir, script)
+        threading.Thread(target=threaded_job, args=(ctx.dir, script)).start()
     return ctx.id
 
 if __name__ == "__main__":

@@ -245,7 +245,7 @@ async def run_batch_item(run):
 
                     while not running:
                         try:
-                            job = await cluster.find_id(int(job_id))
+                            job = await cluster.find_id(job_id)
                             state = job.state
                         except (IndexError, ValueError) as e:
                             logging.warning("Job {} not registered yet, "
@@ -260,7 +260,7 @@ async def run_batch_item(run):
 
                     while True:
                         try:
-                            job = await cluster.find_id(int(job_id))
+                            job = await cluster.find_id(job_id)
                             state = job.state
                         except (IndexError, ValueError):
                             logging.exception("Job status for run {} retrieval"

@@ -93,5 +93,5 @@ async def submit_job(ctx, script=None):
         job_id = sbatch_match.group(1)
         logging.info("Submitted job with ID {}".format(job_id))
 
-        return job_id
+        return int(job_id)
     return None
