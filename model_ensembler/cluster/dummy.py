@@ -52,7 +52,9 @@ async def find_id(job_id):
 async def current_jobs(ctx, match):
     global _jobs
 
-    job_arr = [el for el in _jobs.values() if el.name.startswith(match)]
+    job_arr = [el for el in _jobs.values()
+               if el.name.startswith(match)
+               and el.state in START_STATES]
 
     return job_arr
 
