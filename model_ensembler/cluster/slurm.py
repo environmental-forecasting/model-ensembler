@@ -9,6 +9,10 @@ from pprint import pformat
 from model_ensembler.tasks.utils import execute_command
 from model_ensembler.cluster import Job, job_lock
 
+START_STATES = ("COMPLETING", "PENDING", "RESV_DEL_HOLD", "RUNNING",
+                "SUSPENDED", "COMPLETED", "FAILED", "CANCELLED")
+FINISH_STATES = ("COMPLETED", "FAILED", "CANCELLED")
+
 
 async def find_id(job_id):
     """Method to find SLURM job by ID

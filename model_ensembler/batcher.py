@@ -17,13 +17,11 @@ from model_ensembler.tasks import CheckException, TaskException, ProcessingExcep
 from model_ensembler.tasks import submit as slurm_submit
 from model_ensembler.utils import Arguments
 
-# TODO: start of a move towards multi-platform compatibility (got rid of
-#  pyslurm pip dependency)
-from model_ensembler.cluster.slurm import find_id
+import model_ensembler.cluster
 
 batch_ctx = contextvars.ContextVar("batch")
 ctx = contextvars.ContextVar("ctx")
-cluster = contextvars.ContextVar("cluster")
+cluster_ctx = contextvars.ContextVar("cluster")
 
 
 """Main ensembler module with execution core code
@@ -181,6 +179,7 @@ async def run_batch_item():
     #  methods/tasks will now be under run_context in do_batch_execution
     batch = batch_ctx.get()
     run = ctx.get()
+    cluster = cluster_ctx.get()
 
     logging.info("Start run {} at {}".format(run.id, datetime.utcnow()))
     logging.debug(pformat(run))
@@ -233,41 +232,35 @@ async def run_batch_item():
                     "match": batch.name,
                 }))
 
-                slurm_id = await slurm_submit(run, script=batch.job_file)
+                job_id = await cluster.submit(run, script=batch.job_file)
 
-                if not slurm_id:
-                    # TODO: Maybe not the best way to handle this!
+                if not job_id:
                     logging.exception(
                         "{} could not be submitted, we won't continue".format(
                             batch.name
                         ))
                 else:
-                    # TODO: see note about moving toward multi-platform
-                    #  compatibility, naming is awry
-                    slurm_running = False
-                    slurm_state = None
+                    running = False
+                    state = None
 
-                    while not slurm_running:
+                    while not running:
                         try:
-                            job = await find_id(int(slurm_id))
-                            slurm_state = job.state
+                            job = await cluster.find_id(int(job_id))
+                            state = job.state
                         except (IndexError, ValueError):
                             logging.warning("Job {} not registered yet, "
                                             "or error encountered".
-                                            format(slurm_id))
+                                            format(job_id))
 
-                        if slurm_state and (slurm_state in (
-                                "COMPLETING", "PENDING", "RESV_DEL_HOLD",
-                                "RUNNING", "SUSPENDED", "COMPLETED", "FAILED",
-                                "CANCELLED")):
-                            slurm_running = True
+                        if state and (state in cluster.START_STATES):
+                            running = True
                         else:
                             await asyncio.sleep(args.submit_timeout)
 
                     while True:
                         try:
-                            job = await find_id(int(slurm_id))
-                            slurm_state = job.state
+                            job = await cluster.find_id(int(job_id))
+                            state = job.state
                         except (IndexError, ValueError):
                             logging.exception("Job status for run {} retrieval"
                                               " whilst slurm running, waiting "
@@ -277,11 +270,11 @@ async def run_batch_item():
                             continue
 
                         logging.debug("{} monitor got state {} for job {}".
-                                      format(run.id, slurm_state, slurm_id))
+                                      format(run.id, state, job_id))
 
-                        if slurm_state in ("COMPLETED", "FAILED", "CANCELLED"):
+                        if state in cluster.FINISH_STATES:
                             logging.info("{} monitor got state {} for job {}".
-                                         format(run.id, slurm_state, slurm_id))
+                                         format(run.id, state, job_id))
                             break
                         else:
                             await asyncio.sleep(args.running_timeout)
@@ -292,7 +285,6 @@ async def run_batch_item():
                           "batch".format(run.id))
         return
 
-    # TODO: return run windows/info
     logging.info("End run {} at {}".format(run.id, datetime.utcnow()))
 
 
@@ -398,7 +390,7 @@ class BatchExecutor(object):
         """
         if hasattr(model_ensembler.cluster, backend):
             mod = getattr(model_ensembler.cluster, backend)
-            cluster.set(mod)
+            cluster_ctx.set(mod)
         else:
             raise NotImplementedError("No {} implementation exists in "
                                       "model_ensembler.cluster!")
