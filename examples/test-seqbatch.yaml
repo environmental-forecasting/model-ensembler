@@ -1,7 +1,7 @@
 ---
 ensemble:
   vars:  
-    configuration:  test.yaml
+    configuration:  test-seqbatch.yaml
   pre_process: 
   - name:   execute
     args:

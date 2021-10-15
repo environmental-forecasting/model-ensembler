@@ -1,7 +1,7 @@
 ---
 ensemble:
   vars:  
-    configuration:  test.yaml
+    configuration:  test-single.yaml
   pre_process: 
   - name:   execute
     args:
@@ -12,7 +12,7 @@ ensemble:
       cmd:  rm process.touch
   batches:
     - name:         tst1
-      templatedir:  ..//template_job
+      templatedir:  ../template_job
       templates:
       - slurm_run.sh.j2
       - inputfile.j2

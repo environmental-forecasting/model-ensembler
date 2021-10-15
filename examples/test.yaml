@@ -10,23 +10,26 @@ ensemble:
   - name:   execute
     args:
       cmd:  rm process.touch
+
+  batch_config:
+    templates:
+    - slurm_run.sh.j2
+    - inputfile.j2
+    - preprocess.sh.j2
+    - postprocess.sh.j2
+    job_file:     slurm_run.sh
+    cluster:      short
+    email:        test@example.org
+    nodes:        1
+    ntasks:       8
+    length:       00:20:00
+    maxruns:      8
+    maxjobs:      2
+
   batches:
     - name:         tst1
-      templatedir:  ..//template_job
-      templates:
-      - slurm_run.sh.j2
-      - inputfile.j2
-      - preprocess.sh.j2
-      - postprocess.sh.j2
-      job_file:     slurm_run.sh
-      cluster:      short
+      templatedir:  ../template_job
       basedir:      ./tst1
-      email:        test@example.org
-      nodes:        1
-      ntasks:       8
-      length:       00:20:00
-      maxruns:      8
-      maxjobs:      2
       pre_batch:    
       - name:   check
         args:
@@ -69,20 +72,7 @@ ensemble:
           cmd:  touch post_batch.keep
     - name:         tst2
       templatedir:  ../template_job
-      templates:
-      - slurm_run.sh.j2
-      - inputfile.j2
-      - preprocess.sh.j2
-      - postprocess.sh.j2
-      job_file:     slurm_run.sh
-      cluster:      short 
       basedir:      ./tst2
-      email:        test@example.org
-      nodes:        1
-      ntasks:       8
-      length:       00:20:00
-      maxruns:      8
-      maxjobs:      3
       pre_batch:    
       - name:   check
         args:
