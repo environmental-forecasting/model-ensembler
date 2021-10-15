@@ -16,6 +16,7 @@ import model_ensembler
 
 from model_ensembler.tasks import \
     CheckException, TaskException, ProcessingException
+from model_ensembler.tasks.hpc import init_hpc_backend
 from model_ensembler.utils import Arguments
 
 batch_ctx = contextvars.ContextVar("batch_ctx")
@@ -231,7 +232,7 @@ async def run_batch_item(run):
                     "match": batch.name,
                 }))
 
-                job_id = await cluster.submit(run, script=batch.job_file)
+                job_id = await cluster.submit_job(run, script=batch.job_file)
 
                 if not job_id:
                     logging.exception(
@@ -246,10 +247,11 @@ async def run_batch_item(run):
                         try:
                             job = await cluster.find_id(int(job_id))
                             state = job.state
-                        except (IndexError, ValueError):
+                        except (IndexError, ValueError) as e:
                             logging.warning("Job {} not registered yet, "
                                             "or error encountered".
                                             format(job_id))
+                            logging.exception(e)
 
                         if state and (state in cluster.START_STATES):
                             running = True
@@ -390,6 +392,8 @@ class BatchExecutor(object):
             raise NotImplementedError("No {} implementation exists in "
                                       "model_ensembler.cluster!".
                                       format(backend))
+
+        init_hpc_backend(nom)
         cluster_ctx.set(mod)
 
     def _init_ctx(self):

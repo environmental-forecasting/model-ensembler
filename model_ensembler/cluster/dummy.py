@@ -63,7 +63,7 @@ async def submit_job(ctx, script=None):
     _jobs[ctx.dir] = Job(ctx.id, "SUBMITTED", False, False)
 
     _executor.submit(threaded_job, ctx.dir, script)
-
+    return ctx.id
 
 if __name__ == "__main__":
     pass

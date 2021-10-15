@@ -1,10 +1,23 @@
+import importlib
 import logging
-
-# TODO: dynamic imports need to take place here
-import model_ensembler.cluster.slurm as cluster
 
 from model_ensembler.tasks.utils import \
     check_task, processing_task, execute_command
+
+# TODO: dynamic imports need to take place here
+cluster = None
+
+
+def init_hpc_backend(backend):
+    global cluster
+
+    logging.info("Importing {}".format(backend))
+    try:
+        cluster = importlib.import_module(backend)
+    except (ImportError, ModuleNotFoundError) as e:
+        logging.exception("Couldn't dynamically import cluster backend")
+        raise e
+
 
 """HPC tasks
 
