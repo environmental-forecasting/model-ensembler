@@ -44,11 +44,11 @@ async def jobs(ctx, limit, match):
 
     # TODO: match with regex
     async with cluster.job_lock:
-        jobs = await cluster.current_jobs(ctx, match)
-        res = len(jobs) < int(limit)
+        job_list = await cluster.current_jobs(ctx, match)
+        res = len(job_list) < int(limit)
 
         logging.debug("Jobs in action {} with limit {}".format(
-            len(jobs), limit))
+            len(job_list), limit))
 
     return res
 

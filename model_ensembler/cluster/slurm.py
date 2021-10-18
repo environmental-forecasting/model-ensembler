@@ -10,8 +10,10 @@ from model_ensembler.tasks.utils import execute_command
 from model_ensembler.cluster import Job, job_lock
 
 START_STATES = ("COMPLETING", "PENDING", "RESV_DEL_HOLD", "RUNNING",
-                "SUSPENDED", "COMPLETED", "FAILED", "CANCELLED")
-FINISH_STATES = ("COMPLETED", "FAILED", "CANCELLED")
+                "SUSPENDED", "CONFIGURING", "REQUEUE_FED", "REQUEUE_HOLD",
+                "REQUEUED", "RESIZING", "REVOKED", "SIGNALED", "STOPPED")
+FINISH_STATES = ("COMPLETED", "FAILED", "CANCELLED", "OUT_OF_MEMORY",
+                 "DEADLINE", "NODE_FAIL", "PREEMPTED", "TIMEOUT")
 
 
 async def find_id(job_id):
@@ -36,6 +38,7 @@ async def find_id(job_id):
         except Exception as e:
             logging.warning("Could not retrieve list: {}".format(e))
         else:
+            # FIXME: scontrol won't find the job once departed from cluster
             fields = output.split()
             job = Job(
                 # TODO: ewwwwwwww stop being so grim and make this nicer
@@ -56,7 +59,8 @@ async def find_id(job_id):
 async def current_jobs(ctx, match):
     filtered_jobs = None
 
-    while not filtered_jobs:
+    # Ensure we account for empty lists
+    while not filtered_jobs and filtered_jobs is None:
         try:
             res = await execute_command("squeue -o \"%j,%T\" -h -p {}".
                                         format(ctx.cluster),
@@ -73,12 +77,11 @@ async def current_jobs(ctx, match):
             filtered_jobs = [{"name": j['name'], "state": j["job_state"]}
                          for j in jobs
                          if j['name'].startswith(match)
-                         and j['job_state'] in [
-                             "COMPLETING", "PENDING", "RESV_DEL_HOLD",
-                             "RUNNING", "SUSPENDED"]]
+                         and j['job_state'] in START_STATES]
 
             logging.debug("SLURM JOBS result: {}".
                           format(pformat(filtered_jobs)))
+
     return filtered_jobs
 
 
