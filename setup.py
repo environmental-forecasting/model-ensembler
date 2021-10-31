@@ -11,7 +11,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="model-ensembler",
-    version="0.5.1a0",
+    version="0.5.1a1",
     author="James Byrne",
     author_email="jambyr@bas.ac.uk",
     description="Model Ensemble for batch workflows on HPCs",

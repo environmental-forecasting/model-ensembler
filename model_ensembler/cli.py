@@ -19,12 +19,28 @@ def parse_indexes(argv):
 
     Returns:
         list: List of integer values
+    Raises:
+        argparse.ArgumentTypeError
     """
     if re.match(r'^([0-9]+,)*[0-9]+$', argv):
         return [int(v) for v in argv.split(",")]
     raise argparse.ArgumentTypeError("{} is not a CSV delimited integer list "
                                      "of indexes".format(argv))
 
+
+def parse_extra_vars(arg):
+    """ Method for processing extra var arguments
+
+    Returns:
+        tuple: name and value for the argument to be overridden
+    Raises:
+        argparse.ArgumentTypeError
+    """
+    arg_match = re.match(r'^([^=]+)=(.+)$', arg)
+    if arg_match:
+        return arg_match.groups()
+    raise argparse.ArgumentTypeError("Argument does not match name=value "
+                                     "format: {}".format(arg))
 
 def parse_args():
     """Parse command line parameters
@@ -65,6 +81,9 @@ def parse_args():
     parser.add_argument("-rt", "--running-timeout", default=10, type=int)
     parser.add_argument("-et", "--error-timeout", default=120, type=int)
 
+    parser.add_argument("-x", "--extra-vars", dest="extra", nargs="*",
+                        default=[], type=parse_extra_vars)
+
     parser.add_argument("configuration")
     parser.add_argument("backend", default="slurm", choices=("slurm", "dummy"),
                         nargs="?")
@@ -86,5 +105,8 @@ def main():
                   verbose=args.verbose)
 
     logging.info("Model Ensemble Runner")
+    print(dict(args.extra))
     config = EnsembleConfig(args.configuration)
-    BatchExecutor(config, args.backend).run()
+    BatchExecutor(config,
+                  args.backend,
+                  dict(args.extra)).run()

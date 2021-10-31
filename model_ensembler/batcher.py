@@ -22,6 +22,7 @@ from model_ensembler.utils import Arguments
 batch_ctx = contextvars.ContextVar("batch_ctx")
 ctx = contextvars.ContextVar("ctx")
 cluster_ctx = contextvars.ContextVar("cluster")
+extra_ctx = contextvars.ContextVar("extra")
 
 
 """Main ensembler module with execution core code
@@ -342,6 +343,7 @@ def do_batch_execution(loop, batch):
         # At this point the context changes at root to property based
         ctx_dict = ctx.get()
         ctx_dict.update(run)
+        ctx_dict.update(extra_ctx.get())
 
         Run = collections.namedtuple('Run', field_names=ctx_dict.keys())
         r = Run(**ctx_dict)
@@ -367,7 +369,7 @@ class BatchExecutor(object):
     used to contain and control the execution overall
     """
 
-    def __init__(self, cfg, backend="slurm"):
+    def __init__(self, cfg, backend="slurm", extra_vars=[]):
         """Constructor
 
         Args:
@@ -376,7 +378,7 @@ class BatchExecutor(object):
         self._cfg = cfg
 
         self._init_cluster(backend)
-        self._init_ctx()
+        self._init_ctx(extra_vars)
 
     def _init_cluster(self, backend):
         """Initialise the cluster backend for batch execution
@@ -396,12 +398,17 @@ class BatchExecutor(object):
         init_hpc_backend(nom)
         cluster_ctx.set(mod)
 
-    def _init_ctx(self):
-        """Initialise the root context vars for batch execution
+    def _init_ctx(self, extra_vars):
+        """Initialise contexts
+
+        Initialise the root context vars for batch execution and set
+        extra context vars that can be added last thing to the run
         """
         var_dict = ctx.get(dict())
         var_dict.update(self._cfg.vars)
         ctx.set(var_dict)
+
+        extra_ctx.set(extra_vars)
 
     def run(self):
         """Run the executor
