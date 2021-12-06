@@ -197,7 +197,7 @@ async def run_batch_item(run):
 
         for tmpl_file in batch.templates:
             src_path = os.path.join(batch.templatedir, tmpl_file)
-            dst_path = shutil.copy(src_path, run.dir)
+            dst_path = shutil.copy(src_path, os.path.join(run.dir, tmpl_file))
             logging.info("Re-copied {} to {} for template regeneration".
                          format(src_path, dst_path))
     else:
