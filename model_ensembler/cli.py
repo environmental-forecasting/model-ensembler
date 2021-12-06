@@ -36,11 +36,13 @@ def parse_extra_vars(arg):
     Raises:
         argparse.ArgumentTypeError
     """
+
     arg_match = re.match(r'^([^=]+)=(.+)$', arg)
     if arg_match:
         return arg_match.groups()
-    raise argparse.ArgumentTypeError("Argument does not match name=value "
-                                     "format: {}".format(arg))
+    raise argparse.ArgumentTypeError("Argument does not match "
+                                      "name=value format: {}".format(arg))
+
 
 def parse_args():
     """Parse command line parameters
@@ -105,7 +107,7 @@ def main():
                   verbose=args.verbose)
 
     logging.info("Model Ensemble Runner")
-    print(dict(args.extra))
+
     config = EnsembleConfig(args.configuration)
     BatchExecutor(config,
                   args.backend,
