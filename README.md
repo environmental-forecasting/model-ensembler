@@ -23,13 +23,13 @@ pip install model-ensembler
 
 ### Checking it works
 
-This runs a nice little test job in the examples directory of the source. It 
-doesn't need slurm, you use the `-s` option to avoid the actual submission.
+You can run the sanity checker with the following command, choosing either 
+the dummy executor or slurm as appropriate.
+
+**TODO: v0.5.3: in the meantime you can run the examples**
 
 ```
-git clone https://github.com/JimCircadian/model-ensembler.git
-cd model-ensembler/examples/
-model_ensemble -s sanity-check.yml
+model_ensemble_check [dummy|slurm]
 ```
 
 
