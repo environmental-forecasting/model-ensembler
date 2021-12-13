@@ -51,8 +51,8 @@ def parse_args():
         Arguments: The immutable instance from ``.utils``
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument("-n", "--no-daemon",
-                        help="Do not daemon", default=True,
+    parser.add_argument("-d", "--daemon",
+                        help="Daemonise the ensembler", default=False,
                         action="store_true")
 
     # TODO: Need to validate the argument selections/group certain commands
@@ -100,7 +100,7 @@ def main():
     """
     args = parse_args()
 
-    if not args.no_daemon:
+    if args.daemon:
         background_fork(True)
 
     setup_logging("{}".format(os.path.basename(args.configuration)),
