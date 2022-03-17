@@ -6,15 +6,17 @@ from setuptools import setup
 
 """
 
+from model_ensembler import __author__, __email__, __version__
+
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
     name="model-ensembler",
-    version="0.5.2",
-    author="James Byrne",
-    author_email="jambyr@bas.ac.uk",
-    description="Model Ensemble for batch workflows on HPCs",
+    version=__version__,
+    author=__author__,
+    author_email=__email__,
+    description="Model Ensembler for managed batch workflows",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://www.github.com/jimcircadian/model-ensembler",
@@ -22,7 +24,7 @@ setup(
         "Bug Tracker": "https://github.com/jimcircadian/model-ensembler/issues",
     },
     packages=setuptools.find_packages(),
-    keywords='slurm, hpc, tools, batch, model, ensemble',
+    keywords='slurm, hpc, tools, batch, model, ensemble, local',
     classifiers=[
         "Environment :: Console",
         "Programming Language :: Python :: 3",
