@@ -2,7 +2,9 @@ import asyncio
 import collections
 import logging
 import os
+import random
 import re
+import time
 
 from pprint import pformat
 
@@ -32,24 +34,19 @@ async def find_id(job_id):
 
     while not job:
         try:
-            res = await execute_command("scontrol show job {} -o".
+            res = await execute_command("sacct -XnP -j {} "
+                                        "-o jobname,state,start,end".
                                         format(job_id))
-            output = res.stdout.decode()
+            output = res.stdout.decode().strip()
         except Exception as e:
             logging.warning("Could not retrieve list: {}".format(e))
         else:
-            # FIXME: scontrol won't find the job once departed from cluster
-            fields = output.split()
+            (name, state, started, finished) = output.split("|")
             job = Job(
-                # TODO: ewwwwwwww stop being so grim and make this nicer
-                name=[v.split("=")[1] for v in fields
-                      if v.split("=")[0] == "JobName"][0],
-                state=[v.split("=")[1] for v in fields
-                       if v.split("=")[0] == "JobState"][0],
-                started=[v.split("=")[1] for v in fields
-                         if v.split("=")[0] == "StartTime"][0] == "Unknown",
-                finished=[v.split("=")[1] for v in fields
-                          if v.split("=")[0] == "EndTime"][0] == "Unknown"
+                name=name,
+                state=state,
+                started=started == "Unknown",
+                finished=finished == "Unknown"
             )
 
             logging.debug("SLURM find result name: {}".format(job.name))
@@ -87,8 +84,13 @@ async def current_jobs(ctx, match):
 
 async def submit_job(ctx, script=None):
     r_sbatch_id = re.compile(r'Submitted batch job (\d+)$')
-    res = await execute_command("sbatch {}".format(script),
-                                cwd=ctx.dir)
+
+    # Don't smash the scheduler immediately, it appears to have the potential
+    # to cause problems. (TODO: better implementation)
+    sleep_for = random.randint(1, 30)
+    logging.debug("Sleeping for {} seconds before submission".format(sleep_for))
+    await asyncio.sleep(sleep_for)
+    res = await execute_command("sbatch {}".format(script), cwd=ctx.dir)
     output = res.stdout.decode()
 
     sbatch_match = r_sbatch_id.match(output)
