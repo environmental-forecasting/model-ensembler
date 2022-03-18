@@ -1,21 +1,23 @@
-import setuptools
-
-from setuptools import setup
+from setuptools import setup, find_packages
 
 """Setup module for model_ensembler
 
 """
 
-from model_ensembler import __author__, __email__, __version__
+# This breaks wheel creation with pip install . / url, but wheels build fine elsewise
+# need to investigate why this is, especially as the same effect does not happen with 
+# other source package tests...
+#import model_ensembler
+#from model_ensembler import __author__, __email__, __version__
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
     name="model-ensembler",
-    version=__version__,
-    author=__author__,
-    author_email=__email__,
+    version="0.5.3a0",
+    author="James Byrne",
+    author_email="jambyr@bas.ac.uk",
     description="Model Ensembler for managed batch workflows",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -23,7 +25,7 @@ setup(
     project_urls={
         "Bug Tracker": "https://github.com/jimcircadian/model-ensembler/issues",
     },
-    packages=setuptools.find_packages(),
+    packages=find_packages(),
     keywords='slurm, hpc, tools, batch, model, ensemble, local',
     classifiers=[
         "Environment :: Console",
