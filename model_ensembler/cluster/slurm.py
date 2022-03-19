@@ -10,6 +10,7 @@ from pprint import pformat
 
 from model_ensembler.tasks.utils import execute_command
 from model_ensembler.cluster import Job, job_lock
+from model_ensembler.utils import Arguments
 
 START_STATES = ("COMPLETING", "PENDING", "RESV_DEL_HOLD", "RUNNING",
                 "SUSPENDED", "CONFIGURING", "REQUEUE_FED", "REQUEUE_HOLD",
@@ -84,10 +85,12 @@ async def current_jobs(ctx, match):
 
 async def submit_job(ctx, script=None):
     r_sbatch_id = re.compile(r'Submitted batch job (\d+)$')
+    args = Arguments()
 
     # Don't smash the scheduler immediately, it appears to have the potential
-    # to cause problems. (TODO: better implementation)
-    sleep_for = random.randint(1, 30)
+    # to cause problems. 
+    max_submit_sleep = args.max_stagger
+    sleep_for = random.randint(0, max_submit_sleep)
     logging.debug("Sleeping for {} seconds before submission".format(sleep_for))
     await asyncio.sleep(sleep_for)
     res = await execute_command("sbatch {}".format(script), cwd=ctx.dir)

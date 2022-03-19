@@ -75,13 +75,17 @@ def parse_args():
     parser.add_argument("-k", "--skips",
                         help="Number of run entries to skip", default=0,
                         type=int)
+
     parser.add_argument("-i", "--indexes",
                         help="Specify which indexes to run",
                         type=parse_indexes)
+
     parser.add_argument("-ct", "--check-timeout", default=10, type=int)
     parser.add_argument("-st", "--submit-timeout", default=10, type=int)
     parser.add_argument("-rt", "--running-timeout", default=10, type=int)
     parser.add_argument("-et", "--error-timeout", default=120, type=int)
+
+    parser.add_argument("-ms", "--max-stagger", default=1, type=int)
 
     parser.add_argument("-x", "--extra-vars", dest="extra", nargs="*",
                         default=[], type=parse_extra_vars)

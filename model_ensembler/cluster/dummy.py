@@ -64,6 +64,11 @@ async def current_jobs(ctx, match):
 async def submit_job(ctx, script=None):
     global _jobs
 
+    max_submit_sleep = args.max_stagger
+    sleep_for = random.randint(0, max_submit_sleep)
+    logging.debug("Sleeping for {} seconds before submission".format(sleep_for))
+    await asyncio.sleep(sleep_for)
+
     with _dict_lock:
         _jobs[ctx.dir] = Job(ctx.id, "SUBMITTED", False, False)
 
