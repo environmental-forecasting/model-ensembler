@@ -3,6 +3,7 @@
   "$id": "https://www.bas.ac.uk/schemas/json/model-ensemble.json",
 
   "definitions": {
+
     "batch": {
       "type": "object",
       "properties":  {
@@ -13,7 +14,7 @@
           "pattern": "\\.j2$"
         } },
         "job_file": { "type":  "string" },
-        "cluster":  { "type": "string", "enum": ["short","medium","long","gpu","dev"] },
+        "cluster":  { "type": "string" },
         "basedir": { "type": "string" },
         "email": { "type": "string" },
         "nodes": { "type": ["number","string"] },
@@ -21,6 +22,7 @@
         "length": { "type": ["number","string"] },
         "maxruns": { "type": "number" },
         "maxjobs": { "type": "number" },
+
         "pre_batch": {
           "type": "array",
           "items": {
@@ -57,6 +59,7 @@
       },
       "required": ["name", "templatedir", "templates", "cluster", "basedir", "runs", "maxruns", "maxjobs"]
     },
+
     "task": {
       "$id": "#task",
       "type": "object",
@@ -74,6 +77,7 @@
   "properties":  {
     "ensemble": { "type": "object",
       "properties": {
+        "batch_config": { "type": "object" },
         "vars": { "type": "object" },
 
         "pre_process": {

@@ -67,7 +67,6 @@ class YAMLConfig:
                                            "batch_config is a bad move")
                     if k not in batch:
                         batch[k] = v
-            yaml_data["ensemble"].pop("batch_config", None)
 
         with open(json_schema, "r") as fh:
             json_data = json.load(fh)
