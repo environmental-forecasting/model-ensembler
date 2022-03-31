@@ -7,7 +7,7 @@ import types
 
 from datetime import datetime
 
-from ..utils import Arguments
+from model_ensembler.utils import Arguments
 
 """Task utilities
 
