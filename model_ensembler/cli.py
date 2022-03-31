@@ -113,6 +113,7 @@ def main():
     logging.info("Model Ensemble Runner")
 
     config = EnsembleConfig(args.configuration)
+    # TODO: get_batch_executor
     BatchExecutor(config,
                   args.backend,
                   dict(args.extra)).run()

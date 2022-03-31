@@ -10,14 +10,15 @@ import shutil
 from datetime import datetime
 from pprint import pformat
 
-import jinja2
-
 import model_ensembler
 
 from model_ensembler.tasks import \
-    CheckException, TaskException, ProcessingException
+    CheckException, ProcessingException
 from model_ensembler.tasks.hpc import init_hpc_backend
 from model_ensembler.utils import Arguments
+
+from model_ensembler.templates import process_templates
+from model_ensembler.runners import run_check, run_runner, run_task_items
 
 batch_ctx = contextvars.ContextVar("batch_ctx")
 ctx = contextvars.ContextVar("ctx")
@@ -28,142 +29,6 @@ extra_ctx = contextvars.ContextVar("extra")
 """Main ensembler module with execution core code
 
 """
-
-
-async def run_check(func, check):
-    """Run a check configuration
-
-    Args:
-        ctx (object): context object for retrieving configuration
-        func (callable): async check method
-        check (dict): check configuration
-
-    Raises:
-        CheckException: any exception from the called check
-    """
-    result = False
-    args = Arguments()
-
-    while not result:
-        try:
-            logging.debug("PRE CHECK")
-            run_ctx = ctx.get()
-            result = await func(run_ctx, **check.args)
-            logging.debug("POST CHECK")
-        except Exception as e:
-            logging.exception(e)
-            raise CheckException("Issues with flight checks, abandoning")
-
-        if not result:
-            logging.debug("Cannot continue, waiting {} seconds for next check".
-                          format(args.check_timeout))
-            await asyncio.sleep(args.check_timeout)
-
-
-async def run_task(func, task):
-    """Run a task configuration
-
-    Args:
-        ctx (object): context object for retrieving configuration
-        func (callable): async task method
-        task (dict): task configuration
-
-    Raises:
-        TaskException: any exception from the called task
-    """
-    try:
-        args = dict() if not task.args else task.args
-        run_ctx = ctx.get()
-        await func(run_ctx, **args)
-    except Exception as e:
-        logging.exception(e)
-        raise TaskException("Issues with flight checks, abandoning")
-    return True
-
-
-async def run_task_items(items):
-    """Run a set of task and checks
-
-    Run the list of tasks and check items, the configuration references the
-    ``model_ensemble.tasks`` method to use and the context/configuration
-    provides the arguments. TaskException and CheckException are trapped and
-    rethrown as ProcessingException
-
-    Args:
-        ctx (object): context object for retrieving configuration
-        tasks (list): a list of tasks and checks
-
-    Raises:
-        ProcessingException: a common exception thrown for failures in the
-        individual tasks
-    """
-    try:
-        for item in items:
-            func = getattr(model_ensembler.tasks, item.name)
-
-            logging.debug("TASK CWD: {}".format(os.getcwd()))
-            logging.debug("TASK CTX: {}".format(pformat(ctx.get())))
-            logging.debug("TASK FUNC: {}".format(pformat(item)))
-
-            # TODO: insert ctx into decorators (reflected methods)
-            if func.check:
-                await run_check(func, item)
-            else:
-                await run_task(func, item)
-    except (TaskException, CheckException) as e:
-        raise ProcessingException(e)
-
-
-# CORE EXECUTION FOR BATCHER
-#
-async def run_runner(limit, tasks):
-    """Runs a list of tasks asynchronously
-
-    Given a particular limit, establish a semaphore and run up to limit tasks.
-    Once the list of tasks is complete, return
-
-    Args:
-        limit (int): context object for retrieving configuration
-        tasks (list): a list of tasks and checks
-    """
-
-    # TODO: return run task windows/info
-    sem = asyncio.Semaphore(limit)
-
-    async def sem_task(task):
-        async with sem:
-            return await task
-    return await asyncio.gather(*(sem_task(task) for task in tasks))
-
-
-def process_templates(template_list):
-    """Render templates based on provided context
-
-    Args:
-        ctx (object): context object for retrieving configuration
-        template_list (list): list of paths to template sources
-    """
-    run_ctx = ctx.get()
-
-    for tmpl_file in template_list:
-        if tmpl_file[-3:] != ".j2":
-            raise RuntimeError("{} doe not appear to be a Jinja2 template "
-                               "(.j2)".format(tmpl_file))
-
-        tmpl_path = os.path.join(run_ctx.dir, tmpl_file)
-        with open(tmpl_path, "r") as fh:
-            tmpl_data = fh.read()
-
-        dst_file = tmpl_path[:-3]
-        logging.info("Templating {} to {}".format(tmpl_path, dst_file))
-        tmpl = jinja2.Template(tmpl_data)
-        dst_data = tmpl.render(run=run_ctx)
-        with open(dst_file, "w+") as fh:
-            fh.write(dst_data)
-        os.chmod(dst_file, os.stat(tmpl_path).st_mode)
-
-        os.unlink(tmpl_path)
-
 
 _batch_job_sems = dict()
 
@@ -428,20 +293,21 @@ class BatchExecutor(object):
 
         try:
             loop = asyncio.get_event_loop()
-
-            # TODO: test - loop outside context or vice versa?
             loop.run_until_complete(
                 run_task_items(self._cfg.pre_process))
 
             for batch in self._cfg.batches:
                 do_batch_execution(loop, batch)
+                # do_batch_execution(loop, batch) moves to
+                # self.execute(loop, batch)
 
             loop.run_until_complete(
                 run_task_items(self._cfg.post_process))
-
-        # TODO: provide except block for user specified handling of failures
 
         finally:
             if loop:
                 loop.run_until_complete(loop.shutdown_asyncgens())
                 loop.close()
+
+    def execute(self, loop, batch):
+        raise NotImplementedError("")
