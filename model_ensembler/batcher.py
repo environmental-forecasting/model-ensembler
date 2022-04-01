@@ -74,7 +74,7 @@ async def run_batch_item(run):
                 func = getattr(model_ensembler.tasks, "jobs")
                 check = collections.namedtuple("check", ["args"])
 
-                await run_check(run_ctx, func, check({
+                await run_check(func, check({
                     "limit": batch.maxjobs,
                     "match": batch.name,
                 }))

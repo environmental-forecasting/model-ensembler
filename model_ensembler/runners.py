@@ -13,7 +13,7 @@ from model_ensembler.tasks import \
 from model_ensembler.utils import Arguments
 
 
-async def run_check(run_ctx, func, check):
+async def run_check(func, check):
     """Run a check configuration
 
     Args:
@@ -30,7 +30,8 @@ async def run_check(run_ctx, func, check):
     while not result:
         try:
             logging.debug("PRE CHECK")
-            result = await func(run_ctx, **check.args)
+            ctx = model_ensembler.batcher.run_ctx.get()
+            result = await func(ctx, **check.args)
             logging.debug("POST CHECK")
         except Exception as e:
             logging.exception(e)
@@ -42,7 +43,7 @@ async def run_check(run_ctx, func, check):
             await asyncio.sleep(args.check_timeout)
 
 
-async def run_task(run_ctx, func, task):
+async def run_task(func, task):
     """Run a task configuration
 
     Args:
@@ -55,7 +56,8 @@ async def run_task(run_ctx, func, task):
     """
     try:
         args = dict() if not task.args else task.args
-        await func(run_ctx, **args)
+        ctx = model_ensembler.batcher.run_ctx.get()
+        await func(ctx, **args)
     except Exception as e:
         logging.exception(e)
         raise TaskException("Issues with flight checks, abandoning")
@@ -79,20 +81,19 @@ async def run_task_items(items):
         individual tasks
     """
     try:
-        ctx = contextvars.copy_context()
-        run_ctx = ctx.get(model_ensembler.batcher.run_ctx)
+        ctx = model_ensembler.batcher.run_ctx.get()
 
         for item in items:
             func = getattr(model_ensembler.tasks, item.name)
 
             logging.debug("TASK CWD: {}".format(os.getcwd()))
-            logging.debug("TASK CTX: {}".format(pformat(run_ctx)))
+            logging.debug("TASK CTX: {}".format(pformat(ctx)))
             logging.debug("TASK FUNC: {}".format(pformat(item)))
 
             if func.check:
-                await run_check(run_ctx, func, item)
+                await run_check(func, item)
             else:
-                await run_task(run_ctx, func, item)
+                await run_task(func, item)
     except (TaskException, CheckException) as e:
         raise ProcessingException(e)
 
