@@ -93,7 +93,7 @@ async def move(ctx, dest, include=None, exclude=None, cwd=None):
 
     # TODO: Type checking
     include = [] if not include else include
-    exclude = ["*"] if not exclude and include else [] if exclude else exclude
+    exclude = ["*"] if not exclude and include else []
     dest = os.path.join(dest, ctx.id)
 
     liststr = " ".join(["--include=\"{}\"".
