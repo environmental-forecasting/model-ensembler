@@ -88,7 +88,6 @@ async def run_task_items(items):
             logging.debug("TASK CTX: {}".format(pformat(ctx.get())))
             logging.debug("TASK FUNC: {}".format(pformat(item)))
 
-            # TODO: insert ctx into decorators (reflected methods)
             if func.check:
                 await run_check(func, item)
             else:

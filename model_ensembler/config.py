@@ -154,13 +154,20 @@ class EnsembleConfig(YAMLConfig, TaskArrayMixin):
 
 BatchSpec = collections.namedtuple("Batch",
                                    ["name", "templates", "templatedir",
-                                    "job_file", "cluster", "basedir",
-                                    "runs", "maxruns", "maxjobs",
-                                    "email", "nodes", "ntasks", "length",
+                                    "job_file", "basedir",
+                                    "runs", "maxruns", "maxjobs", "repeat",
+                                    # Slurm
+                                    "cluster", "email", "nodes", "ntasks",
+                                    "length",
+                                    # Tasks
                                     "pre_batch", "pre_run", "post_run",
                                     "post_batch"])
-BatchSpec.__new__.__defaults__ = (None, None, None, None,
-                                  None, None, None, None)
+BatchSpec.__new__.__defaults__ = (None, [], None,
+                                  None, None,
+                                  [], 0, 0, False,
+                                  None, None, None, 0,
+                                  None,
+                                  [], [], [], [])
 
 
 class Batch(BatchSpec, TaskArrayMixin):

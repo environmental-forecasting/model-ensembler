@@ -17,11 +17,12 @@
         "cluster":  { "type": "string" },
         "basedir": { "type": "string" },
         "email": { "type": "string" },
-        "nodes": { "type": ["number","string"] },
-        "ntasks": { "type": "number" },
-        "length": { "type": ["number","string"] },
-        "maxruns": { "type": "number" },
+        "length": { "type": ["number", "string"] },
         "maxjobs": { "type": "number" },
+        "maxruns": { "type": "number" },
+        "nodes": { "type": ["number", "string"] },
+        "ntasks": { "type": "number" },
+        "repeat": { "type": "string" },
 
         "pre_batch": {
           "type": "array",
@@ -57,7 +58,9 @@
           }
         }
       },
-      "required": ["name", "templatedir", "templates", "cluster", "basedir", "runs", "maxruns", "maxjobs"]
+      "required": [
+        "name", "templates", "templatedir", "basedir",
+        "runs", "maxruns", "maxjobs"]
     },
 
     "task": {

@@ -4,20 +4,20 @@ import contextvars
 import importlib
 import logging
 import os
-import shlex
-import shutil
 
 from datetime import datetime
 from pprint import pformat
 
 import model_ensembler
 
+from model_ensembler.exceptions import TemplatingError
 from model_ensembler.tasks import \
     CheckException, ProcessingException
 from model_ensembler.tasks.hpc import init_hpc_backend
 from model_ensembler.utils import Arguments
 
-from model_ensembler.templates import process_templates
+from model_ensembler.templates import \
+    prepare_run_directory, process_templates
 from model_ensembler.runners import run_check, run_runner, run_task_items
 
 batch_ctx = contextvars.ContextVar("batch_ctx")
@@ -52,37 +52,18 @@ async def run_batch_item(run):
 
     args = Arguments()
 
-    if args.pickup and os.path.exists(run.dir):
-        if not os.path.exists(run.dir):
-            raise RuntimeError("Pickup previous run dir {} cannot work, it "
-                               "doesn't exist".format(run.dir))
+    try:
+        prepare_run_directory(run)
+        process_templates(batch.templates)
+    except TemplatingError as e:
+        # We catch gracefully and just prevent the run from happening
+        logging.error("We cannot template the job {}: {}".format(run.id, e))
+        return
 
-        logging.info("Picked up previous job directory for run {}".
-                     format(run.id))
-
-        for tmpl_file in batch.templates:
-            src_path = os.path.join(batch.templatedir, tmpl_file)
-            dst_path = shutil.copy(src_path, os.path.join(run.dir, tmpl_file))
-            logging.info("Re-copied {} to {} for template regeneration".
-                         format(src_path, dst_path))
-    else:
-        if os.path.exists(run.dir):
-            raise RuntimeError("Run directory {} already exists".
-                               format(run.dir))
-
-        os.makedirs(run.dir, mode=0o775)
-
-        cmd = "rsync -aXE {}/ {}/".format(batch.templatedir, run.dir)
-        logging.info(cmd)
-        proc = await asyncio.create_subprocess_exec(*shlex.split(cmd))
-        rc = await proc.wait()
-
-        if rc != 0:
-            raise RuntimeError("Could not grab template directory {} to {}".
-                               format(batch.templatedir, run.dir))
-
-    process_templates(batch.templates)
-
+    # It's very tempting to move pre_run, but don't: we DO NOT execute until the
+    # job is templated. Instead I've created the ability to run tasks prior
+    # to preparation/templating of the job for scenarios where you don't want
+    # the templating to error out/job to even be prepared
     try:
         await run_task_items(batch.pre_run)
 
@@ -148,19 +129,20 @@ async def run_batch_item(run):
 
         await run_task_items(batch.post_run)
     except ProcessingException:
-        logging.exception("Run failure caught, abandoning {} but not the "
-                          "batch".format(run.id))
+        logging.error("Run failure caught, abandoning {} but not the "
+                      "batch".format(run.id))
         return
 
     logging.info("End run {} at {}".format(run.id, datetime.utcnow()))
 
 
-def do_batch_execution(loop, batch):
+def do_batch_execution(loop, batch, repeat=False):
     """Execute a batch configuration
 
     Args:
         loop (object): event loop
         batch (object): batch configuration
+        repeat (number): loop n times
     """
 
     logging.info("Start batch: {}".format(datetime.utcnow()))
@@ -187,37 +169,54 @@ def do_batch_execution(loop, batch):
         os.makedirs(batch.basedir, exist_ok=True)
     os.chdir(batch.basedir)
 
-    loop.run_until_complete(run_task_items(batch.pre_batch))
+    # TODO: Gross implementation for #26 - repeat parameter, this should be
+    #  abstracted away into the executor implementations (BatchExecutor.execute)
+    #  and made to work better
+    repeat_count = 1 if not bool(repeat) else 1e8
+    for rep_i in range(1, repeat_count):
+        logging.info("Running cycle {}".format(rep_i))
 
-    for idx, run in enumerate(batch.runs):
-        # Auto-generated context vars for run
-        run['id'] = "{}-{}".format(batch.name, batch.runs.index(run))
-        run['dir'] = os.path.abspath(os.path.join(os.getcwd(), run['id']))
+        try:
+            loop.run_until_complete(run_task_items(batch.pre_batch))
+        except ProcessingException as e:
+            logging.error("We have received a pre_batch failure, "
+                          "will stop execution")
+            break
 
-        if idx < args.skips:
-            logging.warning("Skipping run index {} due to {} skips, run ID: "
-                            "{}".format(idx, args.skips, run['id']))
-            continue
+        for idx, run in enumerate(batch.runs):
+            # Auto-generated context vars for run
+            run['id'] = "{}-{}".format(batch.name, batch.runs.index(run))
+            run['dir'] = os.path.abspath(os.path.join(os.getcwd(), run['id']))
 
-        if args.indexes and idx not in args.indexes:
-            logging.warning("Skipping run index {} due to not being in "
-                            "indexes argument, run ID: {}".
-                            format(idx, run['id']))
-            continue
+            if idx < args.skips:
+                logging.warning("Skipping run index {} due to {} skips, run ID: "
+                                "{}".format(idx, args.skips, run['id']))
+                continue
 
-        # At this point the context changes at root to property based
-        ctx_dict = ctx.get()
-        ctx_dict.update(run)
-        ctx_dict.update(extra_ctx.get())
+            if args.indexes and idx not in args.indexes:
+                logging.warning("Skipping run index {} due to not being in "
+                                "indexes argument, run ID: {}".
+                                format(idx, run['id']))
+                continue
 
-        Run = collections.namedtuple('Run', field_names=ctx_dict.keys())
-        r = Run(**ctx_dict)
-        task = run_batch_item(r)
-        batch_tasks.append(task)
+            # At this point the context changes at root to property based
+            ctx_dict = ctx.get()
+            ctx_dict.update(run)
+            ctx_dict.update(extra_ctx.get())
 
-    loop.run_until_complete(run_runner(batch.maxruns, batch_tasks))
+            Run = collections.namedtuple('Run', field_names=ctx_dict.keys())
+            r = Run(**ctx_dict)
+            task = run_batch_item(r)
+            batch_tasks.append(task)
 
-    loop.run_until_complete(run_task_items(batch.post_batch))
+        loop.run_until_complete(run_runner(batch.maxruns, batch_tasks))
+
+        try:
+            loop.run_until_complete(run_task_items(batch.post_batch))
+        except ProcessingException as e:
+            logging.error("We have received a post_batch failure, "
+                          "will stop execution")
+            break
 
     os.chdir(orig)
     logging.info("Batch {} completed: {}".

@@ -37,7 +37,8 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'model_ensemble=model_ensembler.cli:main',
+            "model_ensemble=model_ensembler.cli:main",
+            "model_ensemble_check=model_ensembler.cli:check"
         ],
     },
     python_requires='>=3.7, <4',
