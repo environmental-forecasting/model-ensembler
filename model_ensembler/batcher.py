@@ -172,7 +172,7 @@ def do_batch_execution(loop, batch, repeat=False):
     # TODO: Gross implementation for #26 - repeat parameter, this should be
     #  abstracted away into the executor implementations (BatchExecutor.execute)
     #  and made to work better
-    repeat_count = 1 if not bool(repeat) else 1e8
+    repeat_count = 1 if not repeat else 1e8
     for rep_i in range(1, repeat_count):
         logging.info("Running cycle {}".format(rep_i))
 

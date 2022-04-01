@@ -22,7 +22,7 @@
         "maxruns": { "type": "number" },
         "nodes": { "type": ["number", "string"] },
         "ntasks": { "type": "number" },
-        "repeat": { "type": "string" },
+        "repeat": { "type": "boolean" },
 
         "pre_batch": {
           "type": "array",
