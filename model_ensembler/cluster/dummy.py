@@ -4,10 +4,12 @@ import collections
 import concurrent.futures
 import logging
 import os
+import random
 import subprocess
 import threading
 
 from model_ensembler.cluster import Job, job_lock
+from model_ensembler.utils import Arguments
 
 
 START_STATES = ("SUBMITTED", "RUNNING")
@@ -62,7 +64,9 @@ async def current_jobs(ctx, match):
 
 
 async def submit_job(ctx, script=None):
+    # TODO: ugh, we could use contextvars for this
     global _jobs
+    args = Arguments()
 
     max_submit_sleep = args.max_stagger
     sleep_for = random.randint(0, max_submit_sleep)
