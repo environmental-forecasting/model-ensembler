@@ -20,8 +20,8 @@ from model_ensembler.templates import \
     prepare_run_directory, process_templates
 from model_ensembler.runners import run_check, run_runner, run_task_items
 
-batch_ctx = contextvars.ContextVar("batch_ctx")
-ctx = contextvars.ContextVar("ctx")
+batch_ctx = contextvars.ContextVar("batch")
+run_ctx = contextvars.ContextVar("run")
 cluster_ctx = contextvars.ContextVar("cluster")
 extra_ctx = contextvars.ContextVar("extra")
 
@@ -44,7 +44,7 @@ async def run_batch_item(run):
     # TODO: my understanding is that all context from here through to end
     #  methods/tasks will now be under run_context in do_batch_execution
     batch = batch_ctx.get()
-    ctx.set(run)
+    run_ctx.set(run)
     cluster = cluster_ctx.get()
 
     logging.info("Start run {} at {}".format(run.id, datetime.utcnow()))
@@ -53,8 +53,8 @@ async def run_batch_item(run):
     args = Arguments()
 
     try:
-        await prepare_run_directory(run)
-        process_templates(batch.templates)
+        await prepare_run_directory(batch, run)
+        process_templates(run, batch.templates)
     except TemplatingError as e:
         # We catch gracefully and just prevent the run from happening
         logging.error("We cannot template the job {}: {}".format(run.id, e))
@@ -74,7 +74,7 @@ async def run_batch_item(run):
                 func = getattr(model_ensembler.tasks, "jobs")
                 check = collections.namedtuple("check", ["args"])
 
-                await run_check(func, check({
+                await run_check(run_ctx, func, check({
                     "limit": batch.maxjobs,
                     "match": batch.name,
                 }))
@@ -157,9 +157,9 @@ def do_batch_execution(loop, batch, repeat=False):
                   if not (k.startswith("pre_") or k.startswith("post_")
                           or k == "runs")}
 
-    run_vars = ctx.get()
+    run_vars = run_ctx.get()
     run_vars.update(batch_dict)
-    ctx.set(run_vars)
+    run_ctx.set(run_vars)
 
     # We are process dependent here, so this is where we have the choice of
     # concurrency strategies but each batch
@@ -173,7 +173,7 @@ def do_batch_execution(loop, batch, repeat=False):
     #  abstracted away into the executor implementations (BatchExecutor.execute)
     #  and made to work better
     repeat_count = 1 if not repeat else 1e8
-    for rep_i in range(1, repeat_count):
+    for rep_i in range(1, repeat_count + 1):
         logging.info("Running cycle {}".format(rep_i))
 
         try:
@@ -200,7 +200,7 @@ def do_batch_execution(loop, batch, repeat=False):
                 continue
 
             # At this point the context changes at root to property based
-            ctx_dict = ctx.get()
+            ctx_dict = run_ctx.get()
             ctx_dict.update(run)
             ctx_dict.update(extra_ctx.get())
 
@@ -268,9 +268,9 @@ class BatchExecutor(object):
         Initialise the root context vars for batch execution and set
         extra context vars that can be added last thing to the run
         """
-        var_dict = ctx.get(dict())
+        var_dict = run_ctx.get(dict())
         var_dict.update(self._cfg.vars)
-        ctx.set(var_dict)
+        run_ctx.set(var_dict)
 
         extra_ctx.set(extra_vars)
 
