@@ -32,6 +32,7 @@ async def find_id(job_id):
         jobs (list): job objects including name and state
     """
     job = None
+    args = Arguments()
 
     while not job:
         try:
@@ -39,10 +40,11 @@ async def find_id(job_id):
                                         "-o jobname,state,start,end".
                                         format(job_id))
             output = res.stdout.decode().strip()
-        except Exception as e:
-            logging.warning("Could not retrieve list: {}".format(e))
-        else:
             (name, state, started, finished) = output.split("|")
+        except ValueError:
+            logging.warning("Could not retrieve job from list")
+            await asyncio.sleep(args.check_timeout)
+        else:
             job = Job(
                 name=name,
                 state=state,
