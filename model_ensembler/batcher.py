@@ -53,7 +53,7 @@ async def run_batch_item(run):
     args = Arguments()
 
     try:
-        prepare_run_directory(run)
+        await prepare_run_directory(run)
         process_templates(batch.templates)
     except TemplatingError as e:
         # We catch gracefully and just prevent the run from happening

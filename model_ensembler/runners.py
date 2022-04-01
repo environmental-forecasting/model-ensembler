@@ -1,4 +1,5 @@
 import asyncio
+import contextvars
 import logging
 import os
 
@@ -10,10 +11,8 @@ from model_ensembler.tasks import \
     CheckException, TaskException, ProcessingException
 from model_ensembler.utils import Arguments
 
-from model_ensembler.batcher import ctx
 
-
-async def run_check(func, check):
+async def run_check(ctx, func, check):
     """Run a check configuration
 
     Args:
@@ -43,7 +42,7 @@ async def run_check(func, check):
             await asyncio.sleep(args.check_timeout)
 
 
-async def run_task(func, task):
+async def run_task(ctx, func, task):
     """Run a task configuration
 
     Args:
@@ -74,13 +73,15 @@ async def run_task_items(items):
 
     Args:
         ctx (object): context object for retrieving configuration
-        tasks (list): a list of tasks and checks
+        items (list): a list of tasks and checks
 
     Raises:
         ProcessingException: a common exception thrown for failures in the
         individual tasks
     """
     try:
+        ctx = contextvars.copy_context().get("ctx")
+
         for item in items:
             func = getattr(model_ensembler.tasks, item.name)
 

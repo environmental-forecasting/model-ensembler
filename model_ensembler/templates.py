@@ -8,10 +8,9 @@ import jinja2
 
 from model_ensembler.exceptions import TemplatingError
 from model_ensembler.utils import Arguments
-from model_ensembler.batcher import ctx
 
 
-def prepare_run_directory(batch, run):
+async def prepare_run_directory(batch, run):
     args = Arguments()
 
     if args.pickup and os.path.exists(run.dir):
@@ -44,7 +43,7 @@ def prepare_run_directory(batch, run):
                                   format(batch.templatedir, run.dir))
 
 
-def process_templates(template_list):
+def process_templates(ctx, template_list):
     """Render templates based on provided context
 
     Args:
