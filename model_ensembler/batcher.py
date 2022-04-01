@@ -301,7 +301,7 @@ class BatchExecutor(object):
                 run_task_items(self._cfg.pre_process))
 
             for batch in self._cfg.batches:
-                do_batch_execution(loop, batch)
+                do_batch_execution(loop, batch, repeat=batch.repeat)
                 # do_batch_execution(loop, batch) moves to
                 # self.execute(loop, batch)
 
