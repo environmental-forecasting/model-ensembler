@@ -14,10 +14,6 @@ async def prepare_run_directory(batch, run):
     args = Arguments()
 
     if args.pickup and os.path.exists(run.dir):
-        if not os.path.exists(run.dir):
-            raise TemplatingError("Pickup previous run dir {} cannot work, it "
-                                  "doesn't exist".format(run.dir))
-
         logging.info("Picked up previous job directory for run {}".
                      format(run.id))
 

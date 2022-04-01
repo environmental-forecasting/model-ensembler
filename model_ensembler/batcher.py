@@ -150,8 +150,6 @@ def do_batch_execution(loop, batch, repeat=False):
 
     args = Arguments()
     batch_ctx.set(batch)
-    batch_tasks = list()
-    _batch_job_sems[batch.name] = asyncio.Semaphore(batch.maxjobs)
 
     batch_dict = {k: v for k, v in batch._asdict().items() \
                   if not (k.startswith("pre_") or k.startswith("post_")
@@ -180,6 +178,9 @@ def do_batch_execution(loop, batch, repeat=False):
 
     for rep_i in range(1, repeat_count):
         logging.info("Running cycle {}".format(rep_i))
+
+        batch_tasks = list()
+        _batch_job_sems[batch.name] = asyncio.Semaphore(batch.maxjobs)
 
         try:
             loop.run_until_complete(run_task_items(batch.pre_batch))
