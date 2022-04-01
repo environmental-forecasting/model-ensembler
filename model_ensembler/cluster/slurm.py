@@ -14,7 +14,8 @@ from model_ensembler.utils import Arguments
 
 START_STATES = ("COMPLETING", "PENDING", "RESV_DEL_HOLD", "RUNNING",
                 "SUSPENDED", "CONFIGURING", "REQUEUE_FED", "REQUEUE_HOLD",
-                "REQUEUED", "RESIZING", "REVOKED", "SIGNALED", "STOPPED")
+                "REQUEUED", "RESIZING", "REVOKED", "SIGNALED", "STOPPED",
+                "FAILED")
 FINISH_STATES = ("COMPLETED", "FAILED", "CANCELLED", "OUT_OF_MEMORY",
                  "DEADLINE", "NODE_FAIL", "PREEMPTED", "TIMEOUT")
 
