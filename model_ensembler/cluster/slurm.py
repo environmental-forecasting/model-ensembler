@@ -47,7 +47,7 @@ async def find_id(job_id):
         else:
             job = Job(
                 name=name,
-                state=state,
+                state=state.split()[0],
                 started=started == "Unknown",
                 finished=finished == "Unknown"
             )
