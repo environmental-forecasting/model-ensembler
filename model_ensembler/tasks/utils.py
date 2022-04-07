@@ -83,7 +83,8 @@ async def execute_command(cmd, cwd=None, log=False, shell=None):
 
     start_dt = datetime.now()
 
-    shell = '/bin/bash' if not shell else shell
+    args = Arguments()
+    shell = args.shell if not shell else shell
 
     proc = await asyncio.create_subprocess_shell(
         cmd,

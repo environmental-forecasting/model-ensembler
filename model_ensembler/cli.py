@@ -70,6 +70,10 @@ def parse_args():
                         "existing directories rather, than assuming to create "
                         "them; for example if ensemble has previously failed",
                         default=False, action="store_true")
+    parser.add_argument("-l", "--shell",
+                        help="Allows the user to specify the shell passed to "
+                             "subprocess execs.",
+                        default="/bin/bash", type=str)
 
     # FIXME: These should not be applied in multi-batch ensembles
     parser.add_argument("-k", "--skips",
