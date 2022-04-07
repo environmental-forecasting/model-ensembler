@@ -84,9 +84,9 @@ def parse_args():
                         help="Specify which indexes to run",
                         type=parse_indexes)
 
-    parser.add_argument("-ct", "--check-timeout", default=10, type=int)
-    parser.add_argument("-st", "--submit-timeout", default=10, type=int)
-    parser.add_argument("-rt", "--running-timeout", default=10, type=int)
+    parser.add_argument("-ct", "--check-timeout", default=30, type=int)
+    parser.add_argument("-st", "--submit-timeout", default=20, type=int)
+    parser.add_argument("-rt", "--running-timeout", default=60, type=int)
     parser.add_argument("-et", "--error-timeout", default=120, type=int)
 
     parser.add_argument("-ms", "--max-stagger", default=1, type=int)
