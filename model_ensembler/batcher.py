@@ -51,6 +51,7 @@ async def run_batch_item(run):
     logging.debug(pformat(run))
 
     args = Arguments()
+    job_id = None
 
     try:
         await prepare_run_directory(batch, run)
@@ -58,7 +59,7 @@ async def run_batch_item(run):
     except TemplatingError as e:
         # We catch gracefully and just prevent the run from happening
         logging.error("We cannot template the job {}: {}".format(run.id, e))
-        return
+        return job_id, run
 
     # It's very tempting to move pre_run, but don't: we DO NOT execute until the
     # job is templated. Instead I've created the ability to run tasks prior
@@ -131,9 +132,9 @@ async def run_batch_item(run):
     except ProcessingException:
         logging.error("Run failure caught, abandoning {} but not the "
                       "batch".format(run.id))
-        return
 
     logging.info("End run {} at {}".format(run.id, datetime.utcnow()))
+    return job_id, run
 
 
 def do_batch_execution(loop, batch, repeat=False):
@@ -149,6 +150,7 @@ def do_batch_execution(loop, batch, repeat=False):
     logging.debug(pformat(batch))
 
     args = Arguments()
+    skip_indexes = args.indexes if args.indexes else list()
     batch_ctx.set(batch)
 
     batch_dict = {k: v for k, v in batch._asdict().items() \
@@ -184,14 +186,20 @@ def do_batch_execution(loop, batch, repeat=False):
 
         try:
             loop.run_until_complete(run_task_items(batch.pre_batch))
-        except ProcessingException as e:
+        except ProcessingException:
             logging.error("We have received a pre_batch failure, "
                           "will stop execution")
             break
 
+        if len(sorted(set(skip_indexes))) == len(batch.runs):
+            logging.error("No longer able to run this batch, all runs are in "
+                          "the indexes to skip")
+            break
+
         for idx, run in enumerate(batch.runs):
             # Auto-generated context vars for run
-            run['id'] = "{}-{}".format(batch.name, batch.runs.index(run))
+            run['idx'] = idx
+            run['id'] = "{}-{}".format(batch.name, run['idx'])
             run['dir'] = os.path.abspath(os.path.join(os.getcwd(), run['id']))
 
             if idx < args.skips:
@@ -199,9 +207,9 @@ def do_batch_execution(loop, batch, repeat=False):
                                 "{}".format(idx, args.skips, run['id']))
                 continue
 
-            if args.indexes and idx not in args.indexes:
-                logging.warning("Skipping run index {} due to not being in "
-                                "indexes argument, run ID: {}".
+            if idx in skip_indexes:
+                logging.warning("Skipping run index {} due to being in "
+                                "skip indexes, run ID: {}".
                                 format(idx, run['id']))
                 continue
 
@@ -215,11 +223,24 @@ def do_batch_execution(loop, batch, repeat=False):
             task = run_batch_item(r)
             batch_tasks.append(task)
 
-        loop.run_until_complete(run_runner(batch.maxruns, batch_tasks))
+        batch_results = loop.run_until_complete(
+            run_runner(batch.maxruns, batch_tasks))
+
+        for idx, result in enumerate(batch_results):
+            job, run = result
+            logging.debug("Batch {} result #{} from run {}: job {}".format(
+                batch.name, idx, run.idx, str(job)
+            ))
+
+            if not job and run.idx not in skip_indexes:
+                logging.warning("Result #{} for run {} indicates unsuccessful "
+                                "submission, adding to indexes to skip".
+                                format(idx, run.idx))
+                skip_indexes.append(run.idx)
 
         try:
             loop.run_until_complete(run_task_items(batch.post_batch))
-        except ProcessingException as e:
+        except ProcessingException:
             logging.error("We have received a post_batch failure, "
                           "will stop execution")
             break
