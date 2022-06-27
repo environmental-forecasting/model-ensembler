@@ -53,7 +53,7 @@ async def find_id(job_id):
                 finished=finished == "Unknown"
             )
 
-            logging.debug("SLURM find result name: {}".format(job.name))
+    logging.debug("SLURM find result name: {}".format(job.name))
     return job
 
 
