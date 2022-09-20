@@ -101,7 +101,9 @@ async def run_batch_item(run):
                                             format(job_id))
                             logging.exception(e)
 
-                        if state and (state in cluster.START_STATES):
+                        if state and (
+                                state in cluster.START_STATES or
+                                state in cluster.FINISH_STATES):
                             running = True
                         else:
                             await asyncio.sleep(args.submit_timeout)
