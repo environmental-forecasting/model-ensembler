@@ -43,7 +43,7 @@ async def find_id(job_id):
             output = res.stdout.decode().strip()
             (name, state, started, finished) = output.split("|")
         except ValueError:
-            logging.warning("Could not retrieve job from list")
+            logging.debug("Could not retrieve job from list")
             await asyncio.sleep(args.check_timeout)
         else:
             job = Job(
