@@ -36,6 +36,8 @@ async def check(ctx, cmd, cwd=None, log=False, fail=False, shell=None):
     logging.info("Running check: {}".format(cmd))
 
     res = await execute_command(cmd, cwd, log, shell)
+    logging.debug("Check return code {}".format(res.returncode))
+
     if res.returncode == 0:
         return True
 
