@@ -165,7 +165,7 @@ BatchSpec = collections.namedtuple("Batch",
 BatchSpec.__new__.__defaults__ = (None, [], None,
                                   None, None,
                                   [], 0, 0, False,
-                                  None, None, None, 0,
+                                  None, None, None, None,
                                   None,
                                   [], [], [], [])
 
