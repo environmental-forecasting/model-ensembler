@@ -220,6 +220,7 @@ def do_batch_execution(loop, batch, repeat=False):
             run['idx'] = idx
             run['id'] = "{}-{}".format(batch.name, run['idx'])
             run['dir'] = os.path.abspath(os.path.join(os.getcwd(), run['id']))
+            run['batch_idx'] = rep_i
 
             if idx < args.skips:
                 logging.warning("Skipping run index {} due to {} skips, run "
