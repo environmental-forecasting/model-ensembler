@@ -95,6 +95,8 @@ Before you submit a pull request, check that it meets these guidelines:
 Please see the next section for a detailed breakdown of how to contribute 
 to the docs. 
 
+### Versioning
+
 ## Building Documentation
 
 The documentation is built using [mkdocs](https://www.mkdocs.org/). We use [mkdocstrings](https://mkdocstrings.github.io/) and [mkdocs-autoapi](https://mkdocs-autoapi.readthedocs.io/en/latest/) to automatically generate the API references.
