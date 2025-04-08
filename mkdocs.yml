@@ -1,5 +1,6 @@
 site_name: model-ensembler
 nav:
+  - Overview: index.md
   - Installation: installation.md
   - Usage: usage.md
   - Contributing: contributing.md
