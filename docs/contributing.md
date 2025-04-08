@@ -1,10 +1,13 @@
-# Contributing
+# Contributing to model-ensembler
 Contributions are welcome, and they are greatly appreciated! Every little bit
-helps, and credit will always be given. Please take note of the [Code of Conduct](code_of_conduct.md).
+helps, and credit will always be given.
 
-You can contribute in many ways:
+Please note that this project is released
+with a [Contributor Code of Conduct](code_of_conduct.md).
 
 ## Types of Contributions
+
+You can contribute in many ways:
 
 ### Report Bugs
 Report bugs at https://github.com/antarctica/model-ensembler/issues.
@@ -63,8 +66,11 @@ git checkout -b name-of-your-bugfix-or-feature
 
 Now you can make your changes locally.
 
-5\. When you're done making changes, check that your comply with flake8, pass the
-   tests and that you can build the documentation
+5\. For bigger changes, it is a good idea to _first_
+[open an issue](https://github.com/environmental-forecasting/model-ensembler/issues),
+and make sure a team agrees it is needed and within scope.
+
+6\. When you're done making changes, check that your comply with [flake8](https://flake8.pycqa.org/en/latest/), pass the tests and that you can build the documentation:
 
 ```shell
 flake8 model-ensembler
@@ -74,9 +80,12 @@ pytest
 mkdocs build
 ```
 
-To get [flake8](https://flake8.pycqa.org/en/latest/) pip install them into your virtualenv.
+7\. Add your changes to `docs/changelog.md`.
 
-6\. Commit your changes and push your branch to GitHub:
+!!! Note "Semantic Versioning"
+    This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Please refer to the [change log](CHANGELOG.md) for the latest version and instructions on following this framework.
+
+8\. Commit your changes and push your branch to GitHub:
 
 ```shell
 git add .
@@ -84,18 +93,18 @@ git commit -m "Your detailed description of your changes."
 git push origin name-of-your-bugfix-or-feature
 ```
 
-7\. Submit a pull request through the GitHub website.
+8\. Submit a pull request through the GitHub website.
 
-### Pull Request Guidelines
+!!! note "Pull Request Guidelines"
 
-Before you submit a pull request, check that it meets these guidelines:
+    Before you submit a Pull Request (PR), check that it meets these guidelines:
 
-1. The pull request should include tests.
-2. If the pull request adds functionality, the docs should be updated.
-Please see the next section for a detailed breakdown of how to contribute 
-to the docs. 
-
-### Versioning
+    1. The title of your PR should contain a version number and briefly describe the change,
+    for example: **v0.5.7 adding documentation**.
+    1. The body of your PR should contain `Fixes #issue-number`.
+    1. The pull request should include tests and pass them, where appropriate.
+    1. If the pull request adds functionality, the documentation should be updated accordingly.
+    Please see the next section for a detailed breakdown of how to contribute to the docs.
 
 ## Building Documentation
 
