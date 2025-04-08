@@ -13,6 +13,8 @@ plugins:
   - search
   - mkdocs-autoapi:
       autoapi_add_nav_entry: API
+      autoapi_ignore:
+        - setup.py
   - mkdocstrings:
       handlers:
         python:
