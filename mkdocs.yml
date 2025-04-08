@@ -10,3 +10,11 @@ nav:
 theme:
   name: readthedocs
   logo: https://cdn.web.bas.ac.uk/bas-style-kit/0.7.3/img/logos-symbols/bas-logo-inverse-transparent-64.png
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_submodules: true
+            docstring_style: google
