@@ -1,2 +1,0 @@
-# News
-No releases yet.
