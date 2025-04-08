@@ -5,13 +5,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.5] - 2022-09-20
 
-* #40 Fixing job submissions endlessly looping after fast completion
+* Fixing job submissions endlessly looping after fast completion ([#40](https://github.com/environmental-forecasting/model-ensembler/issues/40))
 
 ## [0.5.2] - 2021-12-13
 
 ### Added
 
-* #23 Daemon functionality
+* Daemon functionality ([#23](https://github.com/environmental-forecasting/model-ensembler/issues/23))
 
 ### Changed
 

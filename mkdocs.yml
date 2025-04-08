@@ -6,7 +6,7 @@ nav:
   - Code of Conduct: code_of_conduct.md
   - Acknowledgements: acknowledgements.md
   - Testimonials: testimonials.md
-  - News: news.md
+  - Change Log: CHANGELOG.md
 repo_url: https://github.com/environmental-forecasting/model-ensembler
 repo_name: model-ensembler
 edit_uri: edit/main/docs/
