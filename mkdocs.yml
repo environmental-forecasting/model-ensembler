@@ -3,7 +3,6 @@ nav:
   - Getting Started: index.md
   - Installation: installation.md
   - Usage: usage.md
-  - API: api.md
   - Contributing: contributing.md
   - Acknowledgements: acknowledgements.md
   - News: news.md
@@ -12,9 +11,13 @@ theme:
   logo: https://cdn.web.bas.ac.uk/bas-style-kit/0.7.3/img/logos-symbols/bas-logo-inverse-transparent-64.png
 plugins:
   - search
+  - mkdocs-autoapi:
+      autoapi_add_nav_entry: API
   - mkdocstrings:
       handlers:
         python:
+          paths:
+            - .
           options:
             show_submodules: true
             docstring_style: google
