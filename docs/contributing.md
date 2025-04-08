@@ -9,8 +9,8 @@ with a [Contributor Code of Conduct](code_of_conduct.md).
 
 You can contribute in many ways:
 
-### Report Bugs
-Report bugs at https://github.com/antarctica/model-ensembler/issues.
+### Open an Issue
+Open an issue on [Github](https://github.com/antarctica/model-ensembler/issues).
 
 If you are reporting a bug, please include:
 
@@ -27,11 +27,11 @@ Look through the GitHub issues for features. Anything tagged with "enhancement"
 and "help wanted" is open to whoever wants to implement it.
 
 ### Write Documentation
-The model-ensembler could always use more documentation, whether as part of the
-official docs, in docstrings, or even on the web in blog posts, articles, and such.
+The `model-ensembler` documentation can always be improved, whether as part of the
+official docs, in docstrings, or even on the web in blog posts, articles, and such. Refer to the [Documentation Guidelines](#documentation-guidelines) below for guidance on how to contribute to the docs.
 
 ### Submit Feedback
-The best way to send feedback is to file an issue at https://github.com/antarctica/model-ensembler/issues.
+The best way to send feedback is to [open an issue](https://github.com/antarctica/model-ensembler/issues).
 
 If you are proposing a feature:
 
@@ -40,7 +40,7 @@ If you are proposing a feature:
 * Remember that this is a volunteer-driven project, and that contributions
   are welcome.
 
-## Installing for Development
+## Development Guidelines
 To start working on `model-ensembler` locally, please follow these steps:
 
 1. Fork the `model-ensembler` repo [on GitHub](https://github.com/environmental-forecasting/model-ensembler).
@@ -70,7 +70,7 @@ Now you can make your changes locally.
 [open an issue](https://github.com/environmental-forecasting/model-ensembler/issues),
 and make sure a team agrees it is needed and within scope.
 
-6\. When you're done making changes, check that your comply with [flake8](https://flake8.pycqa.org/en/latest/), pass the tests and that you can build the documentation:
+6\. When you're done making changes, check that your changes comply with [flake8](https://flake8.pycqa.org/en/latest/) code styling, pass the tests and that you can build the documentation successfully:
 
 ```shell
 flake8 model-ensembler
@@ -83,7 +83,7 @@ mkdocs build
 7\. Add your changes to `docs/changelog.md`.
 
 !!! Note "Semantic Versioning"
-    This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Please refer to the [change log](CHANGELOG.md) for the latest version and instructions on following this framework.
+    This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Please refer to the [change log](CHANGELOG.md) for the latest version and instructions on how to increment the version for your changes. If in doubt, do not hesitate to clarify this with the maintainers in your corresponding issue.
 
 8\. Commit your changes and push your branch to GitHub:
 
@@ -93,20 +93,20 @@ git commit -m "Your detailed description of your changes."
 git push origin name-of-your-bugfix-or-feature
 ```
 
-8\. Submit a pull request through the GitHub website.
+9\. Submit a pull request through the GitHub website.
 
 !!! note "Pull Request Guidelines"
 
     Before you submit a Pull Request (PR), check that it meets these guidelines:
 
     1. The title of your PR should contain a version number and briefly describe the change,
-    for example: **v0.5.7 adding documentation**.
+    for example: **v0.5.7 fixing bug in cli.py**.
     1. The body of your PR should contain `Fixes #issue-number`.
     1. The pull request should include tests and pass them, where appropriate.
     1. If the pull request adds functionality, the documentation should be updated accordingly.
     Please see the next section for a detailed breakdown of how to contribute to the docs.
 
-## Building Documentation
+## Documentation Guidelines
 
 The documentation is built using [mkdocs](https://www.mkdocs.org/). We use [mkdocstrings](https://mkdocstrings.github.io/) and [mkdocs-autoapi](https://mkdocs-autoapi.readthedocs.io/en/latest/) to automatically generate the API references.
 
