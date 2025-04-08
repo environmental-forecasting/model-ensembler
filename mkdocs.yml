@@ -1,0 +1,12 @@
+site_name: model-ensembler
+nav:
+  - Getting Started: index.md
+  - Installation: installation.md
+  - Usage: usage.md
+  - API: api.md
+  - Contributing: contributing.md
+  - Acknowledgements: acknowledgements.md
+  - News: news.md
+theme:
+  name: readthedocs
+  logo: https://cdn.web.bas.ac.uk/bas-style-kit/0.7.3/img/logos-symbols/bas-logo-inverse-transparent-64.png
