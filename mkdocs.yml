@@ -6,11 +6,20 @@ nav:
   - Acknowledgements: acknowledgements.md
   - Testimonials: testimonials.md
   - News: news.md
+repo_url: https://github.com/environmental-forecasting/model-ensembler
+repo_name: model-ensembler
+edit_uri: edit/main/docs/
 theme:
-  name: readthedocs
+  name: material
   logo: https://cdn.web.bas.ac.uk/bas-style-kit/0.7.3/img/logos-symbols/bas-logo-inverse-transparent-64.png
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - content.code.copy
+    - content.action.edit
 plugins:
   - search
+  - git-authors
   - mkdocs-autoapi:
       autoapi_add_nav_entry: API
       autoapi_ignore:
@@ -24,3 +33,12 @@ plugins:
             show_submodules: true
             docstring_style: google
             heading_level: 3
+      markdown_extensions:
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
