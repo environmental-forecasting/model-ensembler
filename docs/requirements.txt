@@ -1,3 +1,5 @@
 mkdocs
 mkdocstrings[python]
 mkdocs-autoapi
+mkdocs-git-authors-plugin
+material
