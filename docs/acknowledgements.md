@@ -1,2 +1,4 @@
 # Acknowledgements
-{{ git_page_authors }}
+These are automatically generated from the git repository.
+
+{{ git_site_authors }}

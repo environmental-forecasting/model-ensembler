@@ -11,15 +11,32 @@ repo_name: model-ensembler
 edit_uri: edit/main/docs/
 theme:
   name: material
-  logo: https://cdn.web.bas.ac.uk/bas-style-kit/0.7.3/img/logos-symbols/bas-logo-inverse-transparent-64.png
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  logo: https://cdn.web.bas.ac.uk/bas-style-kit/0.7.3/img/logos-symbols/bas-roundel-inverse-transparent-64.png
   icon:
     repo: fontawesome/brands/github
   features:
+    # Enables copying of code blocks
     - content.code.copy
+    # Enables "edit this page" to contribute to docs
     - content.action.edit
 plugins:
   - search
+  # Enables automatically generating authors from git repo, see acknowledgements.md
   - git-authors
+  # Automatically generates API section from docstrings
   - mkdocs-autoapi:
       autoapi_add_nav_entry: API
       autoapi_ignore:
@@ -35,6 +52,8 @@ plugins:
             heading_level: 3
       markdown_extensions:
 markdown_extensions:
+  - admonition
+  # Enables code block highlighting
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: __span
@@ -42,3 +61,4 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
+copyright: Copyright &copy; 2025 British Antarctic Survey
