@@ -1,6 +1,6 @@
 # Contributing
 Contributions are welcome, and they are greatly appreciated! Every little bit
-helps, and credit will always be given.
+helps, and credit will always be given. Please take note of the [Code of Conduct](code_of_conduct.md).
 
 You can contribute in many ways:
 
