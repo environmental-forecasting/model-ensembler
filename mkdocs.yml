@@ -26,6 +26,7 @@ theme:
         icon: material/brightness-4
         name: Switch to light mode
   logo: https://cdn.web.bas.ac.uk/bas-style-kit/0.7.3/img/logos-symbols/bas-roundel-inverse-transparent-64.png
+  favicon: images/favicon.ico
   icon:
     repo: fontawesome/brands/github
   features:
