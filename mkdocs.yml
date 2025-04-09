@@ -68,4 +68,6 @@ markdown_extensions:
   - pymdownx.snippets
   - pymdownx.superfences
   - pymdownx.blocks.caption
+  - pymdownx.tabbed:
+      alternate_style: true
 copyright: Copyright &copy; 2025 British Antarctic Survey
