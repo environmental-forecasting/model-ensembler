@@ -3,7 +3,7 @@ Some lovely folk in the British Antarctic Survey have provided testimonials
 describing their use of the ensembler...
 
 __Clare Allen, running significant [WRF][1] batches, original motivator 
-for the tool__
+for the tool:__
 
 > _The model-ensembler is a fantastic tool that saves time, reduces stress and 
 significantly decreases the chance of human error when running many model 
@@ -32,7 +32,7 @@ utilised by many models or other computational processes (for example plotting
 a lot of data). The model-ensembler is an exceptional tool and I recommend to 
 anyone who needs to submit batches of model runs._
 
-__Rosie Williams, using for [WAVI][2] workflow executions__
+__Rosie Williams, using for [WAVI][2] workflow executions:__
 
 > _I'd say that it would take maybe one day to get an ensemble of 100 WAVI 
 runs up and running, and less than an hour with the model ensembler. Then 
@@ -55,7 +55,7 @@ resubmitting jobs: approx 18-25 hours._
 With the ensembler, it'd be easy._
 
 
-__Tom Andersson, used for [IceNet][3] drop and relearn parameter analysis__
+__Tom Andersson, used for [IceNet][3] drop and relearn parameter analysis:__
 
 > _In terms of the drop-and-relearn experiment it would comprise about 2,000 
 individual training runs, assuming we use 5 random seeds per run. Assuming 
