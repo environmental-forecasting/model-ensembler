@@ -29,21 +29,81 @@ Can be multi-model, or the same model with different configuration/parameters.
 ## Why use `model-ensembler`?
 Why should users use *this* tool.
 
-The example in **Figure 1** is a simple example of an ensemble with just three models, but what if your ensemble has 50 models?
-500 models? Setting up the configuration for each ensemble member would bring significant manual overhead.
+The example in **Figure 1** is a simple example of an ensemble with just three models, but what if your ensemble has 10,100 or
+1000 models? Setting up the configuration for each ensemble member would bring significant manual overhead.
 
-`model-ensembler` uses a single configuration file, in the form of a `.yml` file, to control your ensemble. The `.yml` relies on
-[jinja2](https://jinja.palletsprojects.com/en/stable/) templates 
+`model-ensembler` uses a single ensemble configuration file, in the form of a `.yml` file, and a collection of
+[jinja2](https://jinja.palletsprojects.com/en/stable/) templates to control your ensemble and dynamically generate
+a batch (or batches) of model runs. 
+
+=== "Single Batch"
+
+    ![Single batch overview, dark mode](images/model-ensembler.drawio.png#only-dark)
+    ![Single batch overview, light mode](images/model-ensembler.drawio.light.png#only-light)
+
+=== "List of Batches"
+    ![List batch overview, dark mode](images/model-ensembler-list.drawio.png#only-dark)
+    ![List batch overview, light mode](images/model-ensembler-list.drawio.light.png#only-light)
+
+/// caption
+**Figure 2.** A simplified overview of how `model-ensembler` dynamically generates an ensemble based on a `config.yml` and `jinja2` templates.
+///
+
+For the user, this setup means writing a `config.yml` and corresponding templates just once. `model-ensembler` is light-weight,
+and intents to give the user flexibility in giving them control in developing their own configuration and templates.
 
 ### Definitions
-* **an ensemble:** A collection of models
-* **a model:** The individual model 
-* **a run:** When a model is being executed, with its given parameters, we refer to it as a run.
-* **a job:** Once a run has been submitted to SLURM, we define it as a job. `model-ensembler` can control the number of jobs that
-are executed concurrently.
-* **a batch:** We refer to the **collection** of runs as a batch.
-* **pre-processing:** Common task(s) that are executed _before_ a batch is submitted, for example ingesting and wrangling a common dataset.
-* **post-processing:** Common task(s) that are executed _after_ a batch has completed execution, for example aggregating results.
+Before we dive into an overview of how `model-ensembler` works, some important definitions that will be used throughout:
+
+* **a batch:** We refer to the **collection** of runs as a batch. `model-ensembler` can be used to configure a _single_ batch
+or a _list_ of batches. **Figure 1** can be interpreted as a single batch.
+* **a run:** Each _batch_ controls a set of model runs.
+* **a model:** The individual model to be executed by a run.
+* **a job:** Once a run has been submitted to SLURM, we define it as a job. It is distinguished from a run,
+as `model-ensembler` enables configuration that can control the number of jobs that are executed concurrently
+on an HPC cluster.
+* **pre-processing:** Common task(s) that are executed _before_ batch execution.
+* **post-processing:** Common task(s) that are executed _after_ batch completion.
+
+```bash
+├── templates/
+│   ├── inputfile.j2
+│   ├── preprocess.sh.j2
+│   ├── slurm_run.sh.js
+│   └── postprocess.sh.j2
+└── ensemble_config.yml
+```
+
+```yaml
+ensemble:
+    vars: []
+    pre_process: []
+    post_process: []
+
+    batch_config:
+        templates:
+        - inputfile.j2
+        - preprocess.sh.j2
+        - slurm_run.sh.j2
+        - postprocess.sh.j2
+        cluster: []
+        nodes: []
+        ntasks: []
+
+    batches:
+        - name: batch_1
+          pre_run: []
+          runs:
+            - custom_id: 1
+            - custom_id: 2
+          post_run: []
+        - name: batch_2
+          pre_run: []
+          runs:
+            - custom_id: 1
+            - custom_id: 2
+          post_run: []
+```
 
 ...submit them to SLURM **asynchronously**.
 
