@@ -3,6 +3,15 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+* Documentation changes:
+    * Changed from sphinx to [mkdocs](https://www.mkdocs.org/), in line with other [environmental-forecasting](https://github.com/environmental-forecasting) tools.
+    * API/Reference automatically generated using mkdocstrings and [mkdocstrings](https://mkdocstrings.github.io/) and [mkdocs-autoapi](https://mkdocs-autoapi.readthedocs.io/en/latest/).
+    * Code of Conduct, Change Log and Contributing moved to Docs.
+    * Documentation now includes installation, user guide, developer guide, testimonials and acknowledgement chapters. Respective sub-chapters added.
+    * Technical diagrams added where appropriate.
+* `.mailmap` file added to use James' work email in favour of personal email, for accurate contribution acknowledgement.
+
 ## [0.5.5] - 2022-09-20
 
 * Fixing job submissions endlessly looping after fast completion ([#40](https://github.com/environmental-forecasting/model-ensembler/issues/40))

@@ -70,7 +70,7 @@ the model ensembler, say 4 job running at a time, we'd get the run-time
 down to 2 weeks, as well as removing the overhead of me having to fiddle 
 around with submitting the SLURM jobs, which isn't my area of expertise._
 
-> _So around 2.5 months to around 2 weeks_
+> _So around 2.5 months to around 2 weeks._
 
 [1]: https://github.com/wrf-model/WRF
 [2]: https://github.com/RJArthern/WAVI.jl
