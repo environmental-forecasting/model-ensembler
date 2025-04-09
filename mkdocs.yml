@@ -2,7 +2,10 @@ site_name: model-ensembler
 nav:
   - Overview: index.md
   - Installation: installation.md
-  - Usage: usage.md
+  - Usage: 
+      Basic Usage: usage/basic-usage.md
+      Example: usage/example1.md
+      Building Configuration & Templates: usage/templates.md
   - Contributing: contributing.md
   - Code of Conduct: code_of_conduct.md
   - Acknowledgements: acknowledgements.md
