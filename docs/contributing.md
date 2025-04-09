@@ -168,6 +168,10 @@ Therefore, there is no need to create or edit `.md` files when you make a change
 ### Docstrings Style
 For the docstrings, please follow the [Google Style Guide][4]. For more information on `mkdocstrings`, see their [Docstring Options][5].
 
+### Diagrams
+Explanatory diagrams are provided throughout the documentation. These are built using [drawio](https://www.drawio.com/).
+If documentation diagrams require updating, their original `.drawio` files can be found under `docs/images/drawio`.
+
 [1]: https://github.com/wrf-model/WRF
 [2]: https://github.com/RJArthern/WAVI.jl
 [3]: https://github.com/antarctica/IceNet-Pipeline

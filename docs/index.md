@@ -26,6 +26,8 @@ Explanation of ensembles and their value, with WAVI example.
 
 Can be multi-model, or the same model with different configuration/parameters.
 
+More info on ensembles...
+
 ## Why use `model-ensembler`?
 Why should users use *this* tool.
 
