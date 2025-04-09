@@ -31,7 +31,7 @@ More info on ensembles...
 ## Why use `model-ensembler`?
 Why should users use *this* tool.
 
-The example in **Figure 1** is a simple example of an ensemble with just three models, but what if your ensemble has 10,100 or
+The example in **Figure 1** is a simple example of an ensemble with just three models, but what if your ensemble has 10, 100 or
 1000 models? Setting up the configuration for each ensemble member would bring significant manual overhead.
 
 `model-ensembler` uses a single ensemble configuration file, in the form of a `.yml` file, and a collection of
@@ -64,5 +64,5 @@ Also take a look at the [testimonials](testimonials.md) page to get a flavour of
 ## Environmental Forecasting
 The `model-ensembler` is part of a wider family of tools for [Environmental Forecasting](https://github.com/environmental-forecasting):
 
-* [download-toolbox](https://github.com/environmental-forecasting/download-toolbox)
-* [preprocess-toolbox](https://github.com/environmental-forecasting/preprocess-toolbox)
+* [download-toolbox](https://github.com/environmental-forecasting/download-toolbox): A toolbox of downloaders for environmental data.
+* [preprocess-toolbox](https://github.com/environmental-forecasting/preprocess-toolbox): A toolbox for processing downloaded datasets according to common approaches for environmental data.
