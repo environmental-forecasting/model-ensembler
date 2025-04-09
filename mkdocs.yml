@@ -64,4 +64,5 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
+  - pymdownx.blocks.caption
 copyright: Copyright &copy; 2025 British Antarctic Survey
