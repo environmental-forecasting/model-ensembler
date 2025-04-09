@@ -12,7 +12,7 @@ pip install model-ensembler
 You can run the sanity checker with the following command, choosing either 
 the dummy executor or slurm as appropriate.
 
-**TODO: v0.5.4: in the meantime you can run the examples**
+**TODO: v0.5.4: in the meantime you can run the [examples](user/basic-usage.md)**
 
 ```
 model_ensemble_check [dummy|slurm]
