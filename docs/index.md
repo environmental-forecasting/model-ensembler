@@ -48,7 +48,7 @@ a batch (or batches) of model runs.
     ![List batch overview, light mode](images/model-ensembler-list.drawio.light.png#only-light)
 
 /// caption
-**Figure 2.** A simplified overview of how `model-ensembler` dynamically generates an ensemble based on a `config.yml` and `jinja2` templates.
+**Figure 2.** A simplified overview of how `model-ensembler` dynamically generates an ensemble run based on a `config.yml` and `jinja2` templates.
 ///
 
 This design means writing a `config.yml` and corresponding templates just once, and intents to give provide flexibility and enable a 
