@@ -2,11 +2,11 @@ site_name: model-ensembler
 nav:
   - Overview: index.md
   - Installation: installation.md
-  - User Guide: 
-      Basic Usage: user/basic-usage.md
-      Building Configuration & Templates: user/templates.md
-      YAML Configuration: user/yaml.md
-      Example: user/example1.md
+  - User Guide:
+    - Basic Usage: user/basic-usage.md
+    - Building Configuration & Templates: user/templates.md
+    - YAML Configuration: user/yaml.md
+    - Example: user/example1.md
   - Developer Guide:
     - Contribution:
       - Contributing: developer/contribution/contributing.md
@@ -63,7 +63,6 @@ plugins:
             show_submodules: true
             docstring_style: google
             heading_level: 3
-      markdown_extensions:
 markdown_extensions:
   - admonition
   # Enables code block highlighting
