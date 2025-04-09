@@ -38,4 +38,8 @@ _This release was a big collection of amendments from 0.4.0_
 
 Initial release into the wild of the code, previously used only internally in BAS
 
+[0.5.5]: https://github.com/environmental-forecasting/model-ensembler/releases/tag/v0.5.5
+[0.5.2]: https://github.com/environmental-forecasting/model-ensembler/releases/tag/v0.5.2
+[0.5.1]: https://github.com/environmental-forecasting/model-ensembler/releases/tag/v0.5.1 
+[0.5.0]: https://github.com/environmental-forecasting/model-ensembler/releases/tag/v0.5.0
 [0.4.0]: https://github.com/JimCircadian/model-ensembler/releases/tag/v0.4.0

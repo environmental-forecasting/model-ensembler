@@ -51,7 +51,7 @@ git commit -m "Your detailed description of your changes."
 git push origin name-of-your-bugfix-or-feature
 ```
 
-9\. Submit a pull request through the GitHub website.
+9\. Submit a pull request against the [main branch on GitHub](https://github.com/environmental-forecasting/model-ensembler/tree/main).
 
 !!! note "Pull Request Guidelines"
 
