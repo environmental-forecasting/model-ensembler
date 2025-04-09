@@ -1,10 +1,8 @@
 # Installation
-Refit the instructions to match however you like created virtual 
-environments! Python3.8 is the development Python I'm currently using but 
-anything above that is likely to work, as well as possibly 3.7, but 3.6 won't. 
+To install `model-ensembler`:
 
 ```
-python3.8 -m venv venv
+python -m venv venv
 source venv/bin/activate
 pip install --upgrade pip setuptools wheel
 pip install model-ensembler

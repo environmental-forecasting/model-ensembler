@@ -51,65 +51,15 @@ a batch (or batches) of model runs.
 **Figure 2.** A simplified overview of how `model-ensembler` dynamically generates an ensemble based on a `config.yml` and `jinja2` templates.
 ///
 
-For the user, this setup means writing a `config.yml` and corresponding templates just once. `model-ensembler` is light-weight,
-and intents to give the user flexibility in giving them control in developing their own configuration and templates.
+This design means writing a `config.yml` and corresponding templates just once, and intents to give provide flexibility and enable a 
+wide range of applications.
 
-### Definitions
-Before we dive into an overview of how `model-ensembler` works, some important definitions that will be used throughout:
+Jump into the [Basic Usage](user/basic-usage.md) to get started, and refer to [Building Configuration & Templates](user/templates.md) for guidance on creating your own configurations.
 
-* **a batch:** We refer to the **collection** of runs as a batch. `model-ensembler` can be used to configure a _single_ batch
-or a _list_ of batches. **Figure 1** can be interpreted as a single batch.
-* **a run:** Each _batch_ controls a set of model runs.
-* **a model:** The individual model to be executed by a run.
-* **a job:** Once a run has been submitted to SLURM, we define it as a job. It is distinguished from a run,
-as `model-ensembler` enables configuration that can control the number of jobs that are executed concurrently
-on an HPC cluster.
-* **pre-processing:** Common task(s) that are executed _before_ batch execution.
-* **post-processing:** Common task(s) that are executed _after_ batch completion.
+## Examples and Testimonials
+Example configurations and templates are provided under `examples/`, and documented under [Example Section](user/example1.md) (to be renamed).
 
-```bash
-├── templates/
-│   ├── inputfile.j2
-│   ├── preprocess.sh.j2
-│   ├── slurm_run.sh.js
-│   └── postprocess.sh.j2
-└── ensemble_config.yml
-```
-
-```yaml
-ensemble:
-    vars: []
-    pre_process: []
-    post_process: []
-
-    batch_config:
-        templates:
-        - inputfile.j2
-        - preprocess.sh.j2
-        - slurm_run.sh.j2
-        - postprocess.sh.j2
-        cluster: []
-        nodes: []
-        ntasks: []
-
-    batches:
-        - name: batch_1
-          pre_run: []
-          runs:
-            - custom_id: 1
-            - custom_id: 2
-          post_run: []
-        - name: batch_2
-          pre_run: []
-          runs:
-            - custom_id: 1
-            - custom_id: 2
-          post_run: []
-```
-
-...submit them to SLURM **asynchronously**.
-
-See the [testimonials](testimonials.md) to get a flavour of the types of model ensembles `model-ensembler` has been used for.
+Also take a look at the [testimonials](testimonials.md) page to get a flavour of the types of model ensembles `model-ensembler` has been used for.
 
 ## Environmental Forecasting
 The `model-ensembler` is part of a wider family of tools for [Environmental Forecasting](https://github.com/environmental-forecasting):

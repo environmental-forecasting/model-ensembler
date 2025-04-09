@@ -1,5 +1,18 @@
 # Usage
 
+## Definitions
+Before we dive into an overview of how `model-ensembler` works, some important definitions that will be used throughout:
+
+* **a batch:** We refer to the **collection** of runs as a batch. `model-ensembler` can be used to configure a _single_ batch
+or a _list_ of batches. **Figure 1** can be interpreted as a single batch.
+* **a run:** Each _batch_ controls a set of model runs.
+* **a model:** The individual model to be executed by a run.
+* **a job:** Once a run has been submitted to SLURM, we define it as a job. It is distinguished from a run,
+as `model-ensembler` enables configuration that can control the number of jobs that are executed concurrently
+on an HPC cluster.
+* **pre-processing:** Common task(s) that are executed _before_ batch execution.
+* **post-processing:** Common task(s) that are executed _after_ batch completion.
+
 ## Basic Usage
 
 There are some examples under "example" that can be run on a local machine (you 
