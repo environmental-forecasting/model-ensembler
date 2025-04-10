@@ -49,7 +49,7 @@ Below are the different tasks you can specify:
   will cause the run to fail).
 * `submit` (processing): manually submit a task to the HPC backend - in 
   addition to the core submission specified by the configuration. 
-* `execute` (processing): run a script until completion
+* `execute` (processing): run a script until completion.
 * `move` (processing): copy (using rsync) run directory contents to another 
   destination.
 * `remove` (processing): remove either the run directory or another (specified) 

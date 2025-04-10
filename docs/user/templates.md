@@ -14,8 +14,8 @@ For the ensemble:
 * **a model:** The individual model to be executed by a run.
 * **a run:** A run refers to the execution of a model, with a given set of parameters. A run will be submitted to an HPC backed (such as SLURM).
 * **a batch:** We refer to the collection of model runs as a batch. `model-ensembler` can be used to configure a _single_ batch
-or a _list_ of batches. The batch also includes common pre-and post **run** tasks, which are common for each **run** but not for each **batch**.
-_**TZ: keen to change the pre/post wording here to avoid confusion with pre-batch/post-batch**_.
+or a _list_ of batches. The batch also includes common pre-and post **batch** tasks, which are common for each **run** but not for each **batch**,
+as well as pre-and post **run** tasks which are unique for each **run**.
 * **pre-processing:** Common task(s) that are executed _before_ all **batch** execution.
 * **post-processing:** Common task(s) that are executed _after_ all **batches** are completed.
 
@@ -31,9 +31,9 @@ A reminder of the `examples/` folder structure:
 examples/
 ├── template_job/
 │   ├── inputfile.j2
-│   ├── preprocess.sh.j2
+│   ├── pre_run.sh.j2
 │   ├── slurm_run.sh.js
-│   └── postprocess.sh.j2
+│   └── post_run.sh.j2
 └── ensemble_config.yml
 ```
 
