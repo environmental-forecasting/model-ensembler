@@ -24,28 +24,59 @@ Also note:
 * **a job:** Once a run has been submitted to an HPC backend (such as SLURM) as part of a batch, we define it as a job. It is distinguished from a run,
 as `model-ensembler` enables configuration that can control the number of jobs that are executed concurrently on an HPC cluster. This is independent from the run configuration, and follows the [SLURM naming convention](https://slurm.schedmd.com/quickstart.html). 
 
+## Folder Structure
+A reminder of the `examples/` folder structure:
 
-## Adapt a job/model run
+```shell
+examples/
+├── template_job/
+│   ├── inputfile.j2
+│   ├── preprocess.sh.j2
+│   ├── slurm_run.sh.js
+│   └── postprocess.sh.j2
+└── ensemble_config.yml
+```
+
+In this section we will be focusing on the [jinja2](https://jinja.palletsprojects.com/en/stable/) templates under `template_job/`.
+
+These templates will be stitched together with the configuration, which is covered in the [next section](yaml.md).
+
+## Adapting templates for your ensemble
+
+Process diagram:
+
+Considerations before adapting templates:
+
+* What source data do you need for the whole batch and how do you ingest it?
+* What processing tasks do you need to execute for all batches?
+* What source data and processing tasks do you need to execute before all runs **within** each batch?  
+* What checks are needed before each run is submitted to SLURM?
+* What processing tasks do you need to execute when all runs **within** a batch are completed?
+* What processing tasks do you need to executre when all **batches** are completed
+(quality control checks, data transfer, directory cleanup).
+
+Breaking each activity down should allow you to consider what pre-and post 
+processing you need to implement as **single** activities. 
+
+A common issue with modelling scripts, prior to considering ensembling, is having a monolithic script
+which executes all of the above in one go. This does not lend itself to batching.
+This monolith should be broken down into activities that can be templated out and
+individually assessed prior to moving on. 
+
+## Template Examples
+### Input
+
+### Pre-process
+
+### Slurm Run
 
 The core component of any slurm_batch run is a working cluster job. If not 
 designing from scratch, think about the following in order to adapt the job 
 to a batch configuration:
 
-* What source data/processing do you need before the whole batch and how do you 
-  get/do it
-* What source data/processing do you need before each run and how do you get/do 
-  it
-* What checks are needed before each run is submitted to slurm
-* What needs to change in the job for each run
-* What happens afterwards: what needs checking, where is the data going, what 
-  cleanup is required
 
-Breaking each activity down should allow you to consider what pre and post 
-processing you need to implement AS SINGLE ACTIVITIES. 
 
-Quite a common issue with jobs is that people have a monolithic script doing 
-everything that doesn't lend itself to batching. This monolith should be 
-broken down into activities that can be templated out (to provide per-run 
-variance) and individually assessed prior to moving on. 
+### Post-process
 
-These activities are then all stitched together with the configuration.
+
+
