@@ -12,7 +12,7 @@ Before we dive into an overview of how `model-ensembler` works, some important d
 For the ensemble:
 
 * **a model:** The individual model to be executed by a run.
-* **a run:** A run refers to the execution of a model, with a given set of parameters.
+* **a run:** A run refers to the execution of a model, with a given set of parameters. A run will be submitted to an HPC backed (such as SLURM).
 * **a batch:** We refer to the collection of model runs as a batch. `model-ensembler` can be used to configure a _single_ batch
 or a _list_ of batches. The batch also includes common pre-and post **run** tasks, which are common for each **run** but not for each **batch**.
 _**TZ: keen to change the pre/post wording here to avoid confusion with pre-batch/post-batch**_.
@@ -65,18 +65,70 @@ individually assessed prior to moving on.
 
 ## Template Examples
 ### Input
+`inputfile.j2`:
+```j2
+This is {{ run.custom_id }}
+```
 
 ### Pre-process
+`preprocess.sh.j2`:
+```j2
+#!/usr/bin/env bash
+
+echo "PRE PROCESSING: {{ run.cluster }} `cat inputfile`"
+
+SLEEP_SECS=`expr $RANDOM / 3000`
+echo "Sleeping for $SLEEP_SECS"
+sleep $SLEEP_SECS
+```
 
 ### Slurm Run
+`slurm_run.sh.j2`:
+```j2
+#!/bin/bash
+#
+# Output directory
+#SBATCH --mail-type=begin,end,fail,requeue
+#SBATCH --time={{ run.length }}
+#SBATCH --job-name={{ run.name }}{{ run.custom_id }}
+#SBATCH --nodes={{ run.nodes }}
+#SBATCH --ntasks-per-node {{ run.ntasks }}
+#SBATCH --ntasks-per-core 1
+#SBATCH --mem=20gb
+#SBATCH --partition={{ run.cluster }}
+#SBATCH --account={{ run.cluster }}
+
+# Now run some programs.
+
+echo "Initiating from {{ run.configuration }}"
+
+cd {{ run.dir }}
+
+echo "Running in $PWD"
+
+SLEEP_SECS=`expr $RANDOM / 1000`
+echo "Sleeping for $SLEEP_SECS"
+sleep $SLEEP_SECS
+
+NUM="`cat inputfile`"
+echo "Done with run number $NUM"
+```
 
 The core component of any slurm_batch run is a working cluster job. If not 
 designing from scratch, think about the following in order to adapt the job 
 to a batch configuration:
 
-
-
 ### Post-process
+`postprocess.sh.j2`:
+```j2
+#!/usr/bin/env bash
 
+echo "POST PROCESSING: `cat inputfile`"
+
+SLEEP_SECS=`expr $RANDOM / 3000`
+echo "Sleeping for $SLEEP_SECS"
+sleep $SLEEP_SECS
+
+```
 
 
