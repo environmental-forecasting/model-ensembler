@@ -77,6 +77,15 @@ Certainly, things like Airflow and job arrays have similar concepts, but are
 either more heavyweight/less suitable deployment wise or not abstracted enough 
 for simplifying lives, respectively!!!
 
+## Cycl
+
+Recently we noticed at [Cycl](https://cylc.github.io/), so in the medium term it's worth evaluating this 
+tool and compare it to model\_ensembler, as it seems pretty lightweight (which
+is the reason many others are a pain to use) and could be a good tool to use in 
+place. model\_ensembler is just quick and easy, so moving to a decent graph based
+workflow executor is preferable if you're thinking of long term implementation and
+education. 
+
 ## Environmental Forecasting
 The `model-ensembler` is part of a wider family of tools for [Environmental Forecasting](https://github.com/environmental-forecasting):
 
