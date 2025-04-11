@@ -4,8 +4,9 @@ nav:
   - Installation: installation.md
   - User Guide:
     - Basic Usage: user/basic-usage.md
-    - Building Configuration & Templates: user/templates.md
-    - YAML Configuration: user/yaml.md
+    - Configuration & Templates Overview: user/overview.md
+    - Building Templates: user/templates.md
+    - Building Configuration: user/configuration.md
     - Example: user/example1.md
   - Developer Guide:
     - Contribution:

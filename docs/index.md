@@ -51,7 +51,7 @@ a batch (or batches) of model runs.
 **Figure 2.** A simplified overview of how `model-ensembler` dynamically generates an ensemble run based on a `config.yml` and `jinja2` templates.
 ///
 
-This design means writing a `config.yml` and corresponding templates just once, and intents to give provide flexibility and enable a 
+This design means writing a `config.yml` and corresponding templates just once, and intents to provide flexibility and enable a 
 wide range of applications.
 
 Jump into the [Basic Usage](user/basic-usage.md) to get started, and refer to [Building Configuration & Templates](user/templates.md) for guidance on creating your own configurations.
