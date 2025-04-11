@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 * Updating Documentation ([#11](https://github.com/environmental-forecasting/model-ensembler/issues/11), [#22](https://github.com/environmental-forecasting/model-ensembler/issues/22)):
     * Changed from sphinx to [mkdocs](https://www.mkdocs.org/), in line with other [environmental-forecasting](https://github.com/environmental-forecasting) tools.
-    * API/Reference automatically generated using mkdocstrings and [mkdocstrings](https://mkdocstrings.github.io/) and [mkdocs-autoapi](https://mkdocs-autoapi.readthedocs.io/en/latest/).
+    * API/Reference automatically generated using [mkdocstrings](https://mkdocstrings.github.io/) and [mkdocs-autoapi](https://mkdocs-autoapi.readthedocs.io/en/latest/).
     * Documentation now includes user guide, developer guide, testimonials and acknowledgement chapters and links to top-level files (LICENSE, CONTRIBUTING etc). Respective sub-chapters added.
     * Technical diagrams added where appropriate.
 * Condensed README.md and moved non-essential sections to the docs.
