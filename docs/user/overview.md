@@ -1,5 +1,5 @@
 # Configuration & Templates Overview
-Before we dive into an overview of how `model-ensembler` works, **Figure 1** provides a visual overview of how 
+To aid in understanding how `model-ensembler` works, **Figure 1** provides a visual overview of how 
 the configuration and templates interact to generate our ensemble.
 
 ![Definitions diagram, dark mode](../images/definitions.png#only-dark)
@@ -8,7 +8,8 @@ the configuration and templates interact to generate our ensemble.
 **Figure 1:** Visual overview of the definitions used throughout `model-ensembler` documentation. Boxes in green are edited by the user.
 ///
 
-This overview will be expanded on in the [Building Configuration](yaml.md) and [Building Templates](templates.md) sections.
+The "Config" and "Templates" will be expanded on in the [Building Configuration](yaml.md) and [Building Templates](templates.md) sections.
+
 Before reading these, an overview of definitions used throughout the documentation:
 
 * **a run:** A run refers to the execution of a model, with a given set of parameters. A run will be submitted to an HPC backed (such as SLURM).

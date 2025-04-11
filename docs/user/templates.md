@@ -1,7 +1,7 @@
 ## Building Templates
 In this section we will be focusing on the [jinja2](https://jinja.palletsprojects.com/en/stable/) templates under `template_job/`.
 
-These templates will be stitched together with the configuration, which is covered in the [next section](yaml.md).
+These templates are stitched together with the configuration, covered in the [previous section](yaml.md).
 
 ### Before starting
 Considerations before adapting templates:
@@ -24,13 +24,23 @@ individually assessed prior to moving on.
 
 ## Template Examples
 ### Input
+Your model will require input data.
+
+For the purposes of running an example, the "data" in `inputfile.j2` is a 
+custom string:
+
 `inputfile.j2`:
 ```j2
 This is {{ run.custom_id }}
 ```
 
-### Pre-process
-`preprocess.sh.j2`:
+### Pre-run
+Before running your model, you will likely need to do perform some data wrangling or processing.
+
+For the purpose of our example, `pre_run.sh.js` simply takes `inputfile`'s string above,
+prints it and executes a random `sleep`:
+
+`pre_run.sh.j2`:
 ```j2
 #!/usr/bin/env bash
 
@@ -42,6 +52,11 @@ sleep $SLEEP_SECS
 ```
 
 ### Slurm Run
+The `slurm_run.sh.j2` template is an example of a script that would be executed
+under `runs:` and sent to an HPC backend, in this case SLURM. `SBATCH` headers
+are provided to parse in the `batch_config:` parameters. Other run configuration
+is also parsed (e.g. `{{ run.configuration}}`):
+
 `slurm_run.sh.j2`:
 ```j2
 #!/bin/bash
@@ -73,12 +88,12 @@ NUM="`cat inputfile`"
 echo "Done with run number $NUM"
 ```
 
-The core component of any slurm_batch run is a working cluster job. If not 
-designing from scratch, think about the following in order to adapt the job 
-to a batch configuration:
+### Post-run
+Finally, `post_run.sh.j2` would be executed after the run is completed.
 
-### Post-process
-`postprocess.sh.j2`:
+A similar example as `pre_run.sh.j2` is provided:
+
+`post_run.sh.j2`:
 ```j2
 #!/usr/bin/env bash
 
@@ -87,7 +102,14 @@ echo "POST PROCESSING: `cat inputfile`"
 SLEEP_SECS=`expr $RANDOM / 3000`
 echo "Sleeping for $SLEEP_SECS"
 sleep $SLEEP_SECS
-
 ```
+
+## Some Final Notes
+* Templates can be any type of script (not just `.sh`).
+* While `pre_run`, `run` and `post_run` are used as examples here
+to align with the config naming (`pre_run:`, `runs:`, `post_run`),
+you can build more than one template for `pre_run:` and `post_run:`
+and execute them. 
+
 
 

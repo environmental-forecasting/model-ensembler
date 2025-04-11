@@ -176,6 +176,8 @@ Each of the `batches` is then split into the following sections:
           cmd:  touch post_batch.keep
 ```
 
+The batches are defined, and the scripts generated from the files in `template_job/` are executed.
+
 !!! note "Individual batch configuration"
     Should you wish to individually configure batches, it is possible to use
     `batch_config:` options under `batches:`, for example:
@@ -201,3 +203,6 @@ Each of the `batches` is then split into the following sections:
     ```
 
     **Note on hierarchy of variables**
+
+Now that you are familiar with the configuration, we will cover building templates
+in the [next section](templates.md).
