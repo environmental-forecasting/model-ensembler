@@ -54,6 +54,7 @@ The basic pattern for using this toolkit is:
 Jump into [Building Configuration & Templates](user/templates.md) for guidance on creating your own configurations.
 
 ## Examples and Testimonials
-Example configurations and templates are provided under `examples/`, and documented under [Example Section](user/example1.md) (to be renamed).
+Example configurations and templates are provided under `examples/`. A worked example is provided under
+[Simple Example - WAVI](user/WAVI_example.md).
 
 Also take a look at the [testimonials](testimonials.md) page to get a flavour of the types of model ensembles `model-ensembler` has been used for.
