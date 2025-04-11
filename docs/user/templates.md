@@ -104,12 +104,14 @@ echo "Sleeping for $SLEEP_SECS"
 sleep $SLEEP_SECS
 ```
 
-## Some Final Notes
-* Templates can be any type of script (not just `.sh`).
-* While `pre_run`, `run` and `post_run` are used as examples here
-to align with the config naming (`pre_run:`, `runs:`, `post_run`),
-you can build more than one template for `pre_run:` and `post_run:`
-and execute them. 
+!!! note "Building your own templates"
+    When building your own templates, keep in mind:
+    
+    * Templates can be any type of script (not just `.sh`).
+    * While `pre_run`, `run` and `post_run` are used as examples here
+    to align with the config naming (`pre_run:`, `runs:`, `post_run:`),
+    you can build more than one template for `pre_run:` and `post_run:`
+    and execute them in order.
 
 
 
