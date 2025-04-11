@@ -13,24 +13,31 @@ configurations._
 investigating many (Weather Research and Forecasting) WRF model configurations. 
 The model parameters I wanted to change were stated in a file in a simple and 
 intuitive format along with my model running requirements such as number of 
-nodes to run the model. The model-ensembler only needed to be submitted once, 
+nodes to run the model._
+
+> _The model-ensembler only needed to be submitted once, 
 and it would only submit the model runs after checking that there was enough 
 space for the model data and that I had not exceeded my fair usage at that 
 moment while using the academic supercomputer. Once a model run had completed, 
 the model-ensembler automatically transferred the data to an archive space, 
-freeing up space for the next model run. Altogether, this saved me a 
-considerable amount of time, at least 1 hour per run, if not more, and this 
-soon mounts up when you are submitting tens and hundreds of individual model 
-runs. I did not have to set up each model directory, or model setup files. I 
+freeing up space for the next model run._
+
+> _Altogether, this saved me a considerable amount of time, at least 1 hour per run,
+if not more, and this soon mounts up when you are submitting tens and hundreds of
+individual model runs._
+
+> _I did not have to set up each model directory, or model setup files. I 
 did not have to check for space, nor submit each model run separately. Nor did 
 I have to check or worry about space running out. As this is fully automated, 
 there was much less chance that I would make a mistake and modify the model 
-setup in an unintended way. Using the model-ensembler tool freed up my time, and 
-enabled to focus more on the science without being interrupted due to the need 
-to set more runs going. The model-ensembler tool is very versatile and can be 
-utilised by many models or other computational processes (for example plotting 
-a lot of data). The model-ensembler is an exceptional tool and I recommend to 
-anyone who needs to submit batches of model runs._
+setup in an unintended way._
+
+> _Using the model-ensembler tool freed up my time, and enabled to focus more on
+the science without being interrupted due to the need to set more runs going._
+
+> _The model-ensembler tool is very versatile and can be utilised by many models or
+other computational processes (for example plotting a lot of data). The model-ensembler
+is an exceptional tool and I recommend to anyone who needs to submit batches of model runs._
 
 __Rosie Williams, using for [WAVI][2] workflow executions:__
 
