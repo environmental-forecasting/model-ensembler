@@ -7,7 +7,7 @@ nav:
     - Configuration & Templates Overview: user/overview.md
     - Building Configuration: user/configuration.md
     - Building Templates: user/templates.md
-    - Example: user/example1.md
+    - Simple Example - WAVI: user/WAVI_example.md
   - Developer Guide:
     - Contribution:
       - Contributing: developer/contribution/contributing.md
