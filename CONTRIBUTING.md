@@ -20,20 +20,15 @@ If you are reporting a bug, please include:
 
 ### Fix Bugs
 Look through the GitHub issues for bugs. Anything tagged with "bug" and "help
-wanted" is open to whoever wants to implement it. Refer to the
-[Software Development Guide](software.md) for guidance on how to contribute
-to the codebase.
+wanted" is open to whoever wants to implement it.
 
 ### Implement Features
 Look through the GitHub issues for features. Anything tagged with "enhancement"
-and "help wanted" is open to whoever wants to implement it. Refer to the
-[Software Development Guide](software.md) for guidance on how to contribute
-to the codebase.
+and "help wanted" is open to whoever wants to implement it.
 
 ### Write Documentation
 The `model-ensembler` documentation can always be improved, whether as part of the
-official docs, in docstrings, or even on the web in blog posts, articles, and such. Refer to the
-[Documentation Guidelines](documentation.md)for guidance on how to contribute to the docs.
+official docs, in docstrings, or even on the web in blog posts, articles, and such.
 
 ### Submit Feedback
 The best way to send feedback is to [open an issue](https://github.com/antarctica/model-ensembler/issues).
