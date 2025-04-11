@@ -5,8 +5,8 @@ nav:
   - User Guide:
     - Basic Usage: user/basic-usage.md
     - Configuration & Templates Overview: user/overview.md
-    - Building Templates: user/templates.md
     - Building Configuration: user/configuration.md
+    - Building Templates: user/templates.md
     - Example: user/example1.md
   - Developer Guide:
     - Contribution:
