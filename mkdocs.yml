@@ -1,9 +1,7 @@
 site_name: model-ensembler
 nav:
   - Overview: index.md
-  - Installation: installation.md
   - User Guide:
-    - Basic Usage: user/basic-usage.md
     - Configuration & Templates Overview: user/overview.md
     - Building Configuration: user/configuration.md
     - Building Templates: user/templates.md

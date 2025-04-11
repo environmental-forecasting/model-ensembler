@@ -1,19 +1,6 @@
 # model-ensembler
-![GitHub issues](https://img.shields.io/github/issues/environmental-forecasting/model-ensembler?style=plastic)
-![GitHub closed issues](https://img.shields.io/github/issues-closed/environmental-forecasting/model-ensembler?style=plastic)
-![GitHub](https://img.shields.io/github/license/environmental-forecasting/model-ensembler)
-![GitHub forks](https://img.shields.io/github/forks/environmental-forecasting/model-ensembler?style=social)
-![GitHub forks](https://img.shields.io/github/stars/environmental-forecasting/model-ensembler?style=social)
-[![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
-
-`model-ensembler`is a tool to configure and automate running model ensembles on High-Performance Computing (HPC) clusters.
-It reduces the manual configuration of individual ensemble runs, by using a common configuration to individually generate templates
-for each run.
-
-It also provides pre-and post processing functionality to allow for common tasks to be applied to the ensemble, before
-and after the individual runs. 
-
-`model-ensembler` is developed to be extendable to various HPC backends, but currently it supports SLURM and running locally. 
+[//]: # (Part of this .md is generated frm the README)
+--8<-- "README.md:2:61"
 
 ## What is a model ensemble?
 Explanation of ensembles and their value, with WAVI example.
@@ -54,15 +41,19 @@ a batch (or batches) of model runs.
 This design means writing a `config.yml` and corresponding templates just once, and intents to provide flexibility and enable a 
 wide range of applications.
 
-Jump into the [Basic Usage](user/basic-usage.md) to get started, and refer to [Building Configuration & Templates](user/templates.md) for guidance on creating your own configurations.
+## Where to go from here
+The idea of `model-ensembler` is to give you the flexibility to set this up for your
+own ensembles.
+
+The basic pattern for using this toolkit is:
+
+1. Adapt job/model run templates 
+1. Adapt YAML Configuration
+1. Running the job using `model_ensemble`
+
+Jump into [Building Configuration & Templates](user/templates.md) for guidance on creating your own configurations.
 
 ## Examples and Testimonials
 Example configurations and templates are provided under `examples/`, and documented under [Example Section](user/example1.md) (to be renamed).
 
 Also take a look at the [testimonials](testimonials.md) page to get a flavour of the types of model ensembles `model-ensembler` has been used for.
-
-## Environmental Forecasting
-The `model-ensembler` is part of a wider family of tools for [Environmental Forecasting](https://github.com/environmental-forecasting):
-
-* [download-toolbox](https://github.com/environmental-forecasting/download-toolbox): A toolbox of downloaders for environmental data.
-* [preprocess-toolbox](https://github.com/environmental-forecasting/preprocess-toolbox): A toolbox for processing downloaded datasets according to common approaches for environmental data.
