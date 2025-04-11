@@ -3,9 +3,9 @@
 ```bash
 ├── templates/
 │   ├── inputfile.j2
-│   ├── preprocess.sh.j2
+│   ├── pre_run.sh.j2
 │   ├── slurm_run.sh.js
-│   └── postprocess.sh.j2
+│   └── post_run.sh.j2
 └── ensemble_config.yml
 ```
 
@@ -18,9 +18,9 @@ ensemble:
     batch_config:
         templates:
         - inputfile.j2
-        - preprocess.sh.j2
+        - pre_run.sh.j2
         - slurm_run.sh.j2
-        - postprocess.sh.j2
+        - post_run.sh.j2
         cluster: []
         nodes: []
         ntasks: []

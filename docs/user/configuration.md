@@ -1,4 +1,4 @@
-# YAML Configuration
+# Building Configuration
 
 To make up a set of runs we use a YAML configuration file which is clear to 
 read and simple to manage. 
@@ -105,10 +105,10 @@ There are numerous `batch_config` options that control this:
 ```yaml
   batch_config:
     templates:
-    - slurm_run.sh.j2
     - inputfile.j2
-    - preprocess.sh.j2
-    - postprocess.sh.j2
+    - pre_run_.sh.j2
+    - slurm_run.sh.j2
+    - post_run_.sh.j2
     job_file:     slurm_run.sh
     cluster:      short
     email:        test@example.org
@@ -147,7 +147,7 @@ Each of the `batches` is then split into the following sections:
       pre_run:      
       - name:   execute
         args:
-          cmd:  ./preprocess.sh
+          cmd:  ./pre_run.sh
           log:  True
       - name:   check
         args:
@@ -163,7 +163,7 @@ Each of the `batches` is then split into the following sections:
       post_run:     
       - name:   execute
         args:
-          cmd:  ./postprocess.sh
+          cmd:  ./post_run.sh
       - name:   execute
         args:
           cmd:  touch post_run.keep
@@ -175,3 +175,29 @@ Each of the `batches` is then split into the following sections:
         args:
           cmd:  touch post_batch.keep
 ```
+
+!!! note "Individual batch configuration"
+    Should you wish to individually configure batches, it is possible to use
+    `batch_config:` options under `batches:`, for example:
+
+    ``` yaml
+      batches:
+    - name:         tst1
+      templatedir:  ../template_job
+      templates:
+      - inputfile.j2
+      - pre_run_.sh.j2
+      - slurm_run.sh.j2
+      - post_run_.sh.j2
+      job_file:     slurm_run.sh
+      cluster:      short
+      basedir:      ./tst1
+      email:        test@example.org
+      nodes:        1
+      ntasks:       8
+      length:       00:20:00
+      maxruns:      8
+      maxjobs:      2
+    ```
+
+    **Note on hierarchy of variables**
