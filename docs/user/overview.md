@@ -23,16 +23,3 @@ Also note, not pictured:
 
 * **a job:** Once a run has been submitted to an HPC backend (such as SLURM) as part of a batch, we define it as a job. It is distinguished from a run,
 as `model-ensembler` enables configuration that can control the number of jobs that are executed concurrently on an HPC cluster. This is independent from the run configuration, and follows the [SLURM naming convention](https://slurm.schedmd.com/quickstart.html). 
-
-## Folder Structure
-The configuration and templates are organised as in the `examples/` folder:
-
-```shell
-examples/
-├── template_job/
-│   ├── inputfile.j2
-│   ├── pre_run.sh.j2
-│   ├── slurm_run.sh.js
-│   └── post_run.sh.j2
-└── ensemble_config.yml
-```
