@@ -11,9 +11,9 @@ try:
 except ImportError:
     from yaml import Loader
 
-"""Configuration module
+"""Configuration module.
 
-Contains classes, handlers and types relating to the configuration of ensembles
+Contains classes, handlers and types relating to the configuration of ensembles.
 """
 
 
@@ -22,11 +22,11 @@ path = os.path.abspath(os.path.dirname(__file__))
 
 # TODO: Would like very much for some kind of itertools interactions to
 #  generate parameter setups
-class YAMLConfig:
-    """Configuration processor for model-ensemble YAML-based configurations
+class YAMLConfig():
+    """Configuration processor for model-ensemble YAML-based configurations.
 
     Args:
-        configuration: Name of the YAML configuration to load
+        configuration (str): Name of the YAML configuration to load.
     """
 
     def __init__(self, configuration):
@@ -38,14 +38,17 @@ class YAMLConfig:
 
     @staticmethod
     def validate(json_schema, yaml_file):
-        """Validate a YAML configuration against a JSON schema
+        """Validate a YAML configuration against a JSON schema.
 
         Args:
-            json_schema (str): Name of schema to validate against
-            yaml_file (str): Name of the configuration to validate
+            json_schema (str): Name of schema to validate against.
+            yaml_file (str): Name of the configuration to validate.
 
         Returns:
-            tuple: contains JSON schema, YAML data
+            (tuple): contains JSON schema, YAML data.
+        
+        Raises:
+            RuntimeError: If "name" and "basedir" are specified in "batch_config:" instead of "batches:". 
         """
         logging.debug("Assessing {} against {}".format(
             json_schema, yaml_file
@@ -96,14 +99,14 @@ class TaskArrayMixin:
     """Generates sets of Task objects from Batch object members"""
 
     def task_array(self, attr):
-        """Yields Tasks from a configuration instance
+        """Yields Tasks from a configuration instance.
 
         Args:
             attr (str): Name of the member property in the configuration that
-            defines the list of Task objects
+                        defines the list of Task objects.
 
         Yields:
-            object: Task instance
+            (object): Task object
         """
         field = getattr(self, attr)
         if field:
@@ -114,11 +117,11 @@ class TaskArrayMixin:
 
 # TODO: Make singleton
 class EnsembleConfig(YAMLConfig, TaskArrayMixin):
-    """Class to represent the entirety of the ensembler configuration
+    """Class to represent the entirety of the ensembler configuration.
 
     Args:
-        *args: See ``YAMLConfig``
-        **kwargs: arbitrary keyword arguments
+        *args (tuple): See ``YAMLConfig``.
+        **kwargs (tuple): arbitrary keyword arguments.
     """
 
     def __init__(self, *args, **kwargs):
@@ -130,17 +133,29 @@ class EnsembleConfig(YAMLConfig, TaskArrayMixin):
 
     @property
     def pre_process(self):
-        """list(Task): preprocessing tasks"""
+        """ Property decorator managing preprocessing attributes.
+
+        Returns:
+            (list): Preprocessing Tasks.
+        """
         return self.task_array("_pre_process")
 
     @property
     def post_process(self):
-        """list(Task): postprocessing tasks"""
+        """ Property decorator managing postprocessing attributes.
+
+        Returns:
+            (list): Postprocessing Tasks.
+        """        
         return self.task_array("_post_process")
 
     @property
     def batches(self):
-        """list(Batch): The batches contained in the ensemble configuration"""
+        """ Property decorator managing batches contained in the ensemble configuration.
+
+        Returns:
+            (list): Batches contained in the ensemble configuration.
+        """
         batches = list()
         for batch in self._batches:
             batches.append(Batch(**batch))
@@ -148,7 +163,11 @@ class EnsembleConfig(YAMLConfig, TaskArrayMixin):
 
     @property
     def vars(self):
-        """dict: vars from ensemble configuration"""
+        """ Property decorator managing vars from the ensemble configuration.
+
+        Returns:
+            (dict): vars from ensemble configuration.
+        """
         return self._vars
 
 
@@ -171,14 +190,14 @@ BatchSpec.__new__.__defaults__ = (None, [], None,
 
 
 class Batch(BatchSpec, TaskArrayMixin):
-    """Class to represent the entirety of the ensembler configuration
+    """Class to represent the entirety of the ensembler configuration.
 
     Args:
-        pre_batch (object): TaskArray configuration setup
-        pre_run (object): TaskArray configuration setup
-        post_run (object): TaskArray configuration setup
-        post_batch (object): TaskArray configuration setup
-        **kwargs: Keyword arguments for BatchSpec instance
+        pre_batch (object): TaskArray configuration setup.
+        pre_run (object): TaskArray configuration setup.
+        post_run (object): TaskArray configuration setup.
+        post_batch (object): TaskArray configuration setup.
+        **kwargs (tuple): Keyword arguments for BatchSpec instance.
     """
     def __init__(self,
                  *args,
@@ -192,20 +211,36 @@ class Batch(BatchSpec, TaskArrayMixin):
 
     @property
     def pre_batch(self):
-        """list(Task): pre batch tasks"""
+        """ Property decorator managing pre batch tasks.
+
+        Returns:
+            (list): Pre batch tasks.
+        """
         return self.task_array("_pre_batch")
 
     @property
     def pre_run(self):
-        """list(Task): pre run tasks"""
+        """ Property decorator managing pre run tasks.
+
+        Returns:
+            (list): Pre run tasks.
+        """
         return self.task_array("_pre_run")
 
     @property
     def post_run(self):
-        """list(Task): post run tasks"""
+        """ Property decorator managing post run tasks.
+
+        Returns:
+            (list): Post run tasks.
+        """
         return self.task_array("_post_run")
 
     @property
     def post_batch(self):
-        """list(Task): post batch tasks"""
+        """ Property decorator managing post batch tasks.
+
+        Returns:
+            (list): Post batch tasks.
+        """
         return self.task_array("_post_batch")
