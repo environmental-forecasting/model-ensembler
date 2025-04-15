@@ -19,7 +19,7 @@ async def prepare_run_directory(batch, run):
     
     Raises:
         TemplatingError: If template directory cannot be moved from source
-        to destination.
+                        to destination.
     """
     args = Arguments()
 
