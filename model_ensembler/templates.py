@@ -11,6 +11,16 @@ from model_ensembler.utils import Arguments
 
 
 async def prepare_run_directory(batch, run):
+    """ Preparing directory for each run from batch templates
+
+    Args:
+        batch (object): Whole batch configuration.
+        run (object): Specific run configuration.
+    
+    Raises:
+        TemplatingError: If template directory cannot be moved from source
+        to destination.
+    """
     args = Arguments()
 
     if args.pickup and os.path.exists(run.dir):
@@ -40,10 +50,14 @@ async def prepare_run_directory(batch, run):
 
 
 def process_templates(run, template_list):
-    """Render templates based on provided context
+    """Render templates based on provided context.
 
     Args:
-        template_list (list): list of paths to template sources
+        run (object): Specific run configuration.
+        template_list (list): Paths to template sources.
+    
+    Raises:
+        TemplatingError: If cannot template using the provided format.
     """
     for tmpl_file in template_list:
         if tmpl_file[-3:] != ".j2":
