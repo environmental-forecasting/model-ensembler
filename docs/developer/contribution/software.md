@@ -13,7 +13,9 @@ git clone git@github.com:your_name_here/model-ensembler.git
 ```shell
 cd model-ensembler/
 python -m venv venv
-python setup.py develop # Does not work currently, this will change
+
+# Editable installation, including all optional dependencies
+pip install -e .[tests, lint, docs]
 ```
 
 4\. Create a branch for local development:
