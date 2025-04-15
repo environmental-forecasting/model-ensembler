@@ -43,7 +43,17 @@ mkdocs build
 7\. Add your changes to `docs/changelog.md`.
 
 !!! Note "Semantic Versioning"
-    This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Please refer to the [change log](CHANGELOG.md) for the latest version and instructions on how to increment the version for your changes. If in doubt, do not hesitate to clarify this with the maintainers in your corresponding issue.
+    This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Please refer to the [change log](CHANGELOG.md) for the latest version and instructions on how to increment the version for your changes in `__init__.py`.
+    
+    The version number from `__init__.py` is automatically propagated to `pyproject.toml`.
+    
+    If in doubt, do not hesitate to clarify this with the maintainers in your corresponding issue.
+
+If you have introduced any dependencies or executable scripts, make sure to add them under the appropriate headers in `pyproject.toml`. Check the package still builds successfully:
+
+```shell
+python -m build 
+```
 
 8\. Commit your changes and push your branch to GitHub:
 
