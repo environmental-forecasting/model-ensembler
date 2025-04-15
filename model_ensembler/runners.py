@@ -14,15 +14,15 @@ from model_ensembler.utils import Arguments
 
 
 async def run_check(func, check):
-    """Run a check configuration
+    """Run a check configuration.
 
     Args:
-        ctx (object): context object for retrieving configuration
-        func (callable): async check method
-        check (dict): check configuration
+        ctx (object): Context object for retrieving configuration.
+        func (callable): Async check method.
+        check (dict): Check configuration.
 
     Raises:
-        CheckException: any exception from the called check
+        CheckException: Any exception from the called check.
     """
     result = False
     args = Arguments()
@@ -44,15 +44,18 @@ async def run_check(func, check):
 
 
 async def run_task(func, task):
-    """Run a task configuration
+    """Run a task configuration.
 
     Args:
-        run_ctx (object): context object for retrieving configuration
-        func (callable): async task method
-        task (dict): task configuration
+        run_ctx (object): Context object for retrieving configuration.
+        func (callable): Async task method.
+        task (dict): Task configuration.
 
     Raises:
-        TaskException: any exception from the called task
+        TaskException: Any exception from the called task.
+    
+    Returns:
+        (bool): True if task runs without exception.
     """
     try:
         args = dict() if not task.args else task.args
@@ -65,20 +68,20 @@ async def run_task(func, task):
 
 
 async def run_task_items(items):
-    """Run a set of task and checks
+    """Run a set of task and checks.
 
     Run the list of tasks and check items, the configuration references the
     ``model_ensemble.tasks`` method to use and the context/configuration
     provides the arguments. TaskException and CheckException are trapped and
-    rethrown as ProcessingException
+    rethrown as ProcessingException.
 
     Args:
-        ctx (object): context object for retrieving configuration
-        items (list): a list of tasks and checks
+        ctx (object): Context object for retrieving configuration.
+        items (list): Tasks and checks.
 
     Raises:
-        ProcessingException: a common exception thrown for failures in the
-        individual tasks
+        ProcessingException: A common exception thrown for failures in the
+        individual tasks.
     """
     try:
         ctx = model_ensembler.batcher.run_ctx.get()
@@ -101,14 +104,17 @@ async def run_task_items(items):
 # CORE EXECUTION FOR BATCHER
 #
 async def run_runner(limit, tasks):
-    """Runs a list of tasks asynchronously
+    """Runs a list of tasks asynchronously.
 
     Given a particular limit, establish a semaphore and run up to limit tasks.
-    Once the list of tasks is complete, return
+    Once the list of tasks is complete, return.
 
     Args:
-        limit (int): context object for retrieving configuration
-        tasks (list): a list of tasks and checks
+        limit (int): Context object for retrieving configuration.
+        tasks (list): Tasks and checks.
+    
+    Returns:
+        (list): Completed tasks.
     """
 
     # TODO: return run task windows/info
