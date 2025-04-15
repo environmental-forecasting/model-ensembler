@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "model-ensembler"
-version = "0.5.5"
+dynamic = ["version"]
 authors = [
     {name = "James Byrne", email = "jambyr@bas.ac.uk"},
 ]
@@ -22,6 +22,10 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Intended Audience :: Science/Research",
     "Intended Audience :: System Administrators",
     "Operating System :: POSIX",
@@ -54,6 +58,7 @@ docs = [
 [project.urls]
 "Homepage" = "https://www.github.com/jimcircadian/model-ensembler"
 "Bug Tracker" = "https://www.github.com/jimcircadian/model-ensembler/issues"
+"Change Log" = "https://github.com/environmental-forecasting/model-ensembler/blob/main/CHANGELOG.md"
 
 [project.scripts]
 model_ensemble = "model_ensembler.cli:main"
@@ -62,6 +67,9 @@ model_ensemble_check = "model_ensembler.cli:check"
 [tool.setuptools]
 include-package-data = true
 packages = ["model_ensembler"]
+
+[tool.setuptools.dynamic]
+version = {attr = "model_ensembler.__version__"}
 
 [tool.flake8]
 exclude = "docs/"
