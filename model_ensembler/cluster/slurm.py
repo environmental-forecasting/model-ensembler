@@ -21,16 +21,19 @@ FINISH_STATES = ("COMPLETED", "FAILED", "CANCELLED", "OUT_OF_MEMORY",
 
 
 async def find_id(job_id):
-    """Method to find SLURM job by ID
+    """Method to find SLURM job by ID.
 
     This method provides an interface to the squeue SLURM queue utility to
-    identify a job and return it along with it's state
+    identify a job and return it along with it's state.
 
     Args:
-        job_id (int): SLURM job identifier
+        job_id (int): SLURM job identifier.
 
     Returns:
-        jobs (list): job objects including name and state
+        jobs (list): Job objects including name and state.
+    
+    Raises:
+        ValueError: If cannot retrieve job from list.
     """
     job = None
     args = Arguments()
@@ -58,6 +61,15 @@ async def find_id(job_id):
 
 
 async def current_jobs(ctx, match):
+    """Method to get list of current jobs
+
+    Args:
+        ctx (object): Context object for retrieving configuration.
+        match (str): Jobs to match the job list with.
+
+    Returns:
+        (list): Filtered jobs.
+    """
     filtered_jobs = None
 
     # Ensure we account for empty lists
@@ -87,6 +99,15 @@ async def current_jobs(ctx, match):
 
 
 async def submit_job(ctx, script=None):
+    """Method to submit jobs to SLURM.
+
+    Args:
+        ctx (object): Context object for retrieving configuration.
+        script (str): Script name to submit.
+
+    Returns:
+        (int): Job ID.
+    """
     r_sbatch_id = re.compile(r'Submitted batch job (\d+)$')
     args = Arguments()
 

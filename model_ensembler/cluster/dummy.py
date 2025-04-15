@@ -20,6 +20,12 @@ _jobs = dict()
 
 
 def threaded_job(run_dir, script):
+    """Dummy method to set off local job
+
+    Args:
+        run_dir (str): Directory script is running in. 
+        script (str): Name of script to run.
+    """
     global _jobs
 
     with _dict_lock:
@@ -40,6 +46,17 @@ def threaded_job(run_dir, script):
 
 
 async def find_id(job_id):
+    """Dummy method to find local job id.
+
+    Args:
+        job_id (int): Local job identifier.
+
+    Returns:
+        (int): job id.
+    
+    Raises:
+        LookupError: If job id not found.
+    """
     global _jobs
 
     job = None
@@ -54,6 +71,15 @@ async def find_id(job_id):
 
 
 async def current_jobs(ctx, match):
+    """Dummy method to find current jobs.
+
+    Args:
+        ctx (object): Context object for retrieving configuration.
+        match (str): Jobs to match the job list with.
+
+    Returns:
+        (list): Current jobs.
+    """
     global _jobs
 
     job_arr = [el for el in _jobs.values()
@@ -64,6 +90,15 @@ async def current_jobs(ctx, match):
 
 
 async def submit_job(ctx, script=None):
+    """Dummy method to submit job locally.
+
+    Args:
+        ctx (object): Context object for retrieving configuration.
+        script (str): Script name to submit.
+
+    Returns:
+        (int): Job ID.
+    """
     # TODO: ugh, we could use contextvars for this
     global _jobs
     args = Arguments()
