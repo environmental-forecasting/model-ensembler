@@ -1,2 +1,72 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "model-ensembler"
+version = "0.5.5"
+authors = [
+    {name = "James Byrne", email = "jambyr@bas.ac.uk"},
+]
+maintainers = [
+    {name = "James Byrne", email = "jambyr@bas.ac.uk"},
+    {name = "Thomas Zwagerman", email = "thozwa@bas.ac.uk"}
+]
+description = "Model Ensembler for managed batch workflows"
+keywords = ["slurm", "hpc", "tools", "batch", "model", "ensemble", "local"]
+license = "MIT"
+license-files = ["LICENSE"]
+readme = "README.md"
+classifiers = [
+    "Environment :: Console",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: System Administrators",
+    "Operating System :: POSIX",
+    "Development Status :: 3 - Alpha",
+    "Topic :: System :: Distributed Computing",
+]
+requires-python = ">=3.7"
+dependencies = [
+    "jinja2",
+    "jsonschema",
+    "pyyaml",
+]
+
+[project.optional-dependencies]
+tests = [
+    "pytest",
+    "pytest-cov"
+]
+lint = [
+    "flake8"
+]
+docs = [
+    "mkdocs",
+    "mkdocstrings[python]",
+    "mkdocs-autoapi",
+    "mkdocs-git-authors-plugin",
+    "material"
+]
+
+[project.urls]
+"Homepage" = "https://www.github.com/jimcircadian/model-ensembler"
+"Bug Tracker" = "https://www.github.com/jimcircadian/model-ensembler/issues"
+
+[project.scripts]
+model_ensemble = "model_ensembler.cli:main"
+model_ensemble_check = "model_ensembler.cli:check"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["model_ensembler"]
+
+[tool.flake8]
+exclude = "docs/"
+
+[tool.distutils.bdist_wheel]
+universal = true
