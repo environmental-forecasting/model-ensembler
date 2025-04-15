@@ -26,12 +26,24 @@ mkdocs build
 The navigation is handled in `mkdocs.yml`:
 ```yaml
 nav:
-  - Installation: installation.md
-  - Usage: usage.md
-  - Contributing: contributing.md
-  - Acknowledgements: acknowledgements.md
+  - Overview: index.md
+  - User Guide:
+    - Configuration & Templates Overview: user/overview.md
+    - Building Configuration: user/configuration.md
+    - Building Templates: user/templates.md
+    - Simple Example - WAVI: user/WAVI_example.md
+  - Developer Guide:
+    - Contribution:
+      - Contributing: developer/contribution/contributing.md
+      - Software Guide: developer/contribution/software.md
+      - Documentation Guide: developer/contribution/documentation.md
+      - Code of Conduct: developer/contribution/code_of_conduct.md
+    - Functionality:
+      - Technical Overview: developer/functionality/technical.md
   - Testimonials: testimonials.md
-  - News: news.md
+  - Change Log: change_log.md
+  - Acknowledgements: acknowledgements.md
+  - LICENSE: license.md
 ```
 The pages listed here can be edited manually.
 
