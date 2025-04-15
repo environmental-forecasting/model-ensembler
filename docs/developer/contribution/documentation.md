@@ -8,8 +8,7 @@ To install the documentation dependencies:
 ```bash
 source venv/bin/activate
 
-# Temporary, move all of this to pyproject.toml?
-pip install -r docs/requirements.txt
+pip install -e .[docs]
 ```
 
 ### Building the Docs
