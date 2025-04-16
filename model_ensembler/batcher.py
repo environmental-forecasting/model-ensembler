@@ -218,8 +218,8 @@ def do_batch_execution(loop, batch, repeat=False):
             run['dir'] = os.path.abspath(os.path.join(os.getcwd(), run['id']))
 
             if idx < args.skips:
-                logging.warning("Skipping run index {} due to {} skips, run ID: "
-                                "{}".format(idx, args.skips, run['id']))
+                logging.warning("Skipping run index {} due to {} skips, run "
+                                "ID: {}".format(idx, args.skips, run['id']))
                 continue
 
             if idx in skip_indexes:
@@ -297,7 +297,7 @@ class BatchExecutor(object):
             `model_ensembler.cluster`.
 
         Raises:
-            ModuleNotFoundError: If the cluster backend specified is not supported.
+            ModuleNotFoundError: If cluster backend specified is not supported.
         """
         nom = "model_ensembler.cluster.{}".format(backend)
         try:
