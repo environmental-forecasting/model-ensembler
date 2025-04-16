@@ -80,7 +80,7 @@ async def run_task_items(items):
 
     Raises:
         ProcessingException: A common exception thrown for failures in the
-        individual tasks.
+                            individual tasks.
     """
     try:
         ctx = model_ensembler.batcher.run_ctx.get()
