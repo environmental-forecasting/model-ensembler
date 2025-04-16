@@ -111,7 +111,8 @@ async def submit_job(ctx, script=None):
     # Don't smash the scheduler immediately, it appears to have the potential
     # to cause problems.
     sleep_for = random.randint(0, args.max_stagger)
-    logging.debug("Sleeping for {} seconds before submission".format(sleep_for))
+    logging.debug(
+        "Sleeping for {} seconds before submission".format(sleep_for))
     await asyncio.sleep(sleep_for)
     res = await execute_command("sbatch --no-requeue {}".format(script),
                                 cwd=ctx.dir)

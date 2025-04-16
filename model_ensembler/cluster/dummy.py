@@ -101,7 +101,8 @@ async def submit_job(ctx, script=None):
 
     max_submit_sleep = args.max_stagger
     sleep_for = random.randint(0, max_submit_sleep)
-    logging.debug("Sleeping for {} seconds before submission".format(sleep_for))
+    logging.debug(
+        "Sleeping for {} seconds before submission".format(sleep_for))
     await asyncio.sleep(sleep_for)
 
     with _dict_lock:
