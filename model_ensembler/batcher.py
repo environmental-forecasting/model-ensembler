@@ -11,8 +11,7 @@ from pprint import pformat
 import model_ensembler
 
 from model_ensembler.exceptions import TemplatingError
-from model_ensembler.tasks import \
-    CheckException, ProcessingException
+from model_ensembler.tasks import ProcessingException
 from model_ensembler.tasks.hpc import init_hpc_backend
 from model_ensembler.utils import Arguments
 
@@ -39,11 +38,11 @@ async def run_batch_item(run):
     Args:
         run (object): Specific run configuration.
         batch (object): Whole batch configuration.
-    
+
     Returns:
         job_id (int): Job id number.
         run (object): Specific run configuration.
-    
+
     Raises:
         TemplatingError: If a job cannot be templated.
         ProcessingException: If an individual run failure is caught.
@@ -69,7 +68,7 @@ async def run_batch_item(run):
         logging.error("We cannot template the job {}: {}".format(run.id, e))
         return job_id, run
 
-    # It's very tempting to move pre_run, but don't: we DO NOT execute until the
+    # It's very tempting to move pre_run, but don't: we DO NOT execute until
     # job is templated. Instead I've created the ability to run tasks prior
     # to preparation/templating of the job for scenarios where you don't want
     # the templating to error out/job to even be prepared
@@ -154,12 +153,12 @@ def do_batch_execution(loop, batch, repeat=False):
         loop (object): Event loop.
         batch (object): Batch configuration.
         repeat (number): Loop n times.
-    
+
     Returns:
         (str): Prints "Success" on completion.
-    
+
     Raises:
-        ProcessingException: If there is a pre_batch or post_batch processing error.
+        ProcessingException: If there is pre or post_batch processing error.
     """
 
     logging.info("Start batch: {}".format(datetime.utcnow()))
@@ -190,7 +189,7 @@ def do_batch_execution(loop, batch, repeat=False):
     os.chdir(batch.basedir)
 
     # TODO: Gross implementation for #26 - repeat parameter, this should be
-    #  abstracted away into the executor implementations (BatchExecutor.execute)
+    #  abstracted away into executor implementations (BatchExecutor.execute)
     #  and made to work better
     if not repeat:
         repeat_count = 2
@@ -285,7 +284,8 @@ class BatchExecutor(object):
 
         Args:
             cfg (object): EnsembleConfig ensemble configuration.
-            backend (str): Backend to execute on, should be one of {'dummy'|'slurm'}.
+            backend (str): Backend to execute on,
+                        should be one of {'dummy'|'slurm'}.
             extra_vars (list): Additional variables.
         """
         self._cfg = cfg
@@ -299,7 +299,7 @@ class BatchExecutor(object):
         Args:
             backend (str): identifier for backend in
             `model_ensembler.cluster`.
-        
+
         Raises:
             ModuleNotFoundError: If the cluster backend specified is not supported.
         """

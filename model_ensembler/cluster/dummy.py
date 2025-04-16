@@ -1,14 +1,10 @@
 import asyncio
-import atexit
-import collections
-import concurrent.futures
 import logging
-import os
 import random
 import subprocess
 import threading
 
-from model_ensembler.cluster import Job, job_lock
+from model_ensembler.cluster import Job
 from model_ensembler.utils import Arguments
 
 
@@ -23,7 +19,7 @@ def threaded_job(run_dir, script):
     """Dummy method to set off local job
 
     Args:
-        run_dir (str): Directory script is running in. 
+        run_dir (str): Directory script is running in.
         script (str): Name of script to run.
     """
     global _jobs
@@ -53,7 +49,7 @@ async def find_id(job_id):
 
     Returns:
         (int): job id.
-    
+
     Raises:
         LookupError: If job id not found.
     """

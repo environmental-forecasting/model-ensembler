@@ -121,7 +121,7 @@ async def remove(ctx, directory=None):
 
     Returns:
         (bool): True if return code is zero, false otherwise.
-    
+
     Raises:
         OSError: If directory cannot be removed.
     """

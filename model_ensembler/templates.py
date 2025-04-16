@@ -16,7 +16,7 @@ async def prepare_run_directory(batch, run):
     Args:
         batch (object): Whole batch configuration.
         run (object): Specific run configuration.
-    
+
     Raises:
         TemplatingError: If template directory cannot be moved from source
                         to destination.
@@ -55,7 +55,7 @@ def process_templates(run, template_list):
     Args:
         run (object): Specific run configuration.
         template_list (list): Paths to template sources.
-    
+
     Raises:
         TemplatingError: If cannot template using the provided format.
     """

@@ -13,7 +13,7 @@ except ImportError:
 
 """Configuration module.
 
-Contains classes, handlers and types relating to the configuration of ensembles.
+Contains classes, handlers and types relating to configuration of ensembles.
 """
 
 
@@ -46,9 +46,10 @@ class YAMLConfig():
 
         Returns:
             (tuple): contains JSON schema, YAML data.
-        
+
         Raises:
-            RuntimeError: If "name" and "basedir" are specified in "batch_config:" instead of "batches:". 
+            RuntimeError: If "name" and "basedir" are specified in
+                        "batch_config:" instead of "batches:".
         """
         logging.debug("Assessing {} against {}".format(
             json_schema, yaml_file
@@ -146,12 +147,12 @@ class EnsembleConfig(YAMLConfig, TaskArrayMixin):
 
         Returns:
             (list): Postprocessing Tasks.
-        """        
+        """
         return self.task_array("_post_process")
 
     @property
     def batches(self):
-        """ Property decorator managing batches contained in the ensemble configuration.
+        """ Property decorator managing batches contained in ensemble config.
 
         Returns:
             (list): Batches contained in the ensemble configuration.
