@@ -35,7 +35,7 @@ def background_fork(double=False):
     Args:
         double (bool): If true, we'll fork again as to allow the parent of
                        the first child to kill it, leaving the daemon process.
-    
+
     Raises:
         OSError: If fork fails.
     """
@@ -59,7 +59,7 @@ def setup_logging(name='',
                   logdir=os.path.join("logs"),
                   logformat="[%(asctime)-20s :%(levelname)-8s] - %(message)s",
                   ):
-    """Sets up the python `logging` library for output with some user friendly options.
+    """Sets up `logging` library for output with user friendly options.
 
     Args:
         name (string): A string indicating the name of the caller.

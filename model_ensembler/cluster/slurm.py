@@ -1,15 +1,12 @@
 import asyncio
-import collections
 import logging
-import os
 import random
 import re
-import time
 
 from pprint import pformat
 
 from model_ensembler.tasks.utils import execute_command
-from model_ensembler.cluster import Job, job_lock
+from model_ensembler.cluster import Job
 from model_ensembler.utils import Arguments
 
 START_STATES = ("COMPLETING", "PENDING", "RESV_DEL_HOLD", "RUNNING",
@@ -31,7 +28,7 @@ async def find_id(job_id):
 
     Returns:
         jobs (list): Job objects including name and state.
-    
+
     Raises:
         ValueError: If cannot retrieve job from list.
     """
@@ -88,9 +85,9 @@ async def current_jobs(ctx, match):
                 jobs.append({"name": fields[0], "job_state": fields[1]})
 
             filtered_jobs = [{"name": j['name'], "state": j["job_state"]}
-                         for j in jobs
-                         if j['name'].startswith(match)
-                         and j['job_state'] in START_STATES]
+                             for j in jobs
+                             if j['name'].startswith(match)
+                             and j['job_state'] in START_STATES]
 
             logging.debug("SLURM JOBS result: {}".
                           format(pformat(filtered_jobs)))
@@ -112,7 +109,7 @@ async def submit_job(ctx, script=None):
     args = Arguments()
 
     # Don't smash the scheduler immediately, it appears to have the potential
-    # to cause problems. 
+    # to cause problems.
     sleep_for = random.randint(0, args.max_stagger)
     logging.debug("Sleeping for {} seconds before submission".format(sleep_for))
     await asyncio.sleep(sleep_for)

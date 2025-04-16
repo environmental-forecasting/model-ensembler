@@ -15,7 +15,7 @@ def init_hpc_backend(backend):
         backend (str): Cluster backed to use.
 
     Raises:
-        ImportError/ModuleNotFoundError: If cluster backend cannot be dynamically imported.
+        ImportError/ModuleNotFoundError: If cluster backend cannot be imported.
     """
     global cluster
 
@@ -94,7 +94,7 @@ async def quota(ctx, atleast, mnt=None):
 
     Returns:
         (bool): True if available space is less than atleast, false otherwise.
-    
+
     Raises:
         IndexError/TypeError: If quota cannot be determined.
     """

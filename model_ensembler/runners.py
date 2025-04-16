@@ -1,5 +1,4 @@
 import asyncio
-import contextvars
 import logging
 import os
 
@@ -53,7 +52,7 @@ async def run_task(func, task):
 
     Raises:
         TaskException: Any exception from the called task.
-    
+
     Returns:
         (bool): True if task runs without exception.
     """
@@ -112,7 +111,7 @@ async def run_runner(limit, tasks):
     Args:
         limit (int): Context object for retrieving configuration.
         tasks (list): Tasks and checks.
-    
+
     Returns:
         (list): Completed tasks.
     """

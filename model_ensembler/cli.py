@@ -24,7 +24,7 @@ def parse_indexes(argv):
         (list): Matched integer values.
 
     Raises:
-        argparse.ArgumentTypeError: If argv is not a CSV delimited integer list.
+        argparse.ArgumentTypeError: If argv is not CSV delimited integer list.
     """
     if re.match(r'^([0-9]+,)*[0-9]+$', argv):
         return [int(v) for v in argv.split(",")]
@@ -48,7 +48,7 @@ def parse_extra_vars(arg):
     if arg_match:
         return arg_match.groups()
     raise argparse.ArgumentTypeError("Argument does not match "
-                                      "name=value format: {}".format(arg))
+                                     "name=value format: {}".format(arg))
 
 
 def parse_args():
