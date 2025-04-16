@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     * Technical diagrams added where appropriate.
 * Condensed README.md and moved non-essential sections to the docs.
 * `.mailmap` file added to use James' work email in favour of personal email, for accurate contribution acknowledgement.
+* Removed `setup.py`, `setup.cfg` in favour of solely using `pyproject.toml`. Automatically propagates version number from `__init.py__`. Updated editable install instructions, optional dependency management.
+* Updated all docstrings to conform with [google style](https://mkdocstrings.github.io/python/usage/configuration/docstrings/), improves formatting of mkdocs-autoapi. 
 
 ## [0.5.5] - 2022-09-20
 
