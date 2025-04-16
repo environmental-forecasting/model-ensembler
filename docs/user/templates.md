@@ -1,7 +1,7 @@
 ## Building Templates
 In this section we will be focusing on the [jinja2](https://jinja.palletsprojects.com/en/stable/) templates under `template_job/`.
 
-These templates are stitched together with the configuration, covered in the [previous section](yaml.md).
+These templates are stitched together with the configuration, covered in the [previous section](configuration.md).
 
 ### Before starting
 Considerations before adapting templates:

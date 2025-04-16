@@ -8,7 +8,7 @@ the configuration and templates interact to generate our ensemble.
 **Figure 1:** Visual overview of the definitions used throughout `model-ensembler` documentation. Boxes in green are edited by the user.
 ///
 
-The "Config" and "Templates" will be expanded on in the [Building Configuration](yaml.md) and [Building Templates](templates.md) sections.
+The "Config" and "Templates" will be expanded on in the [Building Configuration](configuration.md) and [Building Templates](templates.md) sections.
 
 Before reading these, an overview of definitions used throughout the documentation:
 

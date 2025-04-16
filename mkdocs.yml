@@ -54,6 +54,8 @@ plugins:
       autoapi_add_nav_entry: API
       autoapi_ignore:
         - setup.py
+  - autorefs:
+      resolve_closest: true
   - mkdocstrings:
       handlers:
         python:
