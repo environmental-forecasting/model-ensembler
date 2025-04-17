@@ -3,22 +3,18 @@
 --8<-- "README.md:2:61"
 
 ## What is a model ensemble?
-Explanation of ensembles and their value, with WAVI example.
-
 ![Simple diagram of an ensemble](images/ensemble.drawio.png#only-dark)
 ![Simple diagram of an ensemble](images/ensemble.drawio.light.png#only-light)
 /// caption
 **Figure 1.** An illustrative diagram of a model ensemble.
 ///
 
-Can be multi-model, or the same model with different configuration/parameters.
+Rather than running a single model, we run a model (or multiple models) many times. This is useful when there is high uncertainty around parameters that can  affect model predictions. This could be to do with the model physics itself ([Bett et al. 2025](https://tc.copernicus.org/articles/18/2653/2024/)), but also the initialisation date, resolution ([Williams et al. 2025](https://tc.copernicus.org/articles/18/2653/2024/)) or the input datasets being used.
 
-More info on ensembles...
+Ensembles can also be multi-model ([Seroussi et al. 2020](https://tc.copernicus.org/articles/14/3033/2020/)), or a comparison between different scenario ensembles (e.g. anthropogenic vs counterfactual in ([Bradley et al. 2024](https://www.nature.com/articles/s43247-024-01287-w#Sec7))).
 
 ## Why use `model-ensembler`?
-Why should users use *this* tool.
-
-The example in **Figure 1** is a simple example of an ensemble with just three models, but what if your ensemble has 10, 100 or
+The example in **Figure 1** is a simple example of an ensemble with just three models (or _members_), but what if your ensemble has 10, 100 or
 1000 models? Setting up the configuration for each ensemble member would bring significant manual overhead.
 
 `model-ensembler` uses a single ensemble configuration file, in the form of a `.yml` file, and a collection of
