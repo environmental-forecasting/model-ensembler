@@ -71,9 +71,5 @@ Therefore, there is no need to create or edit `.md` files when you make a change
 ### Docstrings Style
 For the docstrings, please follow the [Google Style Guide][1]. For more information on `mkdocstrings`, see their [Docstring Options][2].
 
-### Diagrams
-Explanatory diagrams are provided throughout the documentation. These are built using [drawio](https://www.drawio.com/).
-If documentation diagrams require updating, their original `.drawio` files can be found under `docs/images/drawio`.
-
 [1]: https://www.sphinx-doc.org/en/master/usage/extensions/example_google.html#example-google
 [2]: https://mkdocstrings.github.io/python/usage/configuration/docstrings/
