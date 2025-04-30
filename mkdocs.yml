@@ -2,7 +2,7 @@ site_name: model-ensembler
 nav:
   - Overview: index.md
   - User Guide:
-    - Configuration & Templates Overview: user/overview.md
+    - Technical Overview & Definitions: user/overview.md
     - Building Configuration: user/configuration.md
     - Building Templates: user/templates.md
     - Simple Example - WAVI: user/WAVI_example.md
@@ -13,7 +13,7 @@ nav:
       - Documentation Guide: developer/contribution/documentation.md
       - Code of Conduct: developer/contribution/code_of_conduct.md
     - Functionality:
-      - Technical Overview: developer/functionality/technical.md
+      - Technical Notes: developer/functionality/technical.md
   - Testimonials: testimonials.md
   - Change Log: change_log.md
   - Acknowledgements: acknowledgements.md
