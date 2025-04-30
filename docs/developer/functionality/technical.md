@@ -1,7 +1,7 @@
-# Technical Overview
+# Technical Notes
 Firstly, detailed documentation generated from the docstrings are available under `API/`. 
 
-This page intends to give a technical overview beyond the `API/`, of how different components of `model-ensembler`
+This page intends to give technical notes beyond the `API/`, of how different components of `model-ensembler`
 work together, and provide accompanying notes to aid developers. It is not intended to be read from start to finish.
 
 ## model_ensembler
