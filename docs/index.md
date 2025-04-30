@@ -37,6 +37,17 @@ a batch (or batches) of model runs.
 This design means writing a `config.yml` and corresponding templates just once, and intents to provide flexibility and enable a 
 wide range of applications.
 
+## Multiple batches
+Figure 2 shows an example of a single batch ensemble, or a list of batches. But why would you need multiple batches?
+
+Multiple batch functionality exists for instances where there is a need to run similar, but different
+ensembles. Perhaps they have identical input files, domain, but compare different forcing or resolutions.
+
+!!! example "Multiple batch example: estimating the anthropogenic part of Antarctica's sea level contribution"
+
+    [Bradley, A.T., Bett, D.T., Holland, P.R. et al. Author Correction: A framework for estimating the anthropogenic part of Antarctica’s sea level contribution in a synthetic setting. Commun Earth Environ 5, 429 (2024)](https://doi.org/10.1038/s43247-024-01600-7) contains an example where two batches of an ice sheet model under different forcing are used to estimate the anthropogenic
+    part of Antarctica's sea level contribution.
+
 ## Where to go from here
 The idea of `model-ensembler` is to give you the flexibility to set this up for your
 own ensembles.
