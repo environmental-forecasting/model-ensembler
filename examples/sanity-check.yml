@@ -10,8 +10,8 @@ ensemble:
       templates:
       - slurm_run.sh.j2
       - inputfile.j2
-      - preprocess.sh.j2
-      - postprocess.sh.j2
+      - pre_run.sh.j2
+      - post_run.sh.j2
       job_file:     slurm_run.sh
       cluster:      long
       basedir:      ./sanity_check
