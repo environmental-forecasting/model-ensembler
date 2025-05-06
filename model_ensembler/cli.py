@@ -110,10 +110,11 @@ def parse_args():
     return Arguments(**vars(parser.parse_args()))
 
 
-def main():
+def main(args=None):
     """CLI entry point.
     """
-    args = parse_args()
+    if args is None:
+        args = parse_args()
 
     if args.daemon:
         background_fork(True)
@@ -128,3 +129,14 @@ def main():
     BatchExecutor(config,
                   args.backend,
                   dict(args.extra)).run()
+
+
+def check():
+    """CLI native sanity checking
+    """
+    args = parse_args()
+
+    # Point configuration to examples folder
+    args.configuration = "examples/sanity-check.yml"
+
+    main(args)
