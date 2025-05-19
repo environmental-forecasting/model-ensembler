@@ -15,12 +15,16 @@ This module contains all package entry_points
 
 
 def parse_indexes(argv):
-    """ Method for ensuring a CSV string of integers
+    """ Method for ensuring a CSV string of integers.
+
+    Args:
+        argv (list): expecting delimited integer list.
 
     Returns:
-        list: List of integer values
+        (list): Matched integer values.
+
     Raises:
-        argparse.ArgumentTypeError
+        argparse.ArgumentTypeError: If argv is not CSV delimited integer list.
     """
     if re.match(r'^([0-9]+,)*[0-9]+$', argv):
         return [int(v) for v in argv.split(",")]
@@ -29,26 +33,29 @@ def parse_indexes(argv):
 
 
 def parse_extra_vars(arg):
-    """ Method for processing extra var arguments
+    """ Method for processing extra var arguments.
+
+    Args:
+        arg (tuple): Collection of extra var arguments.
 
     Returns:
-        tuple: name and value for the argument to be overridden
+        (tuple): Name and value for the argument to be overridden.
     Raises:
-        argparse.ArgumentTypeError
+        argparse.ArgumentTypeError: If arguments do not match.
     """
 
     arg_match = re.match(r'^([^=]+)=(.+)$', arg)
     if arg_match:
         return arg_match.groups()
     raise argparse.ArgumentTypeError("Argument does not match "
-                                      "name=value format: {}".format(arg))
+                                     "name=value format: {}".format(arg))
 
 
 def parse_args():
-    """Parse command line parameters
+    """Parse command line parameters.
 
     Returns:
-        Arguments: The immutable instance from ``.utils``
+        (object): Arguments(), immutable instance from ``.utils``.
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--daemon",
@@ -104,7 +111,7 @@ def parse_args():
 
 
 def main():
-    """CLI entry point
+    """CLI entry point.
     """
     args = parse_args()
 

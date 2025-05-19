@@ -9,6 +9,14 @@ cluster = None
 
 
 def init_hpc_backend(backend):
+    """ Initialise cluster backend to use.
+
+    Args:
+        backend (str): Cluster backed to use.
+
+    Raises:
+        ImportError/ModuleNotFoundError: If cluster backend cannot be imported.
+    """
     global cluster
 
     logging.info("Importing {}".format(backend))
@@ -31,15 +39,15 @@ async def find_id(job_id):
 
 @check_task
 async def jobs(ctx, limit, match):
-    """Check: Assert whether number of jobs in SLURM is under limit
+    """Check: Assert whether number of jobs in SLURM is under limit.
 
     Args:
-        ctx (object): contextual configuration
-        limit (int): number of jobs to check for
-        match (str): prefix to match jobs by
+        ctx (object): Contextual configuration.
+        limit (int): Number of jobs to check for.
+        match (str): Prefix to match jobs by.
 
     Returns:
-        bool: true if number of jobs is less than limit, otherwise false
+        (bool): True if number of jobs is less than limit, otherwise false.
     """
 
     # TODO: match with regex
@@ -55,14 +63,14 @@ async def jobs(ctx, limit, match):
 
 @processing_task
 async def submit(ctx, script=None):
-    """Process: Submit a new job to SLURM
+    """Process: Submit a new job to SLURM.
 
     Args:
-        ctx (object): contextual configuration
-        script (str, optional): slurm submission script for sbatch
+        ctx (object): Contextual configuration.
+        script (str, optional): Slurm submission script for sbatch.
 
     Returns:
-        int: job identifier
+        (int): Job identifier.
     """
 
     # TODO: check this as an optional argument avoids run submission
@@ -76,18 +84,20 @@ async def submit(ctx, script=None):
 
 @check_task
 async def quota(ctx, atleast, mnt=None):
-    """Check: Make sure quota is sufficient
+    """Check: Make sure quota is sufficient.
 
     Args:
-        ctx (object): contextual configuration
-        atleast (int): amount in kB
-        mnt (str, optional): path for mount to check quota on if explicitly
-        required
+        ctx (object): Contextual configuration.
+        atleast (int): Amount in kB.
+        mnt (str, optional): Path for mount to check quota on if explicitly
+                            required.
 
     Returns:
-        bool: true if available space is less than atleast, false otherwise
-    """
+        (bool): True if available space is less than atleast, false otherwise.
 
+    Raises:
+        IndexError/TypeError: If quota cannot be determined.
+    """
     # Command responds in 1k blocks
     path_arg = " -f " + mnt if mnt else ""
     quota_cmd = "quota -uw" + path_arg

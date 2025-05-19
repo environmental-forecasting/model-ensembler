@@ -13,24 +13,24 @@ This module contains all methods for system related tasks
 
 @check_task
 async def check(ctx, cmd, cwd=None, log=False, fail=False, shell=None):
-    """Check: Call arbitrary command as a check
+    """Check: Call arbitrary command as a check.
 
     Args:
-        ctx (object): contextual configuration
-        cmd (str): see ``utils.execute_command``
-        cwd (str, optional): see ``utils.execute_command``
-        log (bool, optional): see ``utils.execute_command``
-        fail (bool, optional): if true, then the check returning nonzero will
+        ctx (object): Contextual configuration.
+        cmd (str): See ``utils.execute_command``.
+        cwd (str, optional): See ``utils.execute_command``.
+        log (bool, optional): See ``utils.execute_command``.
+        fail (bool, optional): If true, then the check returning nonzero will
             raise an error rather than return false, meaning run abandonment
-            rather than recheck will take place
-        shell (str, optional): see ``utils.execute_command``
+            rather than recheck will take place.
+        shell (str, optional):  See ``utils.execute_command``.
 
     Returns:
-        bool: true if return code is zero, false otherwise
+        (bool): True if return code is zero, false otherwise.
 
     Raises:
-        FailureNotToleratedError: error when fail is true and the check
-            returns a nonzero code
+        FailureNotToleratedError: Error when fail is true and the check
+            returns a nonzero code.
     """
 
     logging.info("Running check: {}".format(cmd))
@@ -48,17 +48,17 @@ async def check(ctx, cmd, cwd=None, log=False, fail=False, shell=None):
 
 @processing_task
 async def execute(ctx, cmd, cwd=None, log=False, shell=None):
-    """Process: Call arbitrary command as a processing task
+    """Process: Call arbitrary command as a processing task.
 
     Args:
-        ctx (object): contextual configuration
-        cmd (str): see ``utils.execute_command``
-        cwd (str, optional): see ``utils.execute_command``
-        log (bool, optional): see ``utils.execute_command``
-        shell (str, optional): see ``utils.execute_command``
+        ctx (object): Contextual configuration.
+        cmd (str):  See ``utils.execute_command``.
+        cwd (str, optional): See ``utils.execute_command``.
+        log (bool, optional): See ``utils.execute_command``.
+        shell (str, optional): See ``utils.execute_command``.
 
     Returns:
-        bool: true if return code is zero, false otherwise
+        (bool): True if return code is zero, false otherwise.
     """
     logging.info("Running command: {}".format(cmd))
 
@@ -71,23 +71,23 @@ async def execute(ctx, cmd, cwd=None, log=False, shell=None):
 # TODO: Context identification. WE MUST HAVE ID
 @processing_task
 async def move(ctx, dest, include=None, exclude=None, cwd=None):
-    """Process: rsync current working directory contents
+    """Process: rsync current working directory contents.
 
     Args:
-        ctx (object): contextual configuration
-        dest (str): path to copy ctx.id named directory to
-        include (List[str], optional): rsync include specifiers
+        ctx (object): Contextual configuration.
+        dest (str): Path to copy ctx.id named directory to.
+        include (List[str], optional): rsync include specifiers.
         exclude (List[str], optional): rsync exclude specifiers, defaults to
             "*" when calling rsync if include specifiers are given and no
-            exclude specifiers are provided
-        cwd (str, optional): see ``utils.execute_command``
+            exclude specifiers are provided.
+        cwd (str, optional): See ``utils.execute_command``.
 
     Returns:
-        bool: true if return code is zero, false otherwise
+        (bool): true if return code is zero, false otherwise.
 
     Raises:
-        RuntimeError: did not provide necessary context attribute for using
-            this processing task
+        RuntimeError: If did not provide necessary context attribute for using
+            this processing task.
     """
 
     if not hasattr(ctx, "id"):
@@ -114,15 +114,18 @@ async def move(ctx, dest, include=None, exclude=None, cwd=None):
 
 @processing_task
 async def remove(ctx, directory=None):
-    """Process: Remove directory using shutil.rmtree
+    """Process: Remove directory using shutil.rmtree.
 
     Args:
-        ctx (object): contextual configuration
-        directory (str, optional): specify the directory to remove, otherwise
-            this will use the path specified by ctx.dir
+        ctx (object): Contextual configuration.
+        directory (str, optional): Specify the directory to remove, otherwise
+            this will use the path specified by ctx.dir.
 
     Returns:
-        bool: true if return code is zero, false otherwise
+        (bool): True if return code is zero, false otherwise.
+
+    Raises:
+        OSError: If directory cannot be removed.
     """
     if not directory:
         directory = ctx.dir
