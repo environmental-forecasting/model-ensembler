@@ -23,6 +23,12 @@ python -m venv venv
 source venv/bin/activate
 pip install model-ensembler
 ```
+
+To check it has installed correctly, you can run:
+```
+model_ensemble_check [dummy|slurm]
+```
+
 ## Basic Usage
 Under the `examples/` folder you will find example configs and templates that we can run on a local machine:
 
