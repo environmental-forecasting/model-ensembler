@@ -26,8 +26,11 @@ setup(
     classifiers=[
         "Environment :: Console",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "Intended Audience :: Science/Research",
         "Intended Audience :: System Administrators",
         "License :: OSI Approved :: MIT License",
@@ -41,7 +44,7 @@ setup(
             "model_ensemble_check=model_ensembler.cli:check"
         ],
     },
-    python_requires='>=3.7, <4',
+    python_requires='>=3.8, <4',
     install_requires=[
         "jinja2",
         "jsonschema",
