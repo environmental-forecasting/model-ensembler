@@ -37,7 +37,6 @@ async def run_batch_item(run):
 
     Args:
         run (object): Specific run configuration.
-        batch (object): Whole batch configuration.
 
     Returns:
         job_id (int): Job id number.
@@ -340,7 +339,6 @@ class BatchExecutor(object):
 
         Args:
             loop (object): Event loop.
-            batch (object): Whole batch configuration.
         """
         logging.info("Running batcher")
 

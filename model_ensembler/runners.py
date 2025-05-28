@@ -16,7 +16,6 @@ async def run_check(func, check):
     """Run a check configuration.
 
     Args:
-        ctx (object): Context object for retrieving configuration.
         func (callable): Async check method.
         check (dict): Check configuration.
 
@@ -47,7 +46,6 @@ async def run_task(func, task):
 
     Args:
         run_ctx (object): Context object for retrieving configuration.
-        func (callable): Async task method.
         task (dict): Task configuration.
 
     Raises:
@@ -75,7 +73,6 @@ async def run_task_items(items):
     rethrown as ProcessingException.
 
     Args:
-        ctx (object): Context object for retrieving configuration.
         items (list): Tasks and checks.
 
     Raises:
