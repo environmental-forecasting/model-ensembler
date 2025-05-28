@@ -51,7 +51,7 @@ def parse_extra_vars(arg):
                                      "name=value format: {}".format(arg))
 
 
-def parse_args():
+def parse_args(args_list=None):
     """Parse command line parameters.
 
     Returns:
@@ -105,9 +105,16 @@ def parse_args():
     parser.add_argument("backend", default="slurm", choices=("slurm", "dummy"),
                         nargs="?")
 
+    # Required to allow passing pre-set config to be 
+    # passed as first positional argument
+    if args_list is None:
+        parsed_args = parser.parse_args()
+    else:
+        parsed_args = parser.parse_args(args_list)
+
     # Prefer retaining immutable Arguments()
     # by not using the instance as a namespace
-    return Arguments(**vars(parser.parse_args()))
+    return Arguments(**vars(parsed_args))
 
 
 def main(args=None):
@@ -133,10 +140,11 @@ def main(args=None):
 
 def check():
     """CLI native sanity checking
+    Passes pre-set sanity check configuration, then calls main().
+    
+    Allow checking of successful installation.
     """
-    args = parse_args()
-
-    # Point configuration to examples folder
-    args.configuration = "examples/sanity-check.yml"
+    # Directly pass sanity check yml to the argument parser as args_list
+    args = parse_args(["examples/sanity-check.yml"])
 
     main(args)
