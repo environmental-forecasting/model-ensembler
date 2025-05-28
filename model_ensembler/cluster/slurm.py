@@ -6,7 +6,7 @@ import re
 from pprint import pformat
 
 from model_ensembler.tasks.utils import execute_command
-from model_ensembler.cluster import Job
+from model_ensembler.cluster import Job, job_lock
 from model_ensembler.utils import Arguments
 
 START_STATES = ("COMPLETING", "PENDING", "RESV_DEL_HOLD", "RUNNING",
