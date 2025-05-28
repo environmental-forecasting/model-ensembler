@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 import re
+import sys
 
 from .config import EnsembleConfig
 from .batcher import BatchExecutor
@@ -144,7 +145,12 @@ def check():
     
     Allow checking of successful installation.
     """
-    # Directly pass sanity check yml to the argument parser as args_list
-    args = parse_args(["examples/sanity-check.yml"])
+    # Get the user CLI args
+    user_args = sys.argv[1:]
+
+    # Directly pass sanity check yml + user args to
+    # the argument parser as args_list
+    args_list = ["examples/sanity-check.yml"] + user_args
+    args = parse_args(args_list)
 
     main(args)
