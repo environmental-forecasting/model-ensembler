@@ -4,7 +4,7 @@ import random
 import subprocess
 import threading
 
-from model_ensembler.cluster import Job
+from model_ensembler.cluster import Job, job_lock
 from model_ensembler.utils import Arguments
 
 
