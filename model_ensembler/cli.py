@@ -141,7 +141,8 @@ def main(args=None):
 
 def check():
     """CLI native sanity checking
-    Passes pre-set sanity check configuration, then calls main().
+    Contains pre-set sanity check configuration, combines them with
+    the user's CLI arguments in a list (e.g. dummy/slurm), which is passed to main().
     
     Allow checking of successful installation.
     """
