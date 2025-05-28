@@ -29,6 +29,7 @@ class TestYAMLConfig:
         Validate all YAML configs in examples/ folder conform to schema
         """
         config = self.YAMLConfigWrapper(yaml_file)
+
         assert isinstance(config._data, dict)
         assert "ensemble" in config._data
 
@@ -45,8 +46,10 @@ class TestYAMLConfig:
         Validate that YAML configs in invalid_yamls/ folder throw expected error
         """
         yaml_path = os.path.join(INVALID_DIR, filename)
+
         with pytest.raises((jsonschema.ValidationError, RuntimeError)) as exc_info:
             self.YAMLConfigWrapper(yaml_path)
+
         assert expected_error in str(
             exc_info.value
         ), f"Expected '{expected_error}' in error for {filename}"
