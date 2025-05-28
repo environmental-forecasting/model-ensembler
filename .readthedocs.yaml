@@ -14,4 +14,3 @@ python:
 
 mkdocs:
   configuration: mkdocs.yml
-
