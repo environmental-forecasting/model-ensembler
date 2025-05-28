@@ -168,9 +168,13 @@ def do_batch_execution(loop, batch, repeat=False):
     skip_indexes = args.indexes if args.indexes else list()
     batch_ctx.set(batch)
 
-    batch_dict = {k: v for k, v in batch._asdict().items()
-                  if not (k.startswith("pre_") or k.startswith("post_")
-                          or k == "runs")}
+    batch_dict = {k: v
+                  for k, v in batch._asdict().items() \
+                  if not (k.startswith("pre_")
+                          or k.startswith("post_")
+                          or k in "runs")
+                  and not (k in ["cluster", "email", "nodes", "ntasks", "length"]
+                           and v is None)}
 
     run_vars = run_ctx.get()
     run_vars.update(batch_dict)
@@ -216,6 +220,7 @@ def do_batch_execution(loop, batch, repeat=False):
             run['idx'] = idx
             run['id'] = "{}-{}".format(batch.name, run['idx'])
             run['dir'] = os.path.abspath(os.path.join(os.getcwd(), run['id']))
+            run['batch_idx'] = rep_i
 
             if idx < args.skips:
                 logging.warning("Skipping run index {} due to {} skips, run "
