@@ -66,9 +66,10 @@ class YAMLConfig():
             for batch in yaml_data["ensemble"]["batches"]:
                 for k, v in batch_config.items():
                     if k in ["name", "basedir"]:
-                        raise RuntimeError("I can tell you now that putting "
-                                           "those parameters in the general "
-                                           "batch_config is a bad move")
+                        raise RuntimeError("'name' and 'basedir' should be defined "
+                                           "for each batch, rather than all batches."
+                                           "Please move these from 'batch_config:'"
+                                           "to 'batch:'.")
                     if k not in batch:
                         batch[k] = v
 
