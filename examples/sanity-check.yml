@@ -1,7 +1,7 @@
 ---
 ensemble:
   vars:  
-    configuration:  test.yaml
+    configuration:  sanity-check.yml
   pre_process:      []
   post_process:     []
   batches:
