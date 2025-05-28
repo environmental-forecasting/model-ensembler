@@ -1,5 +1,6 @@
-import pytest
 import os
+import glob
+import pytest
 
 from model_ensembler.config import YAMLConfig
 
@@ -8,11 +9,16 @@ SCHEMA_PATH = os.path.join(
     os.path.dirname(__file__), "../model_ensembler/model-ensemble.json"
 )
 
-@pytest.mark.parametrize("yaml_file", [
-    "sanity-check.yml"
-])
+def list_yaml_files():
+    return glob.glob(os.path.join(EXAMPLES_DIR, "*y*ml"))
 
-def test_example_yaml_config_valid(yaml_file):
+
+@pytest.mark.parametrize("yaml_file", list_yaml_files())
+
+def test_example_yamls_config_valid(yaml_file):
+    """
+    Validate all YAML configs in examples/ folder conform to schema
+    """
     config_path = os.path.join(EXAMPLES_DIR, yaml_file)
 
     class TestYAMLConfig(YAMLConfig):
@@ -20,8 +26,8 @@ def test_example_yaml_config_valid(yaml_file):
             self._schema = SCHEMA_PATH
             self._configuration_file = configuration
             self._schema_data, self._data = self.__class__.validate(self._schema, self._configuration_file)
-        
-    config = TestYAMLConfig(config_path)
+
+    config = TestYAMLConfig(yaml_file)
 
     assert isinstance(config._data, dict)
     assert "ensemble" in config._data
