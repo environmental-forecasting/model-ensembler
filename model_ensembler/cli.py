@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 import re
+import sys
 
 from .config import EnsembleConfig
 from .batcher import BatchExecutor
@@ -51,7 +52,7 @@ def parse_extra_vars(arg):
                                      "name=value format: {}".format(arg))
 
 
-def parse_args():
+def parse_args(args_list=None):
     """Parse command line parameters.
 
     Returns:
@@ -105,15 +106,23 @@ def parse_args():
     parser.add_argument("backend", default="slurm", choices=("slurm", "dummy"),
                         nargs="?")
 
+    # Required to allow passing pre-set config to be 
+    # passed as first positional argument
+    if args_list is None:
+        parsed_args = parser.parse_args()
+    else:
+        parsed_args = parser.parse_args(args_list)
+
     # Prefer retaining immutable Arguments()
     # by not using the instance as a namespace
-    return Arguments(**vars(parser.parse_args()))
+    return Arguments(**vars(parsed_args))
 
 
-def main():
+def main(args=None):
     """CLI entry point.
     """
-    args = parse_args()
+    if args is None:
+        args = parse_args()
 
     if args.daemon:
         background_fork(True)
@@ -128,3 +137,21 @@ def main():
     BatchExecutor(config,
                   args.backend,
                   dict(args.extra)).run()
+
+
+def check():
+    """CLI native sanity checking
+    Contains pre-set sanity check configuration, combines them with
+    the user's CLI arguments in a list (e.g. dummy/slurm), which is passed to main().
+    
+    Allow checking of successful installation.
+    """
+    # Get the user CLI args
+    user_args = sys.argv[1:]
+
+    # Directly pass sanity check yml + user args to
+    # the argument parser as args_list
+    args_list = ["examples/sanity-check.yml"] + user_args
+    args = parse_args(args_list)
+
+    main(args)

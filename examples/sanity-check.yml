@@ -1,7 +1,7 @@
 ---
 ensemble:
   vars:  
-    configuration:  test.yaml
+    configuration:  sanity-check.yml
   pre_process:      []
   post_process:     []
   batches:
@@ -31,7 +31,7 @@ ensemble:
       pre_run:      
       - name:   execute
         args:
-          cmd:  ./preprocess.sh
+          cmd:  ./pre_run.sh
           log:  True
       - name:   check
         args:
@@ -49,7 +49,7 @@ ensemble:
       post_run:     
       - name:   execute
         args:
-          cmd:  ./postprocess.sh
+          cmd:  ./post_run.sh
       - name:   execute
         args:
           cmd:  touch post_run.keep

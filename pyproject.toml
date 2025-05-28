@@ -14,7 +14,9 @@ maintainers = [
 ]
 description = "Model Ensembler for managed batch workflows"
 keywords = ["slurm", "hpc", "tools", "batch", "model", "ensemble", "local"]
-license = {"file"= "LICENSE"}
+license = "MIT"
+license-files = ["LICENSE"]
+
 readme = "README.md"
 classifiers = [
     "Environment :: Console",
