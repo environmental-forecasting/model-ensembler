@@ -27,4 +27,3 @@ class ProcessingException(EnsembleException):
 class TaskException(EnsembleException):
     """For task processing failures"""
     pass
-

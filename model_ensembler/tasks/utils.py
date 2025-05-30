@@ -17,16 +17,16 @@ tasks
 
 
 def flight_task(func, check=True):
-    """Decorator for making func as a task, providing context preprocessing
+    """Decorator for making func as a task, providing context preprocessing.
 
     Args:
-        func (callable): callable to wrap with context
-        check (bool, optional): determine whether the func is to be treated
-            as a check or another type of action (checks can be skipped)
+        func (callable): Callable to wrap with context.
+        check (bool, optional): Determine whether the func is to be treated
+            as a check or another type of action (checks can be skipped).
 
     Returns:
-        func: the wrapped function that can process the context provided
-            appropriately
+        (func): The wrapped function that can process the context provided
+            appropriately.
     """
 
     @functools.wraps(func)
@@ -63,19 +63,19 @@ processing_task = functools.partial(flight_task, check=False)
 
 
 async def execute_command(cmd, cwd=None, log=False, shell=None):
-    """Standard handling for calling external command
+    """Standard handling for calling external command.
 
     Args:
-        cmd (str): the relative path of the command being called to cwd
-        cwd (str, optional): the current working directory to call the cmd
-            from, passed to subprocess
-        log (bool, optional): if true, output stdout/stderr to logfile in cwd
-        shell (str, optional): which shell to ask subprocess to invoke when
-            processing the command, will default to bash internally
+        cmd (str): The relative path of the command being called to cwd.
+        cwd (str, optional): The current working directory to call the cmd
+            from, passed to subprocess.
+        log (bool, optional): If true, output stdout/stderr to logfile in cwd.
+        shell (str, optional): Which shell to ask subprocess to invoke when
+            processing the command, will default to bash internally.
 
     Returns:
-        object: Namespace containing the returncode, stdout and stderr from
-            the process that was invoked
+        (object): Namespace containing the returncode, stdout and stderr from
+            the process that was invoked.
     """
 
     logging.debug("Executing command {0}, cwd {1}".
