@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 import re
+import sys
 
 from .config import EnsembleConfig
 from .batcher import BatchExecutor
@@ -15,12 +16,16 @@ This module contains all package entry_points
 
 
 def parse_indexes(argv):
-    """ Method for ensuring a CSV string of integers
+    """ Method for ensuring a CSV string of integers.
+
+    Args:
+        argv (list): expecting delimited integer list.
 
     Returns:
-        list: List of integer values
+        (list): Matched integer values.
+
     Raises:
-        argparse.ArgumentTypeError
+        argparse.ArgumentTypeError: If argv is not CSV delimited integer list.
     """
     if re.match(r'^([0-9]+,)*[0-9]+$', argv):
         return [int(v) for v in argv.split(",")]
@@ -29,26 +34,29 @@ def parse_indexes(argv):
 
 
 def parse_extra_vars(arg):
-    """ Method for processing extra var arguments
+    """ Method for processing extra var arguments.
+
+    Args:
+        arg (tuple): Collection of extra var arguments.
 
     Returns:
-        tuple: name and value for the argument to be overridden
+        (tuple): Name and value for the argument to be overridden.
     Raises:
-        argparse.ArgumentTypeError
+        argparse.ArgumentTypeError: If arguments do not match.
     """
 
     arg_match = re.match(r'^([^=]+)=(.+)$', arg)
     if arg_match:
         return arg_match.groups()
     raise argparse.ArgumentTypeError("Argument does not match "
-                                      "name=value format: {}".format(arg))
+                                     "name=value format: {}".format(arg))
 
 
-def parse_args():
-    """Parse command line parameters
+def parse_args(args_list=None):
+    """Parse command line parameters.
 
     Returns:
-        Arguments: The immutable instance from ``.utils``
+        (object): Arguments(), immutable instance from ``.utils``.
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--daemon",
@@ -98,15 +106,23 @@ def parse_args():
     parser.add_argument("backend", default="slurm", choices=("slurm", "dummy"),
                         nargs="?")
 
+    # Required to allow passing pre-set config to be 
+    # passed as first positional argument
+    if args_list is None:
+        parsed_args = parser.parse_args()
+    else:
+        parsed_args = parser.parse_args(args_list)
+
     # Prefer retaining immutable Arguments()
     # by not using the instance as a namespace
-    return Arguments(**vars(parser.parse_args()))
+    return Arguments(**vars(parsed_args))
 
 
-def main():
-    """CLI entry point
+def main(args=None):
+    """CLI entry point.
     """
-    args = parse_args()
+    if args is None:
+        args = parse_args()
 
     if args.daemon:
         background_fork(True)
@@ -121,3 +137,21 @@ def main():
     BatchExecutor(config,
                   args.backend,
                   dict(args.extra)).run()
+
+
+def check():
+    """CLI native sanity checking
+    Contains pre-set sanity check configuration, combines them with
+    the user's CLI arguments in a list (e.g. dummy/slurm), which is passed to main().
+    
+    Allow checking of successful installation.
+    """
+    # Get the user CLI args
+    user_args = sys.argv[1:]
+
+    # Directly pass sanity check yml + user args to
+    # the argument parser as args_list
+    args_list = ["examples/sanity-check.yml"] + user_args
+    args = parse_args(args_list)
+
+    main(args)

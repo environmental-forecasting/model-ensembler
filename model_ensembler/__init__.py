@@ -2,4 +2,4 @@
 
 __author__ = """James Byrne"""
 __email__ = 'jambyr@bas.ac.uk'
-__version__ = '0.5.6'
+__version__ = '0.6.0a0'

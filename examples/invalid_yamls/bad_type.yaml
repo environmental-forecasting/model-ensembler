@@ -1,7 +1,7 @@
 ---
 ensemble:
   vars:  
-    configuration:  sanity-check.yml
+    configuration:  test.yaml
   pre_process:      []
   post_process:     []
   batches:
@@ -12,7 +12,7 @@ ensemble:
       - inputfile.j2
       - pre_run.sh.j2
       - post_run.sh.j2
-      job_file:     slurm_run.sh
+      job_file:     123
       cluster:      long
       basedir:      ./sanity_check
       email:        test@example.org
@@ -31,7 +31,7 @@ ensemble:
       pre_run:      
       - name:   execute
         args:
-          cmd:  ./pre_run.sh
+          cmd:  ./preprocess.sh
           log:  True
       - name:   check
         args:
@@ -49,7 +49,7 @@ ensemble:
       post_run:     
       - name:   execute
         args:
-          cmd:  ./post_run.sh
+          cmd:  ./postprocess.sh
       - name:   execute
         args:
           cmd:  touch post_run.keep

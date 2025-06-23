@@ -11,8 +11,7 @@ from pprint import pformat
 import model_ensembler
 
 from model_ensembler.exceptions import TemplatingError
-from model_ensembler.tasks import \
-    CheckException, ProcessingException
+from model_ensembler.tasks import ProcessingException
 from model_ensembler.tasks.hpc import init_hpc_backend
 from model_ensembler.utils import Arguments
 
@@ -34,11 +33,18 @@ _batch_job_sems = dict()
 
 
 async def run_batch_item(run):
-    """Execute a run configuration
+    """Execute a run configuration.
 
     Args:
-        run (object): specific run configuration
-        batch (object): whole batch configuration
+        run (object): Specific run configuration.
+
+    Returns:
+        job_id (int): Job id number.
+        run (object): Specific run configuration.
+
+    Raises:
+        TemplatingError: If a job cannot be templated.
+        ProcessingException: If an individual run failure is caught.
     """
 
     # TODO: my understanding is that all context from here through to end
@@ -61,7 +67,7 @@ async def run_batch_item(run):
         logging.error("We cannot template the job {}: {}".format(run.id, e))
         return job_id, run
 
-    # It's very tempting to move pre_run, but don't: we DO NOT execute until the
+    # It's very tempting to move pre_run, but don't: we DO NOT execute until
     # job is templated. Instead I've created the ability to run tasks prior
     # to preparation/templating of the job for scenarios where you don't want
     # the templating to error out/job to even be prepared
@@ -140,12 +146,18 @@ async def run_batch_item(run):
 
 
 def do_batch_execution(loop, batch, repeat=False):
-    """Execute a batch configuration
+    """Execute a batch configuration.
 
     Args:
-        loop (object): event loop
-        batch (object): batch configuration
-        repeat (number): loop n times
+        loop (object): Event loop.
+        batch (object): Batch configuration.
+        repeat (number): Loop n times.
+
+    Returns:
+        (str): Prints "Success" on completion.
+
+    Raises:
+        ProcessingException: If there is pre or post_batch processing error.
     """
 
     logging.info("Start batch: {}".format(datetime.utcnow()))
@@ -176,7 +188,7 @@ def do_batch_execution(loop, batch, repeat=False):
     os.chdir(batch.basedir)
 
     # TODO: Gross implementation for #26 - repeat parameter, this should be
-    #  abstracted away into the executor implementations (BatchExecutor.execute)
+    #  abstracted away into executor implementations (BatchExecutor.execute)
     #  and made to work better
     if not repeat:
         repeat_count = 2
@@ -207,10 +219,11 @@ def do_batch_execution(loop, batch, repeat=False):
             run['idx'] = idx
             run['id'] = "{}-{}".format(batch.name, run['idx'])
             run['dir'] = os.path.abspath(os.path.join(os.getcwd(), run['id']))
+            run['batch_idx'] = rep_i
 
             if idx < args.skips:
-                logging.warning("Skipping run index {} due to {} skips, run ID: "
-                                "{}".format(idx, args.skips, run['id']))
+                logging.warning("Skipping run index {} due to {} skips, run "
+                                "ID: {}".format(idx, args.skips, run['id']))
                 continue
 
             if idx in skip_indexes:
@@ -259,18 +272,21 @@ def do_batch_execution(loop, batch, repeat=False):
 
 
 class BatchExecutor(object):
-    """Create an executor for a ensemble configuration
+    """Create an executor for a ensemble configuration.
 
     The purpose of this is act as the extensible master executor for the
     ensemble configuration provided. It handles the event loop and should be
-    used to contain and control the execution overall
+    used to contain and control the execution overall.
     """
 
     def __init__(self, cfg, backend="slurm", extra_vars=[]):
-        """Constructor
+        """Constructor.
 
         Args:
-            cfg (object): EnsembleConfig ensemble configuration
+            cfg (object): EnsembleConfig ensemble configuration.
+            backend (str): Backend to execute on,
+                        should be one of {'dummy'|'slurm'}.
+            extra_vars (list): Additional variables.
         """
         self._cfg = cfg
 
@@ -278,11 +294,14 @@ class BatchExecutor(object):
         self._init_ctx(extra_vars)
 
     def _init_cluster(self, backend):
-        """Initialise the cluster backend for batch execution
+        """Initialise the cluster backend for batch execution.
 
         Args:
-            backend (string): identifier for backend in
-            `model_ensembler.cluster`
+            backend (str): identifier for backend in
+            `model_ensembler.cluster`.
+
+        Raises:
+            ModuleNotFoundError: If cluster backend specified is not supported.
         """
         nom = "model_ensembler.cluster.{}".format(backend)
         try:
@@ -296,10 +315,13 @@ class BatchExecutor(object):
         cluster_ctx.set(mod)
 
     def _init_ctx(self, extra_vars):
-        """Initialise contexts
+        """Initialise contexts.
 
         Initialise the root context vars for batch execution and set
-        extra context vars that can be added last thing to the run
+        extra context vars that can be added last thing to the run.
+
+        Args:
+            extra_vars (list): Additional variables.
         """
         var_dict = run_ctx.get(dict())
         var_dict.update(self._cfg.vars)
@@ -307,27 +329,25 @@ class BatchExecutor(object):
 
         extra_ctx.set(extra_vars)
 
-    def run(self):
-        """Run the executor
+    def run(self, loop=None):
+        """Run the executor.
 
         This will establish the event loop, run the preprocessing actions for
         the ensemble, cycle through executing the batches and then run
         postprocessing actions. Exceptions will be caught and the event loop
-        closed, currently with no specific handling
+        closed, currently with no specific handling.
 
         Args:
-            loop (object): event loop
-            batch (object): whole batch configuration
+            loop (object): Event loop.
         """
         logging.info("Running batcher")
-
-        loop = None
 
         try:
             loop = asyncio.get_event_loop()
             loop.run_until_complete(
                 run_task_items(self._cfg.pre_process))
 
+            # Should batch be in function signature?
             for batch in self._cfg.batches:
                 do_batch_execution(loop, batch, repeat=batch.repeat)
                 # do_batch_execution(loop, batch) moves to
@@ -341,5 +361,6 @@ class BatchExecutor(object):
                 loop.run_until_complete(loop.shutdown_asyncgens())
                 loop.close()
 
+# What does this do?
     def execute(self, loop, batch):
         raise NotImplementedError("")

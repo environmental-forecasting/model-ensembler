@@ -30,14 +30,15 @@ class Arguments(object):
 
 
 def background_fork(double=False):
-    """
-    background_fork allows for the calling process to fork into the background
+    """Allows for the calling process to fork into the background.
 
     Args:
         double (bool): If true, we'll fork again as to allow the parent of
-                       the first child to kill it, leaving the daemon process
-    """
+                       the first child to kill it, leaving the daemon process.
 
+    Raises:
+        OSError: If fork fails.
+    """
     try:
         pid = os.fork()
         if pid > 0:
@@ -58,16 +59,14 @@ def setup_logging(name='',
                   logdir=os.path.join("logs"),
                   logformat="[%(asctime)-20s :%(levelname)-8s] - %(message)s",
                   ):
-    """
-    Sets up the python `logging` library for output with some user friendly
-    options
+    """Sets up `logging` library for output with user friendly options.
 
     Args:
-        name (string): A string indicating the name of the caller
-        level (int): `logging` level enum
-        verbose (bool): Shorthand for setting level to `logging.DEBUG`
-        logdir (string): If logging to a file, allow directory destination
-        logformat (string): Allow specification of `logging` format string
+        name (string): A string indicating the name of the caller.
+        level (int): `logging` level enum.
+        verbose (bool): Shorthand for setting level to `logging.DEBUG`.
+        logdir (string): If logging to a file, allow directory destination.
+        logformat (string): Allow specification of `logging` format string.
     """
     if verbose:
         level = logging.DEBUG

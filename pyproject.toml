@@ -1,0 +1,79 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "model-ensembler"
+dynamic = ["version"]
+authors = [
+    {name = "James Byrne", email = "jambyr@bas.ac.uk"},
+]
+maintainers = [
+    {name = "James Byrne", email = "jambyr@bas.ac.uk"},
+    {name = "Thomas Zwagerman", email = "thozwa@bas.ac.uk"}
+]
+description = "Model Ensembler for managed batch workflows"
+keywords = ["slurm", "hpc", "tools", "batch", "model", "ensemble", "local"]
+license = "MIT"
+license-files = ["LICENSE"]
+
+readme = "README.md"
+classifiers = [
+    "Environment :: Console",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: System Administrators",
+    "Operating System :: POSIX",
+    "Development Status :: 3 - Alpha",
+    "Topic :: System :: Distributed Computing",
+]
+requires-python = ">=3.7"
+dependencies = [
+    "jinja2",
+    "jsonschema",
+    "pyyaml",
+]
+
+[project.optional-dependencies]
+tests = [
+    "pytest",
+    "pytest-cov"
+]
+lint = [
+    "flake8"
+]
+docs = [
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocstrings[python]",
+    "mkdocs-autoapi",
+    "mkdocs-git-authors-plugin",
+]
+
+[project.urls]
+"Homepage" = "https://www.github.com/jimcircadian/model-ensembler"
+"Bug Tracker" = "https://www.github.com/jimcircadian/model-ensembler/issues"
+"Change Log" = "https://github.com/environmental-forecasting/model-ensembler/blob/main/CHANGELOG.md"
+
+[project.scripts]
+model_ensemble = "model_ensembler.cli:main"
+model_ensemble_check = "model_ensembler.cli:check"
+
+[tool.setuptools]
+include-package-data = true
+packages = ["model_ensembler"]
+
+[tool.setuptools.dynamic]
+version = {attr = "model_ensembler.__version__"}
+
+[tool.flake8]
+exclude = "docs/"
+
+[tool.distutils.bdist_wheel]
+universal = true

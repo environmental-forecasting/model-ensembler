@@ -1,0 +1,8 @@
+---
+ensemble:
+  vars:  
+    configuration:  test.yaml
+  pre_process:      []
+  post_process:     []
+  batches:
+    - name:
