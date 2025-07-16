@@ -3,7 +3,6 @@ on:
   push:
     branches:
     - main
-    - v0.6.0_work
 jobs:
   build-publish:
     name: Build and publish
@@ -19,11 +18,11 @@ jobs:
     - name: Build a binary and source tarball
       run: python -m build --sdist --wheel --outdir dist/
     - name: Publish to Test PYPI
-      uses: pypa/gh-action-pypi-publish@master
+      uses: pypa/gh-action-pypi-publish@release/v1
       with:
         password: ${{ secrets.TEST_PYPI_API_TOKEN }}
         repository_url: https://test.pypi.org/legacy/
     - name: Publish to PYPI
-      uses: pypa/gh-action-pypi-publish@master
+      uses: pypa/gh-action-pypi-publish@release/v1
       with:
         password: ${{ secrets.PYPI_API_TOKEN }}
