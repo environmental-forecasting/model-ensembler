@@ -11,7 +11,7 @@ from pprint import pformat
 import model_ensembler
 
 from model_ensembler.exceptions import TemplatingError
-from model_ensembler.tasks import ProcessingException
+from model_ensembler.tasks.exceptions import ProcessingException
 from model_ensembler.tasks.hpc import init_hpc_backend
 from model_ensembler.utils import Arguments
 
