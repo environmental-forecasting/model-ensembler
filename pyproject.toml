@@ -67,7 +67,11 @@ model_ensemble_check = "model_ensembler.cli:check"
 
 [tool.setuptools]
 include-package-data = true
-packages = ["model_ensembler"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["model_ensembler*"]
+exclude = ["model_ensembler.tests*"]
 
 [tool.setuptools.dynamic]
 version = {attr = "model_ensembler.__version__"}
