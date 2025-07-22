@@ -70,7 +70,7 @@ include-package-data = true
 
 [tool.setuptools.packages.find]
 where = ["."]
-packages = ["model_ensembler*"]
+include = ["model_ensembler*"]
 
 [tool.setuptools.dynamic]
 version = {attr = "model_ensembler.__version__"}
