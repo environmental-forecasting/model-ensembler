@@ -3,7 +3,10 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+##[0.6.2]
+* Fix to broken import of submodule `tasks/`. 
+
+## [0.6.0]
 * Updating Documentation ([#11](https://github.com/environmental-forecasting/model-ensembler/issues/11), [#22](https://github.com/environmental-forecasting/model-ensembler/issues/22)):
     * Changed from sphinx to [mkdocs](https://www.mkdocs.org/), in line with other [environmental-forecasting](https://github.com/environmental-forecasting) tools.
     * API/Reference automatically generated using [mkdocstrings](https://mkdocstrings.github.io/) and [mkdocs-autoapi](https://mkdocs-autoapi.readthedocs.io/en/latest/).
