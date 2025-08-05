@@ -43,7 +43,8 @@ dependencies = [
 [project.optional-dependencies]
 tests = [
     "pytest",
-    "pytest-cov"
+    "pytest-cov",
+    "pytest-asyncio",
 ]
 lint = [
     "flake8"
