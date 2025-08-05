@@ -16,7 +16,7 @@ nav:
       - Technical Notes: developer/functionality/technical.md
   - Testimonials: testimonials.md
   - Change Log: change_log.md
-  - Acknowledgements: acknowledgements.md
+  - Acknowledgements: authors.md
   - LICENSE: license.md
 repo_url: https://github.com/environmental-forecasting/model-ensembler
 repo_name: model-ensembler
@@ -47,6 +47,7 @@ theme:
     - content.action.edit
 plugins:
   - search
+  - authors
   # Automatically generates API section from docstrings
   - mkdocs-autoapi:
       autoapi_add_nav_entry: API

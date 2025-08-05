@@ -53,6 +53,7 @@ docs = [
     "mkdocs-material",
     "mkdocstrings[python]",
     "mkdocs-autoapi",
+    "mkdocs-authors-plugin",
 ]
 
 [project.urls]
