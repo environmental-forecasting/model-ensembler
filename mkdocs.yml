@@ -47,13 +47,10 @@ theme:
     - content.action.edit
 plugins:
   - search
-  # Enables automatically generating authors from git repo, see acknowledgements.md
-  - git-authors
   # Automatically generates API section from docstrings
   - mkdocs-autoapi:
       autoapi_add_nav_entry: API
       autoapi_ignore:
-        - setup.py
         - tests/*
   - autorefs:
       resolve_closest: true
