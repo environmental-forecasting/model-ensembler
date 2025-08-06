@@ -137,21 +137,45 @@ def main(args=None):
             if confirm not in ("y", "yes"):
                 print("Aborted.")
                 return
-        minimal_config = {
-            "schema_version": 1,
-            "name": "example-batch",
-            "basedir": "./runs",
-            "maxjobs": 1,
-            "maxruns": 1,
-            "job_file": "slurm_run.sh",
-            "templates": ["pre_run.sh", "post_run.sh"],
-            "runs": [
-                {"param1": "value1", "param2": "value2"}
-            ]
+        expanded_config = {
+            "ensemble": {
+                "batch_config": {},
+                "vars": {},
+                "pre_process": [],
+                "post_process": [],
+                "batches": [
+                    {
+                        "name": "example-batch",
+                        "templatedir": "./templates",
+                        "templates": [
+                            "slurm_run.sh.j2",
+                            "pre_run.sh.j2",
+                            "post_run.sh.j2"
+                        ],
+                        "job_file": "slurm_run.sh",
+                        "cluster": "slurm",
+                        "basedir": "./runs",
+                        "email": "user@example.com",
+                        "length": 1,
+                        "maxjobs": 1,
+                        "maxruns": 1,
+                        "nodes": 1,
+                        "ntasks": 1,
+                        "repeat": False,
+                        "pre_batch": [],
+                        "pre_run": [],
+                        "runs": [
+                            {"param1": "value1", "param2": "value2"}
+                        ],
+                        "post_run": [],
+                        "post_batch": []
+                    }
+                ]
+            }
         }
         with open(output_path, "w") as f:
-            yaml.dump(minimal_config, f, sort_keys=False)
-        print(f"Minimal configuration written to {output_path}")
+            yaml.dump(expanded_config, f, sort_keys=False)
+        print(f"Expanded configuration written to {output_path}")
         return
 
     if args.daemon:
