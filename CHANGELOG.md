@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.6.3] - YYYY-MM-DD
 
 ### Added
-* Testing suite cpverage for the batcher, config, cli, runners and templates.
+* Testing suite coverage for the batcher, config, cli, runners and templates.
 
 ### Changed
 * Updated Makefile to reflect package structure changes.

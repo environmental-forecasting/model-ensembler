@@ -1,6 +1,3 @@
-# .authors.yml
-
-# Optional: Define page-level parameters for the generated authors page
 page_params:
   title: Acknowledgements
   description: "Meet the team behind model-ensembler."
