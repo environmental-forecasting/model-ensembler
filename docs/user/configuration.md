@@ -7,6 +7,50 @@ The idea is that you can define a batch, or list of batches, containing
 individual runs that are individually templated and run. These runs are done 
 according to a common configuration defined for the batch.
 
+## Generating your own template
+
+To quickly get started, you can generate a valid starter configuration file using the CLI:
+
+```shell
+model_ensembler init myconfig.yaml
+```
+
+This will create a file `myconfig.yaml` with a valid structure. The default template is:
+
+```yaml
+$schema: "https://www.bas.ac.uk/schemas/json/model-ensemble.json"
+ensemble:
+  batch_config: {}
+  vars: {}
+  pre_process: []
+  post_process: []
+  batches:
+    - name: example-batch
+      templatedir: ./templates
+      templates:
+        - slurm_run.sh.j2
+        - pre_run.sh.j2
+        - post_run.sh.j2
+      job_file: slurm_run.sh
+      cluster: slurm
+      basedir: ./runs
+      email: user@example.com
+      length: 1
+      maxjobs: 1
+      maxruns: 1
+      nodes: 1
+      ntasks: 1
+      repeat: false
+      pre_batch: []
+      pre_run: []
+      runs:
+        - param1: value1
+          param2: value2
+      post_run: []
+      post_batch: []
+```
+
+The structure of this templated configuration is broken down below.
 
 ## Structure
 The configuration is split up into the following sections: 
