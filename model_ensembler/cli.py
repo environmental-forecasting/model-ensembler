@@ -1,4 +1,5 @@
 import argparse
+import yaml
 import logging
 import os
 import re
@@ -59,6 +60,11 @@ def parse_args(args_list=None):
         (object): Arguments(), immutable instance from ``.utils``.
     """
     parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(dest="subcommand")
+
+    # Init subcommand
+    init_parser = subparsers.add_parser("init", help="Initialize a minimal configuration file")
+    init_parser.add_argument("output", nargs="?", default="config.yaml", help="Output config file path (default: config.yaml)")
     parser.add_argument("-d", "--daemon",
                         help="Daemonise the ensembler", default=False,
                         action="store_true")
@@ -102,9 +108,9 @@ def parse_args(args_list=None):
     parser.add_argument("-x", "--extra-vars", dest="extra", nargs="*",
                         default=[], type=parse_extra_vars)
 
-    parser.add_argument("configuration")
-    parser.add_argument("backend", default="slurm", choices=("slurm", "dummy"),
-                        nargs="?")
+    # Only add these for the main runner, not for 'init'
+    parser.add_argument("configuration", nargs="?", help="Configuration file to use")
+    parser.add_argument("backend", default="slurm", choices=("slurm", "dummy"), nargs="?")
 
     # Required to allow passing pre-set config to be 
     # passed as first positional argument
@@ -123,6 +129,30 @@ def main(args=None):
     """
     if args is None:
         args = parse_args()
+
+    if getattr(args, "subcommand", None) == "init":
+        output_path = args.output
+        if os.path.exists(output_path):
+            confirm = input(f"{output_path} already exists. Overwrite? [y/N]: ").strip().lower()
+            if confirm not in ("y", "yes"):
+                print("Aborted.")
+                return
+        minimal_config = {
+            "schema_version": 1,
+            "name": "example-batch",
+            "basedir": "./runs",
+            "maxjobs": 1,
+            "maxruns": 1,
+            "job_file": "slurm_run.sh",
+            "templates": ["pre_run.sh", "post_run.sh"],
+            "runs": [
+                {"param1": "value1", "param2": "value2"}
+            ]
+        }
+        with open(output_path, "w") as f:
+            yaml.dump(minimal_config, f, sort_keys=False)
+        print(f"Minimal configuration written to {output_path}")
+        return
 
     if args.daemon:
         background_fork(True)
