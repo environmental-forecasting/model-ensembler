@@ -1,0 +1,30 @@
+$schema: "https://www.bas.ac.uk/schemas/json/model-ensemble.json"
+ensemble:
+  batch_config: {}
+  vars: {}
+  pre_process: []
+  post_process: []
+  batches:
+    - name: example-batch
+      templatedir: ./templates
+      templates:
+        - slurm_run.sh.j2
+        - pre_run.sh.j2
+        - post_run.sh.j2
+      job_file: slurm_run.sh
+      cluster: slurm
+      basedir: ./runs
+      email: user@example.com
+      length: 1
+      maxjobs: 1
+      maxruns: 1
+      nodes: 1
+      ntasks: 1
+      repeat: false
+      pre_batch: []
+      pre_run: []
+      runs:
+        - param1: value1
+          param2: value2
+      post_run: []
+      post_batch: []
