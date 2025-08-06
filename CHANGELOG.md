@@ -3,7 +3,32 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.6.3] - YYYY-MM-DD
+
+### Added
+* Testing suite coverage for the batcher, config, cli, runners and templates.
+
+### Changed
+* Updated Makefile to reflect package structure changes.
+* Removed `git-authors` method of acknowledgement in favour of `authors` plugin, which generates team page/acknowledgement using an authors yaml file.
+
+
+## [0.6.2] - 2025-07-22
+
+Successful installation hotfix.
+
+## [0.6.1] - 2025-07-22
+
+Attempted installation hotfix, yanked.
+
+## [0.6.0] - 2025-07-16
+
+### Added
+
+No new features added, but restructure of package. See below.
+
+### Changed
+
 * Updating Documentation ([#11](https://github.com/environmental-forecasting/model-ensembler/issues/11), [#22](https://github.com/environmental-forecasting/model-ensembler/issues/22)):
     * Changed from sphinx to [mkdocs](https://www.mkdocs.org/), in line with other [environmental-forecasting](https://github.com/environmental-forecasting) tools.
     * API/Reference automatically generated using [mkdocstrings](https://mkdocstrings.github.io/) and [mkdocs-autoapi](https://mkdocs-autoapi.readthedocs.io/en/latest/).
@@ -49,6 +74,9 @@ _This release was a big collection of amendments from 0.4.0_
 
 Initial release into the wild of the code, previously used only internally in BAS
 
+[0.6.2]: https://github.com/environmental-forecasting/model-ensembler/releases/tag/v0.6.2
+[0.6.1]: https://github.com/environmental-forecasting/model-ensembler/releases/tag/v0.6.1
+[0.6.0]: https://github.com/environmental-forecasting/model-ensembler/releases/tag/v0.6.0
 [0.5.5]: https://github.com/environmental-forecasting/model-ensembler/releases/tag/v0.5.5
 [0.5.2]: https://github.com/environmental-forecasting/model-ensembler/releases/tag/v0.5.2
 [0.5.1]: https://github.com/environmental-forecasting/model-ensembler/releases/tag/v0.5.1 

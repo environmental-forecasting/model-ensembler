@@ -1,0 +1,22 @@
+page_params:
+  title: Acknowledgements
+  description: "Meet the team behind model-ensembler."
+  avatar_size: 150           
+  avatar_shape: circle      
+  avatar_align: left
+
+authors:
+  jimcircadian:
+    name: James Byrne
+    description: Owner & Maintainer
+    avatar: https://avatars.githubusercontent.com/u/731727?v=4
+    affiliation: British Antarctic Survey
+    email: jambyr@bas.ac.uk
+    github: jimcircadian
+  thomaszwagerman:
+    name: Thomas Zwagerman
+    description: Maintainer
+    avatar: https://avatars.githubusercontent.com/u/36264706?v=4
+    affiliation: British Antarctic Survey
+    email: thozwa@bas.ac.uk
+    github: thomaszwagerman
