@@ -137,44 +137,11 @@ def main(args=None):
             if confirm not in ("y", "yes"):
                 print("Aborted.")
                 return
-        expanded_config = {
-            "ensemble": {
-                "batch_config": {},
-                "vars": {},
-                "pre_process": [],
-                "post_process": [],
-                "batches": [
-                    {
-                        "name": "example-batch",
-                        "templatedir": "./templates",
-                        "templates": [
-                            "slurm_run.sh.j2",
-                            "pre_run.sh.j2",
-                            "post_run.sh.j2"
-                        ],
-                        "job_file": "slurm_run.sh",
-                        "cluster": "slurm",
-                        "basedir": "./runs",
-                        "email": "user@example.com",
-                        "length": 1,
-                        "maxjobs": 1,
-                        "maxruns": 1,
-                        "nodes": 1,
-                        "ntasks": 1,
-                        "repeat": False,
-                        "pre_batch": [],
-                        "pre_run": [],
-                        "runs": [
-                            {"param1": "value1", "param2": "value2"}
-                        ],
-                        "post_run": [],
-                        "post_batch": []
-                    }
-                ]
-            }
-        }
+        template_path = os.path.join(os.path.dirname(__file__), "config_template.yaml")
+        with open(template_path, "r") as tf:
+            template_config = yaml.safe_load(tf)
         with open(output_path, "w") as f:
-            yaml.dump(expanded_config, f, sort_keys=False)
+            yaml.dump(template_config, f, sort_keys=False)
         print(f"Expanded configuration written to {output_path}")
         return
 
