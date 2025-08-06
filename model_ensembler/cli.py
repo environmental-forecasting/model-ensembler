@@ -135,14 +135,14 @@ def main(args=None):
         if os.path.exists(output_path):
             confirm = input(f"{output_path} already exists. Overwrite? [y/N]: ").strip().lower()
             if confirm not in ("y", "yes"):
-                print("Aborted.")
+                logging.warning("Aborted config init: file exists and user declined overwrite.")
                 return
         template_path = os.path.join(os.path.dirname(__file__), "config_template.yaml")
         with open(template_path, "r") as tf:
             template_config = yaml.safe_load(tf)
         with open(output_path, "w") as f:
             yaml.dump(template_config, f, sort_keys=False)
-        print(f"Expanded configuration written to {output_path}")
+        logging.info(f"Configuration written to {output_path}")
         return
 
     if args.daemon:
