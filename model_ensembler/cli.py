@@ -132,19 +132,25 @@ def main(args=None):
 
     if getattr(args, "subcommand", None) == "init":
         output_path = args.output
+        
+        # Check if file exists and prompt for overwrite
         if os.path.exists(output_path):
             confirm = input(f"{output_path} already exists. Overwrite? [y/N]: ").strip().lower()
             if confirm not in ("y", "yes"):
                 logging.warning("Aborted config init: file exists and user declined overwrite.")
                 return
+        
+        # Load template and write config
         template_path = os.path.join(os.path.dirname(__file__), "config_template.yaml")
         with open(template_path, "r") as tf:
             template_config = yaml.safe_load(tf)
-        output_dir = os.path.dirname(os.path.abspath(output_path))
-        if output_dir and not os.path.exists(output_dir):
-            os.makedirs(output_dir, exist_ok=True)
+        
+        # Ensure output directory exists
+        os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
+        
         with open(output_path, "w") as f:
             yaml.dump(template_config, f, sort_keys=False)
+        
         logging.info(f"Configuration written to {output_path}")
         return
 
