@@ -66,15 +66,27 @@ model_ensemble examples/sanity-check.yml dummy
 
 You are now running a model ensemble!
 
-## Generate a Starter Config
+## Generate a Starter Project
 
-In addition to the existing examples, you can quickly create a starter configuration YAML using the CLI:
+You can quickly create a starter project with configuration YAML and templates using the CLI:
 
 ```shell
-model_ensembler init myconfig.yaml
+model_ensembler init my-ensemble --config-name config.yaml
 ```
 
-This will create a file `myconfig.yaml` with a valid structure for your project. If you omit the filename, it defaults to `config.yaml`.
+This will create a complete project directory structure:
+
+```
+my-ensemble/
+├── config.yaml
+└── templates/
+    ├── slurm_run.sh.j2
+    ├── pre_run.sh.j2
+    ├── post_run.sh.j2
+    └── inputfile.j2
+```
+
+Calling `model_ensemble init` without specifying the project and config file name will default to `my-ensemble/` and `config.yaml`.
 
 ## Documentation
 For further usage instructions and an overview of `model-ensembler`, please refer to the documentation.

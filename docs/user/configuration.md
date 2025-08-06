@@ -9,13 +9,38 @@ according to a common configuration defined for the batch.
 
 ## Generating your own template
 
-To quickly get started, you can generate a valid starter configuration file using the CLI:
+To quickly get started, you can generate a complete project structure using the CLI:
 
 ```shell
-model_ensembler init myconfig.yaml
+model_ensembler init my-ensemble
 ```
 
-This will create a file `myconfig.yaml` with a valid structure. The default template is:
+This creates a project directory with both configuration and template files:
+
+```
+my-ensemble/
+├── config.yaml
+└── templates/
+    ├── slurm_run.sh.j2    # SLURM job submission script
+    ├── pre_run.sh.j2      # Pre-processing script
+    ├── post_run.sh.j2     # Post-processing script
+    └── inputfile.j2       # Input file template
+```
+
+You can customize both the project name and config filename:
+
+```shell
+# Custom project name
+model_ensembler init icesheet-ensemble
+
+# Custom config filename
+model_ensembler init --config-name ensemble.yaml
+
+# Both custom
+model_ensembler.cli init icesheet-ensemble --config-name ensemble.yaml
+```
+
+The default template includes a complete, valid structure:
 
 ```yaml
 $schema: "https://www.bas.ac.uk/schemas/json/model-ensemble.json"
@@ -31,6 +56,7 @@ ensemble:
         - slurm_run.sh.j2
         - pre_run.sh.j2
         - post_run.sh.j2
+        - inputfile.j2
       job_file: slurm_run.sh
       cluster: slurm
       basedir: ./runs
@@ -49,6 +75,8 @@ ensemble:
       post_run: []
       post_batch: []
 ```
+
+The template files are working examples that demonstrate Jinja2 templating with your configuration variables.
 
 The structure of this templated configuration is broken down below.
 
