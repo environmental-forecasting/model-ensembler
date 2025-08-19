@@ -61,7 +61,7 @@ def process_templates(run, template_list):
     """
     for tmpl_file in template_list:
         if tmpl_file[-3:] != ".j2":
-            raise TemplatingError("{} doe not appear to be a Jinja2 template "
+            raise TemplatingError("{} does not appear to be a Jinja2 template "
                                   "(.j2)".format(tmpl_file))
 
         try:
