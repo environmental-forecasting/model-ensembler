@@ -1,4 +1,5 @@
 import argparse
+import yaml
 import logging
 import os
 import re
@@ -59,6 +60,12 @@ def parse_args(args_list=None):
         (object): Arguments(), immutable instance from ``.utils``.
     """
     parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(dest="subcommand")
+
+    # Init subcommand
+    init_parser = subparsers.add_parser("init", help="Initialize a minimal configuration file")
+    init_parser.add_argument("project_name", nargs="?", default="my-ensemble", help="Project directory name (default: my-ensemble)")
+    init_parser.add_argument("--config-name", default="config.yaml", help="Configuration file name (default: config.yaml)")
     parser.add_argument("-d", "--daemon",
                         help="Daemonise the ensembler", default=False,
                         action="store_true")
@@ -102,9 +109,9 @@ def parse_args(args_list=None):
     parser.add_argument("-x", "--extra-vars", dest="extra", nargs="*",
                         default=[], type=parse_extra_vars)
 
-    parser.add_argument("configuration")
-    parser.add_argument("backend", default="slurm", choices=("slurm", "dummy"),
-                        nargs="?")
+    # Only add these for the main runner, not for 'init'
+    parser.add_argument("configuration", nargs="?", help="Configuration file to use")
+    parser.add_argument("backend", default="slurm", choices=("slurm", "dummy"), nargs="?")
 
     # Required to allow passing pre-set config to be 
     # passed as first positional argument
@@ -123,6 +130,57 @@ def main(args=None):
     """
     if args is None:
         args = parse_args()
+
+    if getattr(args, "subcommand", None) == "init":
+        project_name = args.project_name
+        project_dir = os.path.abspath(project_name)
+        config_filename = getattr(args, "config_name", "config.yaml")
+        config_path = os.path.join(project_dir, config_filename)
+        
+        # Check if project directory exists and prompt for overwrite
+        if os.path.exists(project_dir):
+            confirm = input(f"Project directory '{project_name}' already exists. Continue? [y/N]: ").strip().lower()
+            if confirm not in ("y", "yes"):
+                logging.warning("Aborted config init: project directory exists and user declined to continue.")
+                return
+        
+        # Create project directory
+        os.makedirs(project_dir, exist_ok=True)
+        
+        # Load template and write config
+        template_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "examples", "config_template.yaml")
+        with open(template_path, "r") as tf:
+            template_config = yaml.safe_load(tf)
+        
+        with open(config_path, "w") as f:
+            yaml.dump(template_config, f, sort_keys=False)
+        
+        logging.info(f"Configuration written to {config_path}")
+        
+        # Create template directory with example files
+        template_dir = os.path.join(project_dir, "templates")
+        os.makedirs(template_dir, exist_ok=True)
+        
+        # Load templates from examples directory
+        examples_template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "examples", "template_job")
+        
+        template_files = ["slurm_run.sh.j2", "pre_run.sh.j2", "post_run.sh.j2", "inputfile.j2"]
+        
+        for filename in template_files:
+            src_path = os.path.join(examples_template_dir, filename)
+            dst_path = os.path.join(template_dir, filename)
+            
+            if os.path.exists(src_path):
+                with open(src_path, "r") as src_file:
+                    content = src_file.read()
+                with open(dst_path, "w") as dst_file:
+                    dst_file.write(content)
+            else:
+                logging.warning(f"Template file {src_path} not found, skipping")
+        
+        logging.info(f"Project '{project_name}' created with config and templates")
+        
+        return
 
     if args.daemon:
         background_fork(True)

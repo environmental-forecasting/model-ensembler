@@ -97,15 +97,22 @@ async def run_batch_item(run):
                     running = False
                     state = None
 
+                    retry_count = 0
+                    max_debug_retries = 3
+                    
                     while not running:
                         try:
                             job = await cluster.find_id(job_id)
                             state = job.state
                         except (IndexError, ValueError) as e:
-                            logging.warning("Job {} not registered yet, "
-                                            "or error encountered".
-                                            format(job_id))
-                            logging.exception(e)
+                            if retry_count < max_debug_retries:
+                                logging.debug("Job {} not registered yet, or error encountered (attempt {}).".format(job_id, retry_count+1))
+                            else:
+                                logging.warning("Job {} not registered yet after {} attempts, or error encountered".format(job_id, retry_count+1))
+                                logging.debug(e)
+                            retry_count += 1
+                        else:
+                            retry_count = 0  # Reset on success
 
                         if state and (
                                 state in cluster.START_STATES or
