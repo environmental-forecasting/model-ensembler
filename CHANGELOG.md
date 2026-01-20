@@ -3,10 +3,11 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.6.3] - YYYY-MM-DD
+## [0.6.3] - 2026-01-20
 
 ### Added
 * Testing suite coverage for the batcher, config, cli, runners and templates.
+* `model_ensembler init` subcommand to initialise a model_ensembler project structure.
 
 ### Changed
 * Updated Makefile to reflect package structure changes.
@@ -74,6 +75,7 @@ _This release was a big collection of amendments from 0.4.0_
 
 Initial release into the wild of the code, previously used only internally in BAS
 
+[0.6.3]: https://github.com/environmental-forecasting/model-ensembler/releases/tag/v0.6.3
 [0.6.2]: https://github.com/environmental-forecasting/model-ensembler/releases/tag/v0.6.2
 [0.6.1]: https://github.com/environmental-forecasting/model-ensembler/releases/tag/v0.6.1
 [0.6.0]: https://github.com/environmental-forecasting/model-ensembler/releases/tag/v0.6.0
