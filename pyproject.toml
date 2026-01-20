@@ -83,7 +83,3 @@ exclude = "docs/"
 [tool.distutils.bdist_wheel]
 universal = true
 
-[tool.pytest.ini_options]
-markers = [
-    "integration: marks tests as integration tests"
-]
