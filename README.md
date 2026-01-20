@@ -6,6 +6,7 @@
 ![GitHub forks](https://img.shields.io/github/forks/environmental-forecasting/model-ensembler?style=social)
 ![GitHub forks](https://img.shields.io/github/stars/environmental-forecasting/model-ensembler?style=social)
 [![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
+[![GitHub Tag](https://img.shields.io/github/v/tag/environmental-forecasting/model-ensembler?filter=v*.*.*&label=latest%20release)](https://github.com/environmental-forecasting/model-ensembler/tags)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
 `model-ensembler`is a tool to configure and automate running model ensembles on High-Performance Computing (HPC) clusters.

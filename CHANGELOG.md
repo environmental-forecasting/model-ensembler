@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 * Updated Makefile to reflect package structure changes.
 * Removed `git-authors` method of acknowledgement in favour of `authors` plugin, which generates team page/acknowledgement using an authors yaml file.
+* Replaced deprecated `datetime.datetime.utcnow()` with `datetime.now(timezone.utc)`.
 
 
 ## [0.6.2] - 2025-07-22
