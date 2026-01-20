@@ -43,7 +43,8 @@ dependencies = [
 [project.optional-dependencies]
 tests = [
     "pytest",
-    "pytest-cov"
+    "pytest-cov",
+    "pytest-asyncio",
 ]
 lint = [
     "flake8"
@@ -81,3 +82,4 @@ exclude = "docs/"
 
 [tool.distutils.bdist_wheel]
 universal = true
+
