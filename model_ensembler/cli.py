@@ -114,6 +114,10 @@ def parse_args(args_list=None):
     else:
         parsed_args = parser.parse_args(args_list)
 
+    # Validate that configuration argument is provided
+    if parsed_args.configuration is None:
+        parser.error("the following arguments are required: configuration")
+
     # Prefer retaining immutable Arguments()
     # by not using the instance as a namespace
     return Arguments(**vars(parsed_args))
