@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 * Testing suite coverage for the batcher, config, cli, runners and templates.
-* `model_ensembler init` subcommand to initialise a model_ensembler project structure.
+* `model_ensembler_init` command to initialise a model_ensembler project structure.
 
 ### Changed
 * Updated Makefile to reflect package structure changes.
