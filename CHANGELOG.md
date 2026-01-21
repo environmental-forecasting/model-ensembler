@@ -3,17 +3,20 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.6.3] - 2026-01-20
+## [0.7.0] - 2026-01-21
 
 ### Added
-* Testing suite coverage for the batcher, config, cli, runners and templates.
-* `model_ensembler_init` command to initialise a model_ensembler project structure.
+* Testing suite coverage for the batcher, config, cli, runners and templates (#57, #62).
+* `model_ensembler_init` command to initialise a model_ensembler project structure (#41).
+* PyPI badge to README (#69).
 
 ### Changed
-* Updated Makefile to reflect package structure changes.
-* Removed `git-authors` method of acknowledgement in favour of `authors` plugin, which generates team page/acknowledgement using an authors yaml file.
-* Replaced deprecated `datetime.datetime.utcnow()` with `datetime.now(timezone.utc)`.
-
+* Updated Makefile to reflect package structure changes (#63).
+* Removed `git-authors` method of acknowledgement in favour of `authors` plugin, which generates team page/acknowledgement using an authors yaml file (#64).
+* Polling rate of `submit_jobs()` to prevent spurious warnings (#42). 
+* Replaced deprecated `datetime.datetime.utcnow()` with `datetime.now(timezone.utc)` (#61).
+* Change `sanity-check.yml` cluster from `long` to `rocky`.
+* `current_jobs` now filters by user, in addition to partition, job_name and state (#68).
 
 ## [0.6.2] - 2025-07-22
 
@@ -76,7 +79,7 @@ _This release was a big collection of amendments from 0.4.0_
 
 Initial release into the wild of the code, previously used only internally in BAS
 
-[0.6.3]: https://github.com/environmental-forecasting/model-ensembler/releases/tag/v0.6.3
+[0.7.0]: https://github.com/environmental-forecasting/model-ensembler/releases/tag/v0.7.0
 [0.6.2]: https://github.com/environmental-forecasting/model-ensembler/releases/tag/v0.6.2
 [0.6.1]: https://github.com/environmental-forecasting/model-ensembler/releases/tag/v0.6.1
 [0.6.0]: https://github.com/environmental-forecasting/model-ensembler/releases/tag/v0.6.0
