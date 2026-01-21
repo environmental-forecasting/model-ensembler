@@ -12,7 +12,7 @@ according to a common configuration defined for the batch.
 To quickly get started, you can generate a complete project structure using the CLI:
 
 ```shell
-model_ensembler init my-ensemble
+model_ensemble_init my-ensemble
 ```
 
 This creates a project directory with both configuration and template files:
@@ -31,13 +31,13 @@ You can customize both the project name and config filename:
 
 ```shell
 # Custom project name
-model_ensembler init icesheet-ensemble
+model_ensemble_init icesheet-ensemble
 
-# Custom config filename
-model_ensembler init --config-name ensemble.yaml
+# Custom config filename (uses default project name "my-ensemble")
+model_ensemble_init --config-name ensemble.yaml
 
 # Both custom
-model_ensembler.cli init icesheet-ensemble --config-name ensemble.yaml
+model_ensemble_init icesheet-ensemble --config-name ensemble.yaml
 ```
 
 The default template includes a complete, valid structure:

@@ -74,7 +74,7 @@ You are now running a model ensemble!
 You can quickly create a starter project with configuration YAML and templates using the CLI:
 
 ```shell
-model_ensembler init my-ensemble --config-name config.yaml
+model_ensemble_init my-ensemble --config-name config.yaml
 ```
 
 This will create a complete project directory structure:
@@ -89,7 +89,7 @@ my-ensemble/
     └── inputfile.j2
 ```
 
-Calling `model_ensemble init` without specifying the project and config file name will default to `my-ensemble/` and `config.yaml`.
+Calling `model_ensemble_init` without specifying the project and config file name will default to `my-ensemble/` and `config.yaml`.
 
 ## Documentation
 For further usage instructions and an overview of `model-ensembler`, please refer to the [documentation](https://model-ensembler.readthedocs.io/en/latest/).
