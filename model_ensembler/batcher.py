@@ -5,7 +5,7 @@ import importlib
 import logging
 import os
 
-from datetime import datetime
+from datetime import datetime, timezone
 from pprint import pformat
 
 import model_ensembler
@@ -53,7 +53,7 @@ async def run_batch_item(run):
     run_ctx.set(run)
     cluster = cluster_ctx.get()
 
-    logging.info("Start run {} at {}".format(run.id, datetime.utcnow()))
+    logging.info("Start run {} at {}".format(run.id, datetime.now(timezone.utc)))
     logging.debug(pformat(run))
 
     args = Arguments()
@@ -97,15 +97,22 @@ async def run_batch_item(run):
                     running = False
                     state = None
 
+                    retry_count = 0
+                    max_debug_retries = 3
+                    
                     while not running:
                         try:
                             job = await cluster.find_id(job_id)
                             state = job.state
                         except (IndexError, ValueError) as e:
-                            logging.warning("Job {} not registered yet, "
-                                            "or error encountered".
-                                            format(job_id))
-                            logging.exception(e)
+                            if retry_count < max_debug_retries:
+                                logging.debug("Job {} not registered yet, or error encountered (attempt {}).".format(job_id, retry_count+1))
+                            else:
+                                logging.warning("Job {} not registered yet after {} attempts, or error encountered".format(job_id, retry_count+1))
+                                logging.debug(e)
+                            retry_count += 1
+                        else:
+                            retry_count = 0  # Reset on success
 
                         if state and (
                                 state in cluster.START_STATES or
@@ -141,7 +148,7 @@ async def run_batch_item(run):
         logging.error("Run failure caught, abandoning {} but not the "
                       "batch".format(run.id))
 
-    logging.info("End run {} at {}".format(run.id, datetime.utcnow()))
+    logging.info("End run {} at {}".format(run.id, datetime.now(timezone.utc)))
     return job_id, run
 
 
@@ -160,7 +167,7 @@ def do_batch_execution(loop, batch, repeat=False):
         ProcessingException: If there is pre or post_batch processing error.
     """
 
-    logging.info("Start batch: {}".format(datetime.utcnow()))
+    logging.info("Start batch: {}".format(datetime.now(timezone.utc)))
     logging.debug(pformat(batch))
 
     args = Arguments()
@@ -266,7 +273,7 @@ def do_batch_execution(loop, batch, repeat=False):
 
     os.chdir(orig)
     logging.info("Batch {} completed: {}".
-                 format(batch.name, datetime.utcnow()))
+                 format(batch.name, datetime.now(timezone.utc)))
     # TODO: return batch windows/info
     return "Success"
 

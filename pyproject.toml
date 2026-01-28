@@ -43,7 +43,8 @@ dependencies = [
 [project.optional-dependencies]
 tests = [
     "pytest",
-    "pytest-cov"
+    "pytest-cov",
+    "pytest-asyncio",
 ]
 lint = [
     "flake8"
@@ -53,7 +54,7 @@ docs = [
     "mkdocs-material",
     "mkdocstrings[python]",
     "mkdocs-autoapi",
-    "mkdocs-git-authors-plugin",
+    "mkdocs-authors-plugin",
 ]
 
 [project.urls]
@@ -64,6 +65,7 @@ docs = [
 [project.scripts]
 model_ensemble = "model_ensembler.cli:main"
 model_ensemble_check = "model_ensembler.cli:check"
+model_ensemble_init = "model_ensembler.cli:init"
 
 [tool.setuptools]
 include-package-data = true
@@ -81,3 +83,4 @@ exclude = "docs/"
 
 [tool.distutils.bdist_wheel]
 universal = true
+

@@ -60,8 +60,11 @@ lint: lint/flake8 lint/black ## check style
 test: ## run tests quickly with the default Python
 	pytest
 
-test-all: ## run tests on every Python version with tox
-	tox
+test-verbose: ## run tests with verbose output
+	pytest -v
+
+test-cov: ## run tests with coverage
+	pytest --cov=model_ensembler --cov-report=term-missing
 
 coverage: ## check code coverage quickly with the default Python
 	coverage run --source model_ensembler -m pytest
@@ -73,11 +76,8 @@ docs:
 	mkdocs build
 	$(BROWSER) site/index.html
 
-servedocs: docs ## compile the docs watching for changes
-	watchmedo shell-command -p '*.rst' -c '$(MAKE) -C docs html' -R -D .
-
-release: dist ## package and upload a release
-	twine upload dist/*
+docs-serve: ## serve documentation locally
+	mkdocs serve
 
 dist: clean ## builds source and wheel package
 	python -m build --sdist

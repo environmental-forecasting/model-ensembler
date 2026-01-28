@@ -72,7 +72,7 @@ async def current_jobs(ctx, match):
     # Ensure we account for empty lists
     while not filtered_jobs and filtered_jobs is None:
         try:
-            res = await execute_command("squeue -o \"%j,%T\" -h -p {}".
+            res = await execute_command("squeue -u $USER -o \"%j,%T\" -h -p {}".
                                         format(ctx.cluster),
                                         cwd=ctx.dir)
             output = res.stdout.decode()

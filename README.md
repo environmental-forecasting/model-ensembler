@@ -1,10 +1,13 @@
 # Model Ensembler
+ [![Documentation Status](https://readthedocs.org/projects/model-ensembler/badge/?version=latest)](https://model-ensembler.readthedocs.io/en/latest/?badge=latest)
 ![GitHub issues](https://img.shields.io/github/issues/environmental-forecasting/model-ensembler?style=plastic)
 ![GitHub closed issues](https://img.shields.io/github/issues-closed/environmental-forecasting/model-ensembler?style=plastic)
 ![GitHub](https://img.shields.io/github/license/environmental-forecasting/model-ensembler)
 ![GitHub forks](https://img.shields.io/github/forks/environmental-forecasting/model-ensembler?style=social)
 ![GitHub forks](https://img.shields.io/github/stars/environmental-forecasting/model-ensembler?style=social)
 [![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
+[![PyPi](https://img.shields.io/pypi/v/model-ensembler)](https://pypi.org/project/model-ensembler/)
+[![GitHub Tag](https://img.shields.io/github/v/tag/environmental-forecasting/model-ensembler?filter=v*.*.*&label=latest%20release)](https://github.com/environmental-forecasting/model-ensembler/tags)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
 `model-ensembler`is a tool to configure and automate running model ensembles on High-Performance Computing (HPC) clusters.
@@ -66,8 +69,30 @@ model_ensemble examples/sanity-check.yml dummy
 
 You are now running a model ensemble!
 
+## Generate a Starter Project
+
+You can quickly create a starter project with configuration YAML and templates using the CLI:
+
+```shell
+model_ensemble_init my-ensemble --config-name config.yaml
+```
+
+This will create a complete project directory structure:
+
+```
+my-ensemble/
+├── config.yaml
+└── templates/
+    ├── slurm_run.sh.j2
+    ├── pre_run.sh.j2
+    ├── post_run.sh.j2
+    └── inputfile.j2
+```
+
+Calling `model_ensemble_init` without specifying the project and config file name will default to `my-ensemble/` and `config.yaml`.
+
 ## Documentation
-For further usage instructions and an overview of `model-ensembler`, please refer to the documentation.
+For further usage instructions and an overview of `model-ensembler`, please refer to the [documentation](https://model-ensembler.readthedocs.io/en/latest/).
 
 ## Future plans
 Current plans are captured now in the github issues. There's nothing in the 
