@@ -10,6 +10,8 @@ jobs:
   build-publish:
     name: Build and publish
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
 
     steps:
       - name: Check out repository
@@ -30,14 +32,14 @@ jobs:
       - name: Publish to Test PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
           repository-url: https://test.pypi.org/legacy/
           packages-dir: dist/
           skip-existing: true
+          attestations: false
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
           packages-dir: dist/
           skip-existing: true
+          attestations: false
