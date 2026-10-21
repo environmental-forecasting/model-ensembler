@@ -35,7 +35,6 @@ jobs:
           repository-url: https://test.pypi.org/legacy/
           packages-dir: dist/
           skip-existing: true
-          # Attestation files written to dist/ would make the PyPI step fail
           attestations: false
 
       - name: Publish to PyPI
