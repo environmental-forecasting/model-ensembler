@@ -22,6 +22,9 @@ To build the documentation:
 mkdocs build
 ```
 
+### Publishing
+The documentation is deployed to [GitHub Pages](https://environmental-forecasting.github.io/model-ensembler/) by the `docs.yml` GitHub Actions workflow on every push to `main`. The repository's Pages source must be set to "GitHub Actions" (Settings → Pages).
+
 ### Navigation
 The navigation is handled in `mkdocs.yml`:
 ```yaml

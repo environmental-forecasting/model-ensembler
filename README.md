@@ -1,5 +1,5 @@
 # Model Ensembler
- [![Documentation Status](https://readthedocs.org/projects/model-ensembler/badge/?version=latest)](https://model-ensembler.readthedocs.io/en/latest/?badge=latest)
+ [![Documentation](https://github.com/environmental-forecasting/model-ensembler/actions/workflows/docs.yml/badge.svg)](https://environmental-forecasting.github.io/model-ensembler/)
 ![GitHub issues](https://img.shields.io/github/issues/environmental-forecasting/model-ensembler?style=plastic)
 ![GitHub closed issues](https://img.shields.io/github/issues-closed/environmental-forecasting/model-ensembler?style=plastic)
 ![GitHub](https://img.shields.io/github/license/environmental-forecasting/model-ensembler)
@@ -92,7 +92,7 @@ my-ensemble/
 Calling `model_ensemble_init` without specifying the project and config file name will default to `my-ensemble/` and `config.yaml`.
 
 ## Documentation
-For further usage instructions and an overview of `model-ensembler`, please refer to the [documentation](https://model-ensembler.readthedocs.io/en/latest/).
+For further usage instructions and an overview of `model-ensembler`, please refer to the [documentation](https://environmental-forecasting.github.io/model-ensembler/).
 
 ## Future plans
 Current plans are captured now in the github issues. There's nothing in the 

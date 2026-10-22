@@ -18,6 +18,7 @@ nav:
   - Change Log: change_log.md
   - Acknowledgements: authors.md
   - LICENSE: license.md
+site_url: https://environmental-forecasting.github.io/model-ensembler/
 repo_url: https://github.com/environmental-forecasting/model-ensembler
 repo_name: model-ensembler
 edit_uri: edit/main/docs/
