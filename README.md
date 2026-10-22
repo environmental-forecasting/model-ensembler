@@ -121,5 +121,5 @@ The `model-ensembler` is part of a wider family of tools for [Environmental Fore
 ## Copyright
 [MIT LICENSE](LICENSE)
 
-&copy; British Antarctic Survey 2021-2025
+&copy; British Antarctic Survey 2021-2026
 
