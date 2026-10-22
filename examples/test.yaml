@@ -50,7 +50,7 @@ ensemble:
           cmd:  test -d ../datadir
       - name:   execute
         args:
-          cmd:  pre_run.keep
+          cmd:  touch pre_run.keep
       runs:         
       - custom_id:  1
       - custom_id:  2
