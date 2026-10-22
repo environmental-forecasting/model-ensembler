@@ -350,7 +350,9 @@ class BatchExecutor(object):
         logging.info("Running batcher")
 
         try:
-            loop = asyncio.get_event_loop()
+            # get_event_loop() raises on 3.14 when no loop is set
+            loop = loop or asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
             loop.run_until_complete(
                 run_task_items(self._cfg.pre_process))
 
@@ -367,6 +369,7 @@ class BatchExecutor(object):
             if loop:
                 loop.run_until_complete(loop.shutdown_asyncgens())
                 loop.close()
+                asyncio.set_event_loop(None)
 
 # What does this do?
     def execute(self, loop, batch):
