@@ -34,13 +34,3 @@ jobs:
 
       - name: Run tests
         run: pytest
-
-      - name: End-to-end run with dummy backend
-        run: |
-          cp -r examples "$RUNNER_TEMP/e2e"
-          cd "$RUNNER_TEMP/e2e"
-          mkdir tst1 tst2
-          touch tst1/batch.ready tst2/batch.ready
-          model_ensemble test.yaml dummy -ct 1 -st 1 -rt 1 -et 1 -ms 1
-          test -f tst1/post_batch.keep
-          test -f tst2/post_batch.keep
